@@ -12,6 +12,16 @@ Route::view('dashboard', 'dashboard')
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
 
+// ワーカー登録
+Volt::route('worker/register', 'worker.register')
+    ->middleware(['auth'])
+    ->name('worker.register');
+
+// カンパニー登録
+Volt::route('company/register', 'company.register')
+    ->middleware(['auth'])
+    ->name('company.register');
+
 Route::middleware(['auth'])->group(function () {
     Route::redirect('settings', 'settings/profile');
 

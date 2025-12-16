@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Actions\Fortify\CreateNewRegisterResponse;
 use App\Actions\Fortify\CreateNewUser;
 use App\Actions\Fortify\ResetUserPassword;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -38,6 +39,17 @@ class FortifyServiceProvider extends ServiceProvider
     {
         Fortify::resetUserPasswordsUsing(ResetUserPassword::class);
         Fortify::createUsersUsing(CreateNewUser::class);
+
+        // 登録後のリダイレクトをカスタマイズ
+        Fortify::registerView(function () {
+            return view('livewire.auth.register');
+        });
+
+        // カスタムRegisterResponseを使用
+        $this->app->singleton(
+            \Laravel\Fortify\Contracts\RegisterResponse::class,
+            CreateNewRegisterResponse::class
+        );
     }
 
     /**

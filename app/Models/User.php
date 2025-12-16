@@ -1,9 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
@@ -23,6 +26,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role',
     ];
 
     /**
@@ -60,5 +64,37 @@ class User extends Authenticatable
             ->take(2)
             ->map(fn ($word) => Str::substr($word, 0, 1))
             ->implode('');
+    }
+
+    /**
+     * 企業プロフィールとのリレーション
+     */
+    public function companyProfile(): HasOne
+    {
+        return $this->hasOne(CompanyProfile::class);
+    }
+
+    /**
+     * ワーカープロフィールとのリレーション
+     */
+    public function workerProfile(): HasOne
+    {
+        return $this->hasOne(WorkerProfile::class);
+    }
+
+    /**
+     * 企業ユーザーかどうか
+     */
+    public function isCompany(): bool
+    {
+        return $this->role === 'company';
+    }
+
+    /**
+     * ワーカーユーザーかどうか
+     */
+    public function isWorker(): bool
+    {
+        return $this->role === 'worker';
     }
 }

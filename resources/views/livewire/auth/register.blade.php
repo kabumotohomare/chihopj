@@ -7,6 +7,38 @@
 
         <form method="POST" action="{{ route('register.store') }}" class="flex flex-col gap-6">
             @csrf
+            <!-- Role Selection -->
+            <flux:field>
+                <flux:label>アカウントタイプ</flux:label>
+                <div class="flex gap-4">
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input
+                            type="radio"
+                            name="role"
+                            value="worker"
+                            {{ old('role') === 'worker' ? 'checked' : '' }}
+                            required
+                            class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                        />
+                        <span>ワーカー（プロボノワーカー）</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input
+                            type="radio"
+                            name="role"
+                            value="company"
+                            {{ old('role') === 'company' ? 'checked' : '' }}
+                            required
+                            class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                        />
+                        <span>カンパニー（地域の事業者）</span>
+                    </label>
+                </div>
+                @error('role')
+                    <flux:error>{{ $message }}</flux:error>
+                @enderror
+            </flux:field>
+
             <!-- Name -->
             <flux:input
                 name="name"
