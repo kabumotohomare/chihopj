@@ -8,7 +8,7 @@ Route::get('/', function () {
     return view('welcome');
 })->name('home');
 
-Route::view('dashboard', 'dashboard')
+Volt::route('dashboard', 'dashboard')
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
 
@@ -30,6 +30,16 @@ Volt::route('company/register', 'company.register')
 Volt::route('company/profile', 'company.show')
     ->middleware(['auth', 'role:company'])
     ->name('company.profile');
+
+// 求人登録（企業ユーザーのみ）
+Volt::route('jobs/create', 'jobs.create')
+    ->middleware(['auth', 'role:company'])
+    ->name('jobs.create');
+
+// 求人詳細（認証必須）
+Volt::route('jobs/{jobPost}', 'jobs.show')
+    ->middleware(['auth'])
+    ->name('jobs.show');
 
 Route::middleware(['auth'])->group(function () {
     Route::redirect('settings', 'settings/profile');

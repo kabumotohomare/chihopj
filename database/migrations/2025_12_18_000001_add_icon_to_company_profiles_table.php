@@ -14,7 +14,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('company_profiles', function (Blueprint $table) {
-            $table->string('icon', 255)->nullable()->after('user_id')->comment('アイコン画像パス');
+            if (! Schema::hasColumn('company_profiles', 'icon')) {
+                $table->string('icon', 255)->nullable()->after('user_id')->comment('アイコン画像パス');
+            }
         });
     }
 
@@ -28,4 +30,3 @@ return new class extends Migration
         });
     }
 };
-

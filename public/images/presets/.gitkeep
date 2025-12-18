@@ -1,0 +1,25 @@
+# プリセット画像ディレクトリ
+
+このディレクトリには、募集投稿のアイキャッチ画像として使用できるプリセット画像を配置します。
+
+## 推奨画像サイズ
+- 横: 1200px
+- 縦: 630px
+- アスペクト比: 16:9
+
+## 画像ファイル名
+- business.jpg - ビジネス関連
+- agriculture.jpg - 農業関連
+- tourism.jpg - 観光関連
+- food.jpg - 飲食関連
+- craft.jpg - 工芸関連
+- nature.jpg - 自然関連
+- community.jpg - 地域活動関連
+- technology.jpg - IT・技術関連
+
+## 画像の入手先
+無料の商用利用可能な画像は以下のサイトから入手できます：
+- O-Dan: https://o-dan.net/ja/
+- Unsplash: https://unsplash.com/
+- Pixabay: https://pixabay.com/ja/
+

@@ -16,6 +16,7 @@ class DatabaseSeeder extends Seeder
         // 市区町村データをシード
         $this->call([
             LocationSeeder::class,
+            CodeSeeder::class,
         ]);
 
         // User::factory(10)->create();

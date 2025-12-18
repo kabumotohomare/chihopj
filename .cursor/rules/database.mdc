@@ -1,0 +1,84 @@
+---
+alwaysApply: true
+---
+
+# データベース設計
+
+## データベース操作の原則
+- Eloquent ORM使用必須
+- 生のSQLクエリ使用禁止
+- `DB::`ではなく`Model::query()`使用
+- N+1問題への対策必須（先読み込み使用）
+- リレーションシップメソッドに戻り値の型ヒント必須
+
+## マイグレーション作成規則
+- `sail artisan make:migration` 使用
+- カラム変更時は以前の全属性を含める
+- 適切なインデックス設定
+- 外部キー制約の明示
+
+### users（認証システムで自動作成済み）
+- id
+- name
+- email
+- password
+
+### codesテーブル
+**目的**: 募集形態・希望・できますのマスタデータ
+
+**カラム定義**:
+- id: bigint unsigned, primary key
+- type: bigint, コード種類（type=0にコード種類の仕様を登録）
+- type_id: bigint, コード種類ごとのID
+- name: string(255), 表示名称
+- description: text, nullable, 補足説明
+- sort_order: integer, nullable, 表示順
+- created_at, updated_at: timestamps
+
+**インデックス**:
+- PRIMARY: id
+
+**リレーション**: なし
+
+**コード種類一覧**:
+- type=0: コード種類定義
+- type=1: 募集形態
+- type=2: 希望
+- type=3: できます
+
+コード種類定義（type=0）:
+- type=0, type_id=1, name="雇用形態", sort_order=1
+- type=0, type_id=2, name="希望", sort_order=2
+- type=0, type_id=3, name="できます", sort_order=3
+
+募集形態（type=1）:
+- type=1, type_id=1, name="プロボノ(無償)", sort_order=1
+- type=1, type_id=2, name="副業(有償)", sort_order=2
+- type=1, type_id=3, name="採用(有償/雇用)", sort_order=3
+- type=1, type_id=4, name="地域おこし協力隊", sort_order=4
+
+希望（type=2）:
+- type=2, type_id=1, name="提案してほしい", sort_order=1
+- type=2, type_id=2, name="ホームページの制作", sort_order=2
+- type=2, type_id=3, name="写真・動画の撮影", sort_order=3
+- type=2, type_id=4, name="補助金・助成金の申請", sort_order=4
+- type=2, type_id=5, name="従業員の育成・定着", sort_order=5
+- type=2, type_id=6, name="労務管理の方法", sort_order=6
+- type=2, type_id=7, name="リノベについて教えて", sort_order=7
+- type=2, type_id=8, name="ITについて教えて", sort_order=8
+- type=2, type_id=9, name="LINEについて教えて", sort_order=9
+- type=2, type_id=10, name="通販について教えて", sort_order=10
+- type=2, type_id=11, name="Google MAPについて教えて", sort_order=11
+- type=2, type_id=12, name="インスタグラムについて教えて", sort_order=12
+- type=2, type_id=13, name="食品表示について教えて", sort_order=13
+- type=2, type_id=14, name="バイヤーと出会いたい", sort_order=14
+- type=2, type_id=15, name="話を聞きに来てほしい", sort_order=15
+
+できます（type=3）:
+- type=3, type_id=1, name="駅まで車出します", sort_order=1
+- type=3, type_id=2, name="お食事しましょう", sort_order=2
+- type=3, type_id=3, name="お土産あげます", sort_order=3
+- type=3, type_id=4, name="観光案内します", sort_order=4
+- type=3, type_id=5, name="空き部屋に滞在OK", sort_order=5
+- type=3, type_id=6, name="オンラインで話せます", sort_order=6
+<!-- ここから段階的に追加 -->
