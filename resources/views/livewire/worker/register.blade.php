@@ -18,6 +18,7 @@ class extends Component
     #[Validate('required|string|max:50')]
     public string $handle_name = '';
 
+    #[Validate('nullable|image|max:2048|mimes:jpeg,jpg,png,gif|dimensions:min_width=100,min_height=100,max_width=2000,max_height=2000')]
     public $icon;
 
     #[Validate('required|in:male,female,other')]
@@ -305,7 +306,30 @@ class extends Component
             <!-- アイコン画像 -->
             <flux:field>
                 <flux:label>アイコン画像 <span class="text-zinc-500">(任意)</span></flux:label>
-                <input type="file" wire:model="icon" accept="image/*" class="block w-full text-sm">
+
+                @if ($icon && is_object($icon) && method_exists($icon, 'getMimeType'))
+                    @php
+                        $mimeType = $icon->getMimeType();
+                        $isImage = str_starts_with($mimeType, 'image/');
+                    @endphp
+                    @if ($isImage)
+                        <div class="mb-4">
+                            <img src="{{ $icon->temporaryUrl() }}"
+                                alt="プレビュー"
+                                class="size-24 rounded-full object-cover border-2 border-zinc-300 dark:border-zinc-600">
+                        </div>
+                    @endif
+                @endif
+
+                <input type="file"
+                    wire:model="icon"
+                    accept="image/jpeg,image/jpg,image/png,image/gif"
+                    class="block w-full text-sm text-zinc-900 border border-zinc-300 rounded-lg cursor-pointer bg-zinc-50 dark:text-zinc-400 focus:outline-none dark:bg-zinc-700 dark:border-zinc-600 dark:placeholder-zinc-400">
+
+                <flux:description>
+                    推奨: 正方形の画像、最小100x100px、最大2MB（JPEG、PNG、GIF形式）
+                </flux:description>
+
                 <flux:error name="icon" />
             </flux:field>
 

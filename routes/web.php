@@ -17,10 +17,10 @@ Volt::route('worker/register', 'worker.register')
     ->middleware(['auth'])
     ->name('worker.register');
 
-// ワーカープロフィール（仮ルート - 後で実装）
-Route::get('worker/profile', function () {
-    return 'ワーカープロフィール画面（準備中）';
-})->middleware(['auth'])->name('worker.profile');
+// ワーカープロフィール
+Volt::route('worker/profile', 'worker.show')
+    ->middleware(['auth', 'role:worker'])
+    ->name('worker.profile');
 
 // カンパニー登録
 Volt::route('company/register', 'company.register')
