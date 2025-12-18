@@ -9,7 +9,7 @@ use Livewire\Attributes\Validate;
 use Livewire\Volt\Component;
 use Livewire\WithFileUploads;
 
-new #[Layout('components.layouts.app')]
+new #[Layout('components.layouts.auth')]
 class extends Component
 {
     use WithFileUploads;
@@ -108,8 +108,8 @@ class extends Component
 
     public function mount(): void
     {
-        // 既にプロフィールが登録されている場合は編集画面にリダイレクト
-        if (auth()->user()->workerProfile) {
+        // 認証済みユーザーで既にプロフィールが登録されている場合は編集画面にリダイレクト
+        if (auth()->check() && auth()->user()->workerProfile) {
             $this->redirect(route('worker.profile'), navigate: true);
 
             return;

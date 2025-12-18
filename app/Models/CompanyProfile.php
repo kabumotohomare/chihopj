@@ -23,6 +23,7 @@ class CompanyProfile extends Model
      */
     protected $fillable = [
         'user_id',
+        'icon',
         'location_id',
         'address',
         'representative',

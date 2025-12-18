@@ -13,10 +13,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->enum('role', ['company', 'worker'])
-                ->after('email')
-                ->comment('ユーザーロール: company=企業, worker=ワーカー');
+        Schema::table('company_profiles', function (Blueprint $table) {
+            $table->string('icon', 255)->nullable()->after('user_id')->comment('アイコン画像パス');
         });
     }
 
@@ -25,8 +23,9 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn('role');
+        Schema::table('company_profiles', function (Blueprint $table) {
+            $table->dropColumn('icon');
         });
     }
 };
+

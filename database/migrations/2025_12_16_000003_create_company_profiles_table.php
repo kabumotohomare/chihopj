@@ -19,6 +19,7 @@ return new class extends Migration
                 ->constrained('users')
                 ->cascadeOnDelete()
                 ->comment('ユーザーID');
+            $table->string('icon', 255)->nullable()->comment('アイコン画像パス');
             $table->foreignId('location_id')
                 ->constrained('locations')
                 ->comment('所在地ID（市区町村）');
@@ -43,4 +44,3 @@ return new class extends Migration
         Schema::dropIfExists('company_profiles');
     }
 };
-

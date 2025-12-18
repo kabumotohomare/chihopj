@@ -12,9 +12,8 @@ Route::view('dashboard', 'dashboard')
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
 
-// ワーカー登録
+// ワーカー登録（未認証ユーザー向け）
 Volt::route('worker/register', 'worker.register')
-    ->middleware(['auth'])
     ->name('worker.register');
 
 // ワーカープロフィール
@@ -22,10 +21,15 @@ Volt::route('worker/profile', 'worker.show')
     ->middleware(['auth', 'role:worker'])
     ->name('worker.profile');
 
-// カンパニー登録
+// 企業登録（認証済みユーザー向け）
 Volt::route('company/register', 'company.register')
     ->middleware(['auth'])
     ->name('company.register');
+
+// 企業プロフィール
+Volt::route('company/profile', 'company.show')
+    ->middleware(['auth', 'role:company'])
+    ->name('company.profile');
 
 Route::middleware(['auth'])->group(function () {
     Route::redirect('settings', 'settings/profile');
