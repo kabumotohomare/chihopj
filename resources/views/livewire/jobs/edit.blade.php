@@ -2,30 +2,57 @@
 
 declare(strict_types=1);
 
-use App\Http\Requests\StoreJobPostRequest;
+use App\Http\Requests\UpdateJobPostRequest;
 use App\Models\Code;
 use App\Models\JobPost;
+use Illuminate\Support\Facades\Storage;
 
 use function Livewire\Volt\computed;
 use function Livewire\Volt\layout;
+use function Livewire\Volt\mount;
 use function Livewire\Volt\state;
 
 layout('components.layouts.app');
 
 // 状態定義
 state([
+    'jobPost',
     'eyecatch' => null,
     'eyecatch_type' => 'upload', // 'upload' or 'preset'
     'preset_image' => null,
+    'existing_eyecatch' => null,
     'howsoon' => '',
     'howsoon_error' => '',
     'job_title' => '',
     'job_detail' => '',
     'job_type_id' => null,
-    'job_type_error' => '',
     'want_you_ids' => [],
     'can_do_ids' => [],
 ]);
+
+// 初期化
+mount(function (JobPost $jobPost) {
+    // 認可チェック（自社求人のみ編集可能）
+    $this->authorize('update', $jobPost);
+
+    // リレーションを先読み込み
+    $this->jobPost = $jobPost->load(['jobType']);
+
+    // 既存データをセット
+    $this->existing_eyecatch = $jobPost->eyecatch;
+    $this->howsoon = $jobPost->howsoon;
+    $this->job_title = $jobPost->job_title;
+    $this->job_detail = $jobPost->job_detail;
+    $this->job_type_id = $jobPost->job_type_id;
+    $this->want_you_ids = $jobPost->want_you_ids ?? [];
+    $this->can_do_ids = $jobPost->can_do_ids ?? [];
+
+    // 既存画像がプリセットかどうか判定
+    if ($jobPost->eyecatch && str_starts_with($jobPost->eyecatch, '/images/presets/')) {
+        $this->eyecatch_type = 'preset';
+        $this->preset_image = $jobPost->eyecatch;
+    }
+});
 
 // プリセット画像のリスト
 $presetImages = computed(function () {
@@ -59,53 +86,44 @@ $offers = computed(function () {
 // howsoonの変更を監視
 $updatedHowsoon = function ($value) {
     if ($value === 'specific_month') {
-        $this->howsoon_error = '具体的な期限の設定はプロプランに変更してください';
-        $this->howsoon = '';
+        $this->howsoon_error = '具体的な期限の設定は、プロプラン限定です';
+        $this->howsoon = $this->jobPost->howsoon; // 元の値に戻す
     } else {
         $this->howsoon_error = '';
     }
 };
 
-// job_type_idの変更を監視
-$updatedJobTypeId = function ($value) {
-    // 選択された募集形態を取得
-    $selectedType = Code::query()->find($value);
-
-    if ($selectedType) {
-        // type_idで判定（type=1のデータ）
-        if ($selectedType->type === 1 && $selectedType->type_id === 3) {
-            // 採用(有償/雇用) の場合
-            $this->job_type_error = '雇用を目的とした募集はプロプランに変更してください';
-            $this->job_type_id = null;
-        } elseif ($selectedType->type === 1 && $selectedType->type_id === 4) {
-            // 地域おこし協力隊 の場合
-            $this->job_type_error = '地域おこし協力隊募集はプロプランに変更してください';
-            $this->job_type_id = null;
-        } else {
-            $this->job_type_error = '';
-        }
-    }
-};
-
-// 募集投稿処理
-$create = function () {
+// 募集更新処理
+$update = function () {
     // 認可チェック
-    $this->authorize('create', JobPost::class);
+    $this->authorize('update', $this->jobPost);
 
     // バリデーション
-    $validated = $this->validate((new StoreJobPostRequest)->rules());
+    $validated = $this->validate((new UpdateJobPostRequest)->rules());
 
     // アイキャッチ画像の処理
-    $eyecatchPath = null;
+    $eyecatchPath = $this->existing_eyecatch;
+
     if ($this->eyecatch_type === 'upload' && $this->eyecatch) {
+        // 新しい画像をアップロード
         $eyecatchPath = $this->eyecatch->store('eyecatches', 'public');
+
+        // 古い画像を削除（プリセット画像でない場合）
+        if ($this->existing_eyecatch && ! str_starts_with($this->existing_eyecatch, '/images/presets/')) {
+            Storage::disk('public')->delete($this->existing_eyecatch);
+        }
     } elseif ($this->eyecatch_type === 'preset' && $this->preset_image) {
+        // プリセット画像を選択
         $eyecatchPath = $this->preset_image;
+
+        // 古い画像を削除（プリセット画像でない場合）
+        if ($this->existing_eyecatch && ! str_starts_with($this->existing_eyecatch, '/images/presets/')) {
+            Storage::disk('public')->delete($this->existing_eyecatch);
+        }
     }
 
-    // 募集投稿を作成
-    $jobPost = JobPost::query()->create([
-        'company_id' => auth()->id(),
+    // 募集投稿を更新
+    $this->jobPost->update([
         'eyecatch' => $eyecatchPath,
         'howsoon' => $validated['howsoon'],
         'job_title' => $validated['job_title'],
@@ -113,26 +131,38 @@ $create = function () {
         'job_type_id' => $validated['job_type_id'],
         'want_you_ids' => $validated['want_you_ids'] ?? [],
         'can_do_ids' => $validated['can_do_ids'] ?? [],
-        'posted_at' => now(),
+        // posted_atは更新しない
     ]);
 
-    // 成功メッセージを表示して募集詳細画面にリダイレクト
-    session()->flash('status', '募集を投稿しました。');
+    // 成功メッセージを表示して詳細画面にリダイレクト
+    session()->flash('status', '募集を更新しました。');
 
-    return $this->redirect(route('jobs.show', $jobPost), navigate: true);
+    return $this->redirect(route('jobs.show', $this->jobPost), navigate: true);
 };
 
 ?>
 
 <div class="mx-auto max-w-2xl px-4 py-8">
     <div class="rounded-xl border border-neutral-200 bg-white p-6 dark:border-neutral-700 dark:bg-gray-800">
-        <flux:heading size="lg" class="mb-6">新規募集投稿</flux:heading>
+        <flux:heading size="lg" class="mb-6">募集編集</flux:heading>
 
-        <form wire:submit="create" class="space-y-6">
+        <form wire:submit="update" class="space-y-6">
             <!-- アイキャッチ画像 -->
             <flux:field>
                 <flux:label>アイキャッチ画像（任意）</flux:label>
                 <flux:description>募集のイメージ画像を選択またはアップロードできます（最大2MB）</flux:description>
+                
+                <!-- 現在の画像プレビュー -->
+                @if ($existing_eyecatch && !$eyecatch && !$preset_image)
+                    <div class="mt-3">
+                        <div class="text-sm text-gray-600 dark:text-gray-400 mb-2">現在の画像:</div>
+                        @if (str_starts_with($existing_eyecatch, '/images/presets/'))
+                            <img src="{{ $existing_eyecatch }}" alt="現在の画像" class="h-32 w-auto rounded-lg">
+                        @else
+                            <img src="{{ Storage::url($existing_eyecatch) }}" alt="現在の画像" class="h-32 w-auto rounded-lg">
+                        @endif
+                    </div>
+                @endif
                 
                 <!-- 画像選択タブ -->
                 <div class="mt-3 flex gap-2 border-b border-gray-200 dark:border-gray-700">
@@ -214,7 +244,7 @@ $create = function () {
             <flux:field>
                 <flux:label>やりたいこと <span class="text-red-500">*</span></flux:label>
                 <flux:description>50文字以内で入力してください</flux:description>
-                <flux:textarea wire:model="job_title" rows="2" placeholder="〇〇したい"></flux:textarea>
+                <flux:textarea wire:model="job_title" rows="2" placeholder="〇〇したい">{{ $job_title }}</flux:textarea>
                 <flux:error name="job_title" />
             </flux:field>
 
@@ -223,7 +253,7 @@ $create = function () {
                 <flux:label>事業内容・困っていること <span class="text-red-500">*</span></flux:label>
                 <flux:description>200文字以内で入力してください</flux:description>
                 <flux:textarea wire:model="job_detail" rows="5" 
-                    placeholder="〇〇をしています。✕✕をやりたいが、△△なのでできていません"></flux:textarea>
+                    placeholder="〇〇をしています。✕✕をやりたいが、△△なのでできていません">{{ $job_detail }}</flux:textarea>
                 <flux:error name="job_detail" />
             </flux:field>
 
@@ -233,15 +263,12 @@ $create = function () {
                 <div class="mt-2 space-y-2">
                     @foreach ($this->recruitmentTypes as $type)
                         <label class="flex items-center gap-2">
-                            <input type="radio" wire:model.live="job_type_id" value="{{ $type->id }}"
+                            <input type="radio" wire:model="job_type_id" value="{{ $type->id }}"
                                 class="h-4 w-4 border-gray-300 text-blue-600 focus:ring-blue-500">
                             <span>{{ $type->name }}</span>
                         </label>
                     @endforeach
                 </div>
-                @if ($job_type_error)
-                    <div class="mt-2 text-sm text-red-600 dark:text-red-400">{{ $job_type_error }}</div>
-                @endif
                 <flux:error name="job_type_id" />
             </flux:field>
 
@@ -287,9 +314,9 @@ $create = function () {
                 <flux:error name="want_you_ids" />
             </flux:field>
 
-            <!-- できます -->
+            <!-- 私からは〇〇できます -->
             <flux:field>
-                <flux:label>できます（任意）</flux:label>
+                <flux:label>私からは〇〇できます（任意）</flux:label>
                 <flux:description>複数選択可能です</flux:description>
                 <div class="mt-2 space-y-2">
                     @foreach ($this->offers as $offer)
@@ -306,13 +333,14 @@ $create = function () {
             <!-- 送信ボタン -->
             <div class="flex gap-4">
                 <flux:button type="submit" variant="primary" class="flex-1">
-                    <span wire:loading.remove>投稿する</span>
-                    <span wire:loading>投稿中...</span>
+                    <span wire:loading.remove>更新する</span>
+                    <span wire:loading>更新中...</span>
                 </flux:button>
-                <flux:button href="{{ route('dashboard') }}" wire:navigate variant="ghost" class="flex-1">
+                <flux:button href="{{ route('jobs.show', $jobPost) }}" wire:navigate variant="ghost" class="flex-1">
                     キャンセル
                 </flux:button>
             </div>
         </form>
     </div>
 </div>
+

@@ -31,15 +31,23 @@ Volt::route('company/profile', 'company.show')
     ->middleware(['auth', 'role:company'])
     ->name('company.profile');
 
-// 求人登録（企業ユーザーのみ）
+// 募集一覧（誰でも閲覧可能）
+Volt::route('jobs', 'jobs.index')
+    ->name('jobs.index');
+
+// 募集登録（企業ユーザーのみ）※動的ルートより前に配置
 Volt::route('jobs/create', 'jobs.create')
     ->middleware(['auth', 'role:company'])
     ->name('jobs.create');
 
-// 求人詳細（認証必須）
+// 募集詳細（誰でも閲覧可能）
 Volt::route('jobs/{jobPost}', 'jobs.show')
-    ->middleware(['auth'])
     ->name('jobs.show');
+
+// 募集編集（企業ユーザーのみ、自社求人のみ）
+Volt::route('jobs/{jobPost}/edit', 'jobs.edit')
+    ->middleware(['auth', 'role:company'])
+    ->name('jobs.edit');
 
 Route::middleware(['auth'])->group(function () {
     Route::redirect('settings', 'settings/profile');

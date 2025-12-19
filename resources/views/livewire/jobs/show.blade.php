@@ -1,184 +1,252 @@
 <?php
 
-use App\Models\JobPost;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
-use function Livewire\Volt\{layout, mount, state, with};
+declare(strict_types=1);
 
-layout('components.layouts.app');
+use App\Models\JobPost;
+
+use function Livewire\Volt\layout;
+use function Livewire\Volt\mount;
+use function Livewire\Volt\state;
+use function Livewire\Volt\title;
+
+layout('components.layouts.app.header');
+title('募集詳細');
 
 state(['jobPost']);
-state(['showDeleteModal' => false]);
 
 /**
- * コンポーネントのマウント
+ * コンポーネント初期化
  */
 mount(function (JobPost $jobPost) {
-    // ポリシーで閲覧権限をチェック（誰でも閲覧可能）
+    // ポリシーで認可チェック（誰でも閲覧可能）
     $this->authorize('view', $jobPost);
-    
+
     // リレーションを先読み込み
-    $this->jobPost = $jobPost->load(['company', 'jobType']);
+    $this->jobPost = $jobPost->load(['company.companyProfile.location', 'jobType']);
 });
 
 /**
- * 削除確認モーダルを表示
- */
-$confirmDelete = function () {
-    $this->showDeleteModal = true;
-};
-
-/**
- * 削除をキャンセル
- */
-$cancelDelete = function () {
-    $this->showDeleteModal = false;
-};
-
-/**
- * 求人を削除
+ * 募集削除処理
  */
 $delete = function () {
+    // 削除権限チェック
     $this->authorize('delete', $this->jobPost);
-    
+
     $this->jobPost->delete();
-    
-    $this->redirect(route('jobs.index'), navigate: true);
+
+    session()->flash('status', '募集を削除しました。');
+
+    return $this->redirect(route('jobs.index'), navigate: true);
 };
 
 /**
- * 編集権限があるかチェック
+ * 「いつまでに」のラベル取得
  */
-$canEdit = fn() => Auth::check() && Auth::user()->can('update', $this->jobPost);
+$getHowsoonLabel = function (): string {
+    return $this->jobPost->getHowsoonLabel();
+};
 
 /**
- * 削除権限があるかチェック
+ * 編集権限チェック
  */
-$canDelete = fn() => Auth::check() && Auth::user()->can('delete', $this->jobPost);
+$canUpdate = function (): bool {
+    return auth()->check() && auth()->user()->can('update', $this->jobPost);
+};
 
 /**
- * 応募権限があるかチェック（ワーカーのみ）
+ * 削除権限チェック
  */
-$canApply = fn() => Auth::check() && Auth::user()->isWorker();
+$canDelete = function (): bool {
+    return auth()->check() && auth()->user()->can('delete', $this->jobPost);
+};
+
+/**
+ * ワーカーかどうかチェック
+ */
+$isWorker = function (): bool {
+    return auth()->check() && auth()->user()->isWorker();
+};
 
 ?>
 
-<div class="mx-auto max-w-4xl px-4 py-8">
-    <div class="mb-6 flex items-center justify-between">
-        <flux:heading size="xl">募集詳細</flux:heading>
-        <div class="flex gap-2">
-            @if($this->canEdit())
-                <flux:button disabled variant="ghost">
-                    編集（準備中）
-                </flux:button>
-            @endif
-            @if($this->canDelete())
-                <flux:button wire:click="confirmDelete" variant="danger">
-                    削除
-                </flux:button>
-            @endif
-        </div>
-    </div>
-
-    <div class="space-y-6">
-        {{-- アイキャッチ画像 --}}
-        @if($jobPost->eyecatch)
-            <div class="rounded-lg overflow-hidden">
-                <img src="{{ Storage::url($jobPost->eyecatch) }}" 
-                     alt="{{ $jobPost->job_title }}" 
-                     class="w-full h-64 object-cover">
+<div class="min-h-screen bg-gray-50 py-8 dark:bg-gray-900">
+    <div class="container mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+        <!-- 成功メッセージ -->
+        @if (session('status'))
+            <div class="mb-6 rounded-lg border border-green-200 bg-green-50 p-4 dark:border-green-800 dark:bg-green-900/20">
+                <div class="flex items-center gap-3">
+                    <svg class="h-5 w-5 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <flux:text class="text-green-800 dark:text-green-200">
+                        {{ session('status') }}
+                    </flux:text>
+                </div>
             </div>
         @endif
 
-        {{-- 基本情報 --}}
-        <div class="rounded-lg border border-zinc-200 bg-white p-6 dark:border-zinc-700 dark:bg-zinc-800">
-            <flux:heading size="lg" class="mb-4">募集情報</flux:heading>
-            <div class="space-y-4">
-                <div>
-                    <flux:text class="font-semibold text-zinc-700 dark:text-zinc-300">企業名</flux:text>
-                    <flux:text class="mt-1">{{ $jobPost->company->name }}</flux:text>
+        <!-- 戻るボタン -->
+        <div class="mb-6">
+            <flux:button href="{{ route('jobs.index') }}" wire:navigate variant="ghost" icon="arrow-left">
+                募集一覧に戻る
+            </flux:button>
+        </div>
+
+        <!-- 募集カード -->
+        <div class="overflow-hidden rounded-xl bg-white shadow-lg dark:bg-gray-800">
+            <!-- アイキャッチ画像 -->
+            @if ($jobPost->eyecatch)
+                <div class="aspect-video w-full overflow-hidden">
+                    @if (str_starts_with($jobPost->eyecatch, '/images/presets/'))
+                        <img src="{{ $jobPost->eyecatch }}" 
+                             alt="{{ $jobPost->job_title }}" 
+                             class="h-full w-full object-cover">
+                    @else
+                        <img src="{{ Storage::url($jobPost->eyecatch) }}" 
+                             alt="{{ $jobPost->job_title }}" 
+                             class="h-full w-full object-cover">
+                    @endif
                 </div>
-                
-                <div>
-                    <flux:text class="font-semibold text-zinc-700 dark:text-zinc-300">やりたいこと</flux:text>
-                    <flux:text class="mt-1 text-lg font-bold">{{ $jobPost->job_title }}</flux:text>
+            @endif
+
+            <div class="p-6 sm:p-8">
+                <!-- タグエリア：募集形態と希望 -->
+                <div class="mb-4 flex flex-wrap gap-2">
+                    <!-- 募集形態タグ -->
+                    @if ($jobPost->jobType)
+                        <flux:badge color="blue" size="sm" class="rounded-full">
+                            {{ $jobPost->jobType->name }}
+                        </flux:badge>
+                    @endif
+
+                    <!-- 希望タグ（ハッシュタグ形式） -->
+                    @foreach ($jobPost->getWantYouCodes() as $code)
+                        <flux:badge color="zinc" size="sm" class="rounded-full">
+                            #{{ $code->name }}
+                        </flux:badge>
+                    @endforeach
                 </div>
 
-                <div>
-                    <flux:text class="font-semibold text-zinc-700 dark:text-zinc-300">事業内容・困っていること</flux:text>
-                    <flux:text class="mt-1 whitespace-pre-wrap">{{ $jobPost->job_detail }}</flux:text>
+                <!-- 募集見出し -->
+                <div class="mb-6 flex items-start gap-3">
+                    <flux:badge color="red" size="lg" class="flex-shrink-0 font-bold">
+                        {{ $this->getHowsoonLabel() }}
+                    </flux:badge>
+                    <flux:heading size="xl" class="flex-1 text-gray-900 dark:text-white">
+                        {{ $jobPost->job_title }}
+                    </flux:heading>
                 </div>
 
-                <div>
-                    <flux:text class="font-semibold text-zinc-700 dark:text-zinc-300">いつまでに</flux:text>
-                    <flux:text class="mt-1">{{ $jobPost->getHowsoonLabel() }}</flux:text>
+                <!-- 事業内容・困っていること -->
+                <div class="mb-6">
+                    <flux:subheading class="mb-2 text-gray-700 dark:text-gray-300">
+                        事業内容・困っていること
+                    </flux:subheading>
+                    <flux:text class="whitespace-pre-wrap text-gray-600 dark:text-gray-400">
+                        {{ $jobPost->job_detail }}
+                    </flux:text>
                 </div>
 
-                <div>
-                    <flux:text class="font-semibold text-zinc-700 dark:text-zinc-300">募集形態</flux:text>
-                    <flux:text class="mt-1">{{ $jobPost->jobType->name }}</flux:text>
-                </div>
-
-                @if($jobPost->want_you_ids && count($jobPost->want_you_ids) > 0)
-                    <div>
-                        <flux:text class="font-semibold text-zinc-700 dark:text-zinc-300">希望</flux:text>
-                        <div class="mt-2 flex flex-wrap gap-2">
-                            @foreach($jobPost->getWantYouCodes() as $code)
-                                <flux:badge>{{ $code->name }}</flux:badge>
+                <!-- 御礼にタグ -->
+                @if ($jobPost->getCanDoCodes()->isNotEmpty())
+                    <div class="mb-6">
+                        <flux:subheading class="mb-2 text-gray-700 dark:text-gray-300">
+                            御礼に
+                        </flux:subheading>
+                        <div class="flex flex-wrap gap-2">
+                            @foreach ($jobPost->getCanDoCodes() as $code)
+                                <flux:badge color="green" size="sm" class="rounded-full">
+                                    ✓ {{ $code->name }}
+                                </flux:badge>
                             @endforeach
                         </div>
                     </div>
                 @endif
 
-                @if($jobPost->can_do_ids && count($jobPost->can_do_ids) > 0)
-                    <div>
-                        <flux:text class="font-semibold text-zinc-700 dark:text-zinc-300">できます</flux:text>
-                        <div class="mt-2 flex flex-wrap gap-2">
-                            @foreach($jobPost->getCanDoCodes() as $code)
-                                <flux:badge variant="outline">{{ $code->name }}</flux:badge>
-                            @endforeach
+                <!-- 企業情報 -->
+                <div class="border-t border-gray-200 pt-6 dark:border-gray-700">
+                    <div class="flex flex-wrap items-center gap-4">
+                        <!-- 企業名 -->
+                        <div class="flex items-center gap-2">
+                            <flux:badge color="zinc" size="sm">
+                                <span class="flex items-center gap-1">
+                                    <flux:icon.building-office-2 variant="micro" />
+                                    {{ $jobPost->company->name }}
+                                </span>
+                            </flux:badge>
                         </div>
-                    </div>
-                @endif
 
-                <div>
-                    <flux:text class="font-semibold text-zinc-700 dark:text-zinc-300">投稿日時</flux:text>
-                    <flux:text class="mt-1">{{ $jobPost->posted_at->format('Y年n月j日 H:i') }}</flux:text>
+                        <!-- 所在地 -->
+                        @if ($jobPost->company->companyProfile?->location)
+                            <div class="flex items-center gap-2">
+                                <flux:badge color="zinc" size="sm">
+                                    <span class="flex items-center gap-1">
+                                        <flux:icon.map-pin variant="micro" />
+                                        {{ $jobPost->company->companyProfile->location->prefecture }}
+                                        {{ $jobPost->company->companyProfile->location->city }}
+                                    </span>
+                                </flux:badge>
+                            </div>
+                        @endif
+                    </div>
+
+                    <!-- 投稿日時 -->
+                    <div class="mt-4">
+                        <flux:text variant="subtle" size="sm">
+                            投稿日: {{ $jobPost->posted_at?->format('Y年n月j日') ?? '未設定' }}
+                        </flux:text>
+                    </div>
+                </div>
+
+                <!-- アクションボタン -->
+                <div class="mt-8 flex flex-wrap gap-3">
+                    <!-- ワーカーユーザー: 応募ボタン -->
+                    @if ($this->isWorker())
+                        <flux:button disabled variant="primary" icon="paper-airplane" class="flex-1 sm:flex-none">
+                            応募する（準備中）
+                        </flux:button>
+                    @endif
+
+                    <!-- 企業ユーザー（自社求人）: 編集・削除ボタン -->
+                    @if ($this->canUpdate())
+                        <flux:button href="{{ route('jobs.edit', $jobPost) }}" wire:navigate variant="ghost" icon="pencil" class="flex-1 sm:flex-none">
+                            編集
+                        </flux:button>
+                    @endif
+
+                    @if ($this->canDelete())
+                        <flux:modal.trigger name="confirm-delete">
+                            <flux:button variant="danger" icon="trash" class="flex-1 sm:flex-none">
+                                削除
+                            </flux:button>
+                        </flux:modal.trigger>
+                    @endif
                 </div>
             </div>
         </div>
-
-        {{-- 応募ボタン --}}
-        @if($this->canApply())
-            <div class="flex justify-center">
-                <flux:button disabled size="lg" variant="primary">
-                    応募する（準備中）
-                </flux:button>
-            </div>
-        @endif
-
-        {{-- 一覧に戻るボタン --}}
-        <div class="flex justify-center">
-            <flux:button disabled variant="ghost">
-                一覧に戻る（準備中）
-            </flux:button>
-        </div>
     </div>
 
-    {{-- 削除確認モーダル --}}
-    <flux:modal name="delete-confirmation" :open="$showDeleteModal" wire:model="showDeleteModal">
-        <flux:heading size="lg">募集を削除しますか？</flux:heading>
-        <flux:text class="mt-4">
-            この操作は取り消せません。本当に削除してよろしいですか？
-        </flux:text>
-        
-        <div class="mt-6 flex justify-end gap-2">
-            <flux:button wire:click="cancelDelete" variant="ghost">
-                キャンセル
-            </flux:button>
-            <flux:button wire:click="delete" variant="danger">
-                削除する
-            </flux:button>
+    <!-- 削除確認モーダル -->
+    <flux:modal name="confirm-delete" class="max-w-md">
+        <div class="space-y-6">
+            <div>
+                <flux:heading size="lg">募集を削除しますか？</flux:heading>
+                <flux:subheading class="mt-2">
+                    この操作は取り消せません。本当に削除してもよろしいですか？
+                </flux:subheading>
+            </div>
+
+            <div class="flex gap-3">
+                <flux:modal.close>
+                    <flux:button variant="ghost" class="flex-1">
+                        キャンセル
+                    </flux:button>
+                </flux:modal.close>
+
+                <flux:button wire:click="delete" variant="danger" class="flex-1">
+                    削除する
+                </flux:button>
+            </div>
         </div>
     </flux:modal>
 </div>
