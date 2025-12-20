@@ -2,22 +2,104 @@
 
 declare(strict_types=1);
 
+use App\Models\Code;
 use App\Models\JobPost;
+use App\Models\Location;
 
 use function Livewire\Volt\computed;
 use function Livewire\Volt\layout;
+use function Livewire\Volt\state;
 use function Livewire\Volt\title;
+use function Livewire\Volt\with;
 
 layout('components.layouts.app.header');
 title('募集一覧');
 
 /**
- * 募集一覧を取得（最新順）
+ * 検索・フィルタの状態
+ */
+state([
+    'keyword' => '',
+    'prefecture' => '',
+    'city_location_id' => null,
+    'job_types' => [],
+    'want_you_types' => [],
+    'can_do_types' => [],
+]);
+
+/**
+ * 市区町村の選択肢を動的に取得
+ */
+$cities = computed(function () {
+    if (empty($this->prefecture)) {
+        return collect();
+    }
+
+    return Location::where('prefecture', $this->prefecture)
+        ->whereNotNull('city')
+        ->orderBy('code')
+        ->get();
+});
+
+/**
+ * 都道府県変更時に市区町村をリセット
+ */
+$updatedPrefecture = function (): void {
+    $this->city_location_id = null;
+};
+
+/**
+ * 募集一覧を取得（検索・フィルタ適用）
  */
 $jobPosts = computed(function () {
     $query = JobPost::query()
         ->with(['company.companyProfile.location', 'jobType'])
         ->orderBy('posted_at', 'desc');
+
+    // キーワード検索（タイトル・詳細内容）
+    if (! empty($this->keyword)) {
+        $query->where(function ($q) {
+            $q->where('job_title', 'like', "%{$this->keyword}%")
+                ->orWhere('job_detail', 'like', "%{$this->keyword}%");
+        });
+    }
+
+    // 所在地フィルタ（都道府県）
+    if (! empty($this->prefecture)) {
+        $query->whereHas('company.companyProfile.location', function ($q) {
+            $q->where('prefecture', $this->prefecture);
+        });
+    }
+
+    // 所在地フィルタ（市区町村）
+    if (! empty($this->city_location_id)) {
+        $query->whereHas('company.companyProfile', function ($q) {
+            $q->where('location_id', $this->city_location_id);
+        });
+    }
+
+    // 募集形態フィルタ
+    if (! empty($this->job_types)) {
+        $query->whereIn('job_type_id', $this->job_types);
+    }
+
+    // 希望フィルタ
+    if (! empty($this->want_you_types)) {
+        $query->where(function ($q) {
+            foreach ($this->want_you_types as $typeId) {
+                $q->orWhereJsonContains('want_you_id', (int) $typeId);
+            }
+        });
+    }
+
+    // できますフィルタ
+    if (! empty($this->can_do_types)) {
+        $query->where(function ($q) {
+            foreach ($this->can_do_types as $typeId) {
+                $q->orWhereJsonContains('i_can_id', (int) $typeId);
+            }
+        });
+    }
 
     // ワーカーユーザーの場合、自分の応募状況を先読み込み（N+1問題回避）
     if (auth()->check() && auth()->user()->isWorker()) {
@@ -31,14 +113,21 @@ $jobPosts = computed(function () {
  * 企業ユーザーかどうかチェック
  */
 $isCompany = function (): bool {
-    return auth()->check() && auth()->user()->isCompany();
+    return auth()->check() && auth()->user()?->isCompany();
 };
 
 /**
  * ワーカーかどうかチェック
  */
 $isWorker = function (): bool {
-    return auth()->check() && auth()->user()->isWorker();
+    return auth()->check() && auth()->user()?->isWorker();
+};
+
+/**
+ * ゲストユーザー（未認証）かどうかチェック
+ */
+$isGuest = function (): bool {
+    return ! auth()->check();
 };
 
 /**
@@ -46,13 +135,46 @@ $isWorker = function (): bool {
  */
 $hasApplied = function (JobPost $jobPost): bool {
     // ワーカーでない場合はfalse
-    if (! auth()->check() || ! auth()->user()->isWorker()) {
+    if (! auth()->check() || ! auth()->user()?->isWorker()) {
         return false;
     }
 
     // リレーションから応募状況を確認
     return $jobPost->applications->isNotEmpty();
 };
+
+/**
+ * フィルタラベルを取得（企業ユーザー以外は文言変更）
+ */
+$getWantYouLabel = function (): string {
+    return $this->isCompany() ? '希望' : 'あなたへの期待';
+};
+
+$getCanDoLabel = function (): string {
+    return $this->isCompany() ? 'できます' : '御礼にあげます';
+};
+
+/**
+ * フィルタをリセット
+ */
+$resetFilters = function (): void {
+    $this->keyword = '';
+    $this->prefecture = '';
+    $this->city_location_id = null;
+    $this->job_types = [];
+    $this->want_you_types = [];
+    $this->can_do_types = [];
+};
+
+/**
+ * データを提供
+ */
+with(fn () => [
+    'prefectures' => Location::whereNull('city')->orderBy('code')->get(),
+    'jobTypeCodes' => Code::getRecruitmentTypes(),
+    'wantYouCodes' => Code::getRequests(),
+    'canDoCodes' => Code::getOffers(),
+]);
 
 ?>
 
@@ -75,6 +197,128 @@ $hasApplied = function (JobPost $jobPost): bool {
             @endif
         </div>
 
+        <!-- 検索・フィルタエリア -->
+        <div class="mb-8 rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+            <div class="space-y-6">
+                <!-- キーワード検索 -->
+                <div>
+                    <flux:field>
+                        <flux:label>キーワード検索</flux:label>
+                        <flux:input 
+                            wire:model.live.debounce.300ms="keyword" 
+                            type="text"
+                            placeholder="タイトルや内容で検索..."
+                            icon="magnifying-glass"
+                        />
+                    </flux:field>
+                </div>
+
+                <!-- 所在地フィルタ -->
+                <div class="grid gap-4 md:grid-cols-2">
+                    <flux:field>
+                        <flux:label>都道府県</flux:label>
+                        <select 
+                            wire:model.live="prefecture"
+                            class="w-full rounded-lg border border-gray-200 px-3 py-2 dark:border-gray-700 dark:bg-gray-800"
+                        >
+                            <option value="">すべて</option>
+                            @foreach ($prefectures as $pref)
+                                <option value="{{ $pref->prefecture }}">{{ $pref->prefecture }}</option>
+                            @endforeach
+                        </select>
+                    </flux:field>
+
+                    <flux:field>
+                        <flux:label>市区町村</flux:label>
+                        <select 
+                            wire:model.live="city_location_id"
+                            class="w-full rounded-lg border border-gray-200 px-3 py-2 dark:border-gray-700 dark:bg-gray-800"
+                            @disabled(!$prefecture)
+                        >
+                            <option value="">すべて</option>
+                            @foreach ($this->cities as $city)
+                                <option value="{{ $city->id }}">{{ $city->city }}</option>
+                            @endforeach
+                        </select>
+                    </flux:field>
+                </div>
+
+                <!-- 募集形態フィルタ -->
+                <div>
+                    <flux:field>
+                        <flux:label>募集形態</flux:label>
+                        <div class="flex flex-wrap gap-4">
+                            @foreach ($jobTypeCodes as $code)
+                                <label class="flex items-center gap-2">
+                                    <input 
+                                        type="checkbox" 
+                                        wire:model.live="job_types" 
+                                        value="{{ $code->type_id }}"
+                                        class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                    >
+                                    <span class="text-sm text-gray-700 dark:text-gray-300">{{ $code->name }}</span>
+                                </label>
+                            @endforeach
+                        </div>
+                    </flux:field>
+                </div>
+
+                <!-- 希望フィルタ -->
+                <div>
+                    <flux:field>
+                        <flux:label>{{ $this->getWantYouLabel() }}</flux:label>
+                        <div class="flex flex-wrap gap-4">
+                            @foreach ($wantYouCodes as $code)
+                                <label class="flex items-center gap-2">
+                                    <input 
+                                        type="checkbox" 
+                                        wire:model.live="want_you_types" 
+                                        value="{{ $code->type_id }}"
+                                        class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                    >
+                                    <span class="text-sm text-gray-700 dark:text-gray-300">{{ $code->name }}</span>
+                                </label>
+                            @endforeach
+                        </div>
+                    </flux:field>
+                </div>
+
+                <!-- できますフィルタ -->
+                <div>
+                    <flux:field>
+                        <flux:label>{{ $this->getCanDoLabel() }}</flux:label>
+                        <div class="flex flex-wrap gap-4">
+                            @foreach ($canDoCodes as $code)
+                                <label class="flex items-center gap-2">
+                                    <input 
+                                        type="checkbox" 
+                                        wire:model.live="can_do_types" 
+                                        value="{{ $code->type_id }}"
+                                        class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                    >
+                                    <span class="text-sm text-gray-700 dark:text-gray-300">{{ $code->name }}</span>
+                                </label>
+                            @endforeach
+                        </div>
+                    </flux:field>
+                </div>
+
+                <!-- フィルタリセットボタン -->
+                <div class="flex justify-end">
+                    <flux:button wire:click="resetFilters" variant="ghost" icon="arrow-path">
+                        フィルタをリセット
+                    </flux:button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 検索結果数 -->
+        <div class="mb-6">
+            <flux:text variant="subtle">
+                {{ $this->jobPosts->count() }}件の募集が見つかりました
+            </flux:text>
+        </div>
+
         <!-- 募集カード一覧 -->
         @if ($this->jobPosts->isEmpty())
             <div class="rounded-xl border border-gray-200 bg-white p-12 text-center dark:border-gray-700 dark:bg-gray-800">
@@ -83,14 +327,13 @@ $hasApplied = function (JobPost $jobPost): bool {
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
                 </div>
-                <flux:heading size="lg" class="mb-2">募集がまだありません</flux:heading>
-                <flux:text variant="subtle">
-                    @if ($this->isCompany())
-                        最初の募集を投稿してみましょう
-                    @else
-                        募集が投稿されるまでお待ちください
-                    @endif
+                <flux:heading size="lg" class="mb-2">募集が見つかりませんでした</flux:heading>
+                <flux:text variant="subtle" class="mb-4">
+                    検索条件を変更してお試しください
                 </flux:text>
+                <flux:button wire:click="resetFilters" variant="primary" icon="arrow-path">
+                    フィルタをリセット
+                </flux:button>
             </div>
         @else
             <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
