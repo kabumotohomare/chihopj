@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -13,6 +14,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  */
 class JobPost extends Model
 {
+    use HasFactory;
+
     /**
      * 複数代入可能な属性
      *
@@ -84,9 +87,9 @@ class JobPost extends Model
     /**
      * 希望のコード情報を取得
      *
-     * @return \Illuminate\Database\Eloquent\Collection<int, Code>
+     * @return \Illuminate\Support\Collection<int, Code>
      */
-    public function getWantYouCodes(): \Illuminate\Database\Eloquent\Collection
+    public function getWantYouCodes(): \Illuminate\Support\Collection
     {
         if (empty($this->want_you_ids)) {
             return collect();
@@ -98,9 +101,9 @@ class JobPost extends Model
     /**
      * できますのコード情報を取得
      *
-     * @return \Illuminate\Database\Eloquent\Collection<int, Code>
+     * @return \Illuminate\Support\Collection<int, Code>
      */
-    public function getCanDoCodes(): \Illuminate\Database\Eloquent\Collection
+    public function getCanDoCodes(): \Illuminate\Support\Collection
     {
         if (empty($this->can_do_ids)) {
             return collect();

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -12,6 +13,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class JobApplication extends Model
 {
+    use HasFactory;
+
     /**
      * 複数代入可能な属性
      *
@@ -21,6 +24,7 @@ class JobApplication extends Model
         'job_id',
         'worker_id',
         'motive',
+        'reasons',
         'status',
         'applied_at',
         'judged_at',
@@ -35,6 +39,7 @@ class JobApplication extends Model
     protected function casts(): array
     {
         return [
+            'reasons' => 'array',
             'applied_at' => 'datetime',
             'judged_at' => 'datetime',
             'declined_at' => 'datetime',

@@ -88,14 +88,25 @@ alwaysApply: true
 
 **カラム定義**:
 - id: bigint unsigned, primary key
-- job_id: bigint unsigned, 外部キー（job_posts.id）、情報
-- worker_id: bigint unsigned, 外部キー（users.id）、ワーのユーザーID
+- job_id: bigint unsigned, 外部キー（job_posts.id）、募集情報
+- worker_id: bigint unsigned, 外部キー（users.id）、ワーカーのユーザーID
+- reasons: json, nullable, 応募理由（複数選択可、配列形式）
 - motive: text, nullable, 応募メッセージ
-- status: enum('applied', 'accepted', 'rejected', eclined'), ステータス（applied=応募、accepted=承認、jected=不承認、declined=辞退）
+- status: enum('applied', 'accepted', 'rejected', 'declined'), ステータス（applied=応募、accepted=承認、rejected=不承認、declined=辞退）
 - applied_at: datetime, 応募日時
-- judged_at: datetime, nullable, 採用判定日時（承認また承認時）
+- judged_at: datetime, nullable, 採用判定日時（承認または不承認時）
 - declined_at: datetime, nullable, 辞退日時
 - created_at, updated_at: timestamps
+
+**応募理由の選択肢（reasons）**:
+- near_hometown: 地元の近く
+- lived_before: 昔住んでいた地域
+- wanted_to_visit: 行きたかった地域
+- empathize_with_goal: やりたいことに共感
+- travel_opportunity: 旅のついで
+- can_use_experience: 経験が活かせそう
+- wanted_to_try: 自分もやってみたかった
+- gain_new_experience: 新しい経験を積みたい
 
 **インデックス**:
 - PRIMARY: id
@@ -108,8 +119,9 @@ alwaysApply: true
 - users: 多対1（RESTRICT削除）
 
 **備考**:
-- (job_id, worker_id)に複合ユニーク制約を設定し、重複応防止
+- (job_id, worker_id)に複合ユニーク制約を設定し、重複応募防止
 - statusのデフォルト値は'applied'
+- reasonsはJSON形式で複数の理由を配列として保存
 
 
 <!-- ここから段階的に追加 -->

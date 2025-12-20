@@ -56,4 +56,24 @@ class UserFactory extends Factory
             'two_factor_confirmed_at' => null,
         ]);
     }
+
+    /**
+     * ワーカーロールを持つユーザー
+     */
+    public function worker(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => 'worker',
+        ]);
+    }
+
+    /**
+     * 企業ロールを持つユーザー
+     */
+    public function company(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => 'company',
+        ]);
+    }
 }

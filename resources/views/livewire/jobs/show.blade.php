@@ -202,8 +202,8 @@ $isWorker = function (): bool {
                 <div class="mt-8 flex flex-wrap gap-3">
                     <!-- ワーカーユーザー: 応募ボタン -->
                     @if ($this->isWorker())
-                        <flux:button disabled variant="primary" icon="paper-airplane" class="flex-1 sm:flex-none">
-                            応募する（準備中）
+                        <flux:button href="{{ route('jobs.apply', $jobPost) }}" wire:navigate variant="primary" icon="paper-airplane" class="flex-1 sm:flex-none">
+                            応募する
                         </flux:button>
                     @endif
 

@@ -54,6 +54,11 @@ Volt::route('jobs/{jobPost}/edit', 'jobs.edit')
     ->middleware(['auth', 'role:company'])
     ->name('jobs.edit');
 
+// 応募画面（ワーカーユーザーのみ）
+Volt::route('jobs/{jobPost}/apply', 'jobs.apply')
+    ->middleware(['auth', 'role:worker'])
+    ->name('jobs.apply');
+
 Route::middleware(['auth'])->group(function () {
     Route::redirect('settings', 'settings/profile');
 

@@ -51,4 +51,23 @@ class JobPostPolicy
     {
         return $user->isCompany() && $user->id === $jobPost->company_id;
     }
+
+    /**
+     * 応募の認可（ワーカーのみ、重複応募不可）
+     */
+    public function apply(User $user, JobPost $jobPost): bool
+    {
+        // ワーカーユーザーでない場合は不可
+        if (! $user->isWorker()) {
+            return false;
+        }
+
+        // 既に応募済みの場合は不可
+        $existingApplication = \App\Models\JobApplication::query()
+            ->where('job_id', $jobPost->id)
+            ->where('worker_id', $user->id)
+            ->exists();
+
+        return ! $existingApplication;
+    }
 }
