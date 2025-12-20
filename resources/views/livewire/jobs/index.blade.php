@@ -15,10 +15,16 @@ title('募集一覧');
  * 募集一覧を取得（最新順）
  */
 $jobPosts = computed(function () {
-    return JobPost::query()
+    $query = JobPost::query()
         ->with(['company.companyProfile.location', 'jobType'])
-        ->orderBy('posted_at', 'desc')
-        ->get();
+        ->orderBy('posted_at', 'desc');
+
+    // ワーカーユーザーの場合、自分の応募状況を先読み込み（N+1問題回避）
+    if (auth()->check() && auth()->user()->isWorker()) {
+        $query->with(['applications' => fn ($q) => $q->where('worker_id', auth()->id())]);
+    }
+
+    return $query->get();
 });
 
 /**
@@ -26,6 +32,26 @@ $jobPosts = computed(function () {
  */
 $isCompany = function (): bool {
     return auth()->check() && auth()->user()->isCompany();
+};
+
+/**
+ * ワーカーかどうかチェック
+ */
+$isWorker = function (): bool {
+    return auth()->check() && auth()->user()->isWorker();
+};
+
+/**
+ * 応募済みかどうかチェック
+ */
+$hasApplied = function (JobPost $jobPost): bool {
+    // ワーカーでない場合はfalse
+    if (! auth()->check() || ! auth()->user()->isWorker()) {
+        return false;
+    }
+
+    // リレーションから応募状況を確認
+    return $jobPost->applications->isNotEmpty();
 };
 
 ?>
@@ -70,7 +96,16 @@ $isCompany = function (): bool {
             <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                 @foreach ($this->jobPosts as $jobPost)
                     <a href="{{ route('jobs.show', $jobPost) }}" wire:navigate
-                        class="group overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition hover:border-blue-500 hover:shadow-lg dark:border-gray-700 dark:bg-gray-800">
+                        class="group relative overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition hover:border-blue-500 hover:shadow-lg dark:border-gray-700 dark:bg-gray-800">
+                        
+                        <!-- 応募済みバッジ（カード右上） -->
+                        @if ($this->hasApplied($jobPost))
+                            <div class="absolute right-3 top-3 z-10">
+                                <flux:badge color="green" size="sm" class="rounded-full font-bold shadow-md">
+                                    ✓ 応募済み
+                                </flux:badge>
+                            </div>
+                        @endif
                         
                         <!-- アイキャッチ画像 -->
                         <div class="aspect-video w-full overflow-hidden bg-gray-100 dark:bg-gray-700">

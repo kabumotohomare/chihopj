@@ -12,7 +12,7 @@ use function Livewire\Volt\title;
 layout('components.layouts.app.header');
 title('募集詳細');
 
-state(['jobPost']);
+state(['jobPost', 'hasApplied' => false]);
 
 /**
  * コンポーネント初期化
@@ -23,6 +23,14 @@ mount(function (JobPost $jobPost) {
 
     // リレーションを先読み込み
     $this->jobPost = $jobPost->load(['company.companyProfile.location', 'jobType']);
+
+    // ワーカーユーザーの場合、応募済みかチェック
+    if (auth()->check() && auth()->user()->isWorker()) {
+        $this->hasApplied = \App\Models\JobApplication::query()
+            ->where('job_id', $this->jobPost->id)
+            ->where('worker_id', auth()->id())
+            ->exists();
+    }
 });
 
 /**
@@ -200,11 +208,24 @@ $isWorker = function (): bool {
 
                 <!-- アクションボタン -->
                 <div class="mt-8 flex flex-wrap gap-3">
-                    <!-- ワーカーユーザー: 応募ボタン -->
+                    <!-- ワーカーユーザー: 応募ボタンまたは応募済みバッジ -->
                     @if ($this->isWorker())
-                        <flux:button href="{{ route('jobs.apply', $jobPost) }}" wire:navigate variant="primary" icon="paper-airplane" class="flex-1 sm:flex-none">
-                            応募する
-                        </flux:button>
+                        @if ($hasApplied)
+                            <!-- 応募済みの場合 -->
+                            <div class="flex items-center gap-3">
+                                <flux:badge color="green" size="lg" class="rounded-full font-bold">
+                                    ✓ 応募済み
+                                </flux:badge>
+                                <flux:text variant="subtle" size="sm">
+                                    この募集に応募済みです
+                                </flux:text>
+                            </div>
+                        @else
+                            <!-- 未応募の場合 -->
+                            <flux:button href="{{ route('jobs.apply', $jobPost) }}" wire:navigate variant="primary" icon="paper-airplane" class="flex-1 sm:flex-none">
+                                応募する
+                            </flux:button>
+                        @endif
                     @endif
 
                     <!-- 企業ユーザー（自社求人）: 編集・削除ボタン -->
