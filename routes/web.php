@@ -21,6 +21,11 @@ Volt::route('worker/profile', 'worker.show')
     ->middleware(['auth', 'role:worker'])
     ->name('worker.profile');
 
+// ワーカープロフィール編集
+Volt::route('worker/edit', 'worker.edit')
+    ->middleware(['auth', 'role:worker'])
+    ->name('worker.edit');
+
 // 企業登録（認証済みユーザー向け）
 Volt::route('company/register', 'company.register')
     ->middleware(['auth'])

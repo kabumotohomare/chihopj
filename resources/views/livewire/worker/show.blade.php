@@ -65,8 +65,8 @@ new class extends Component {
 <div class="mx-auto max-w-4xl px-4 py-8">
     <div class="mb-6 flex items-center justify-between">
         <flux:heading size="xl">ワーカープロフィール</flux:heading>
-        <flux:button disabled>
-            編集（準備中）
+        <flux:button href="{{ route('worker.edit') }}" wire:navigate>
+            編集
         </flux:button>
     </div>
 

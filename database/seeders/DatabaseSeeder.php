@@ -13,11 +13,18 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // 市区町村データをシード
+        // マスタデータをシード
         $this->call([
             LocationSeeder::class,
             CodeSeeder::class,
         ]);
+
+        // 開発環境用のテストデータをシード
+        if (app()->environment('local', 'development')) {
+            $this->call([
+                DevelopmentSeeder::class,
+            ]);
+        }
 
         // User::factory(10)->create();
 

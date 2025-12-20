@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Http\Requests\StoreJobPostRequest;
 use App\Models\Code;
 use App\Models\JobPost;
+use App\Models\JobPostSuggestion;
 
 use function Livewire\Volt\computed;
 use function Livewire\Volt\layout;
@@ -25,6 +26,8 @@ state([
     'job_type_error' => '',
     'want_you_ids' => [],
     'can_do_ids' => [],
+    'suggestions' => [],
+    'showSuggestions' => false,
 ]);
 
 // プリセット画像のリスト
@@ -84,6 +87,40 @@ $updatedJobTypeId = function ($value) {
         } else {
             $this->job_type_error = '';
         }
+    }
+};
+
+// job_detailの変更を監視（入力補助機能）
+$updatedJobDetail = function ($value) {
+    // 2文字以上で候補を検索
+    if (mb_strlen($value) >= 2) {
+        $this->suggestions = JobPostSuggestion::query()
+            ->searchByPrefix($value, 5)
+            ->get()
+            ->toArray();
+        $this->showSuggestions = count($this->suggestions) > 0;
+    } else {
+        $this->suggestions = [];
+        $this->showSuggestions = false;
+    }
+};
+
+// 候補選択処理
+$selectSuggestion = function ($phrase) {
+    // 選択されたフレーズを設定
+    $this->job_detail = $phrase;
+    
+    // 候補を非表示
+    $this->showSuggestions = false;
+    $this->suggestions = [];
+    
+    // 使用回数をインクリメント
+    $suggestion = JobPostSuggestion::query()
+        ->where('phrase', $phrase)
+        ->first();
+    
+    if ($suggestion) {
+        $suggestion->incrementUsage();
     }
 };
 
@@ -222,8 +259,33 @@ $create = function () {
             <flux:field>
                 <flux:label>事業内容・困っていること <span class="text-red-500">*</span></flux:label>
                 <flux:description>200文字以内で入力してください</flux:description>
-                <flux:textarea wire:model="job_detail" rows="5" 
-                    placeholder="〇〇をしています。✕✕をやりたいが、△△なのでできていません"></flux:textarea>
+                <div class="relative">
+                    <flux:textarea wire:model.live.debounce.300ms="job_detail" rows="5" 
+                        placeholder="〇〇をしています。✕✕をやりたいが、△△なのでできていません"></flux:textarea>
+                    
+                    <!-- 入力補助候補のドロップダウン -->
+                    @if ($showSuggestions && !empty($suggestions))
+                        <div class="absolute z-10 mt-1 w-full rounded-lg border border-gray-200 bg-white shadow-lg dark:border-gray-700 dark:bg-gray-800">
+                            <div class="px-3 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400">
+                                入力補助
+                            </div>
+                            <div class="max-h-60 overflow-y-auto">
+                                @foreach ($suggestions as $suggestion)
+                                    <button type="button" 
+                                        wire:click="selectSuggestion('{{ addslashes($suggestion['phrase']) }}')"
+                                        class="w-full px-3 py-2 text-left text-sm transition-colors hover:bg-blue-50 dark:hover:bg-gray-700">
+                                        <div class="text-gray-900 dark:text-gray-100">
+                                            {{ $suggestion['phrase'] }}
+                                        </div>
+                                        <div class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                                            カテゴリ: {{ $suggestion['category'] }} | 使用回数: {{ $suggestion['usage_count'] }}
+                                        </div>
+                                    </button>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
+                </div>
                 <flux:error name="job_detail" />
             </flux:field>
 
