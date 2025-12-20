@@ -581,3 +581,44 @@ alwaysApply: true
    - 処理後、応募一覧（applications.index）にリダイレクト
  - **ポリシー**: `view`アクション（自分の応募のみ閲覧可能）
  - **パフォーマンス**: N+1問題対策（`with(['jobPost.company', 'jobPost.employmentType', 'jobPost.workStyle', 'jobPost.industry', 'jobPost.location'])`）
+#### 応募一覧画面（企業向け）
+- **ルート**: `GET /applications/received`
+- **ルート名**: `applications.received`
+- **コンポーネント**: `resources/views/livewire/applications/received.blade.php`
+- **ミドルウェア**: `auth`, `role:company`
+- **機能**: 自社募集への応募一覧表示、検索・フィルタ機能
+- **表示内容**:
+  - 自社募集への応募リスト（1ページ12件）
+  - ワーカー名、応募日、ステータス（バッジ）、判定日
+  - 募集タイトル（募集フィルタで「すべて」の場合のみ表示）
+- **検索・フィルタ機能**:
+  - 募集フィルタ（ドロップダウン）: 「すべて」または特定の募集
+  - ステータスフィルタ（チェックボックス: applied, accepted, rejected, declined）
+  - キーワード検索（ワーカー名）
+  - 並び替え（応募日の新しい順/古い順）
+- **ページネーション**: 1ページ12件
+- **アクション**:
+  - 詳細ボタン（常に表示、applications.showへ遷移）
+- **パフォーマンス**: N+1問題対策（`with(['jobPost', 'worker.workerProfile'])`）
+- **ルート定義の注意**: 
+  - `applications/received`は**動的ルート`applications/{jobApplication}`より前に配置**すること
+  - 順序を間違えると403エラーが発生
+
+#### 応募詳細画面に企業向け機能を追加
+- **企業向け表示追加**:
+  - ワーカー情報カード（企業の場合のみ表示）
+    - アイコン、ハンドルネーム、氏名、性別、生年月日、年齢
+    - これまでの経験、これからやりたいこと、得意なこと
+    - 出身地、現在のお住まい1・2
+    - 移住に関心のある地域1・2・3
+    - 興味のあるお手伝い
+- **企業向けアクション追加**:
+  - 承認ボタン（status='applied'の場合のみ）
+  - 不承認ボタン（status='applied'の場合のみ）
+  - 承認確認モーダル、不承認確認モーダル
+- **承認・不承認処理**:
+  - statusを'accepted'または'rejected'に更新
+  - judged_atに現在日時を設定
+  - 処理後、企業向け応募一覧（applications.received）にリダイレクト
+- **リレーション追加**: 
+  - `worker.workerProfile.*Location`（birthLocation, currentLocation1/2, favoriteLocation1/2/3）

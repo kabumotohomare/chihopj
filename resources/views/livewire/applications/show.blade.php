@@ -1,5 +1,4 @@
-<?php
-
+@php
 declare(strict_types=1);
 
 use App\Models\JobApplication;
@@ -14,25 +13,26 @@ state(['application']);
 
 // 初期化
 mount(function (JobApplication $jobApplication) {
-    // 自分の応募のみ閲覧可能（認可チェック）
-    if ($jobApplication->worker_id !== auth()->id()) {
-        abort(403, 'この応募情報を閲覧する権限がありません。');
-    }
+    // ワーカー本人または募集企業であれば閲覧可能（認可チェック）
+    $this->authorize('view', $jobApplication);
 
     // リレーションを先読み込み
     $this->application = $jobApplication->load([
         'jobPost.company.companyProfile.location',
         'jobPost.jobType',
+        'worker.workerProfile.birthLocation',
+        'worker.workerProfile.currentLocation1',
+        'worker.workerProfile.currentLocation2',
+        'worker.workerProfile.favoriteLocation1',
+        'worker.workerProfile.favoriteLocation2',
+        'worker.workerProfile.favoriteLocation3',
     ]);
 });
 
 // 辞退処理
 $decline = function () {
-    // 応募中の場合のみ辞退可能
-    if ($this->application->status !== 'applied') {
-        session()->flash('error', '辞退できるのは応募中のみです。');
-        return;
-    }
+    // 認可チェック
+    $this->authorize('decline', $this->application);
 
     // ステータスを更新
     $this->application->update([
@@ -43,6 +43,38 @@ $decline = function () {
     session()->flash('message', '応募を辞退しました。');
 
     return $this->redirect(route('applications.index'), navigate: true);
+};
+
+// 承認処理
+$accept = function () {
+    // 認可チェック
+    $this->authorize('accept', $this->application);
+
+    // ステータスを更新
+    $this->application->update([
+        'status' => 'accepted',
+        'judged_at' => now(),
+    ]);
+
+    session()->flash('message', '応募を承認しました。');
+
+    return $this->redirect(route('applications.received'), navigate: true);
+};
+
+// 不承認処理
+$reject = function () {
+    // 認可チェック
+    $this->authorize('reject', $this->application);
+
+    // ステータスを更新
+    $this->application->update([
+        'status' => 'rejected',
+        'judged_at' => now(),
+    ]);
+
+    session()->flash('message', '応募を不承認にしました。');
+
+    return $this->redirect(route('applications.received'), navigate: true);
 };
 
 // ステータスラベル取得
@@ -76,14 +108,20 @@ $getHowsoonLabel = function (string $howsoon): string {
     };
 };
 
-?>
+@endphp
 
 <div class="mx-auto max-w-4xl space-y-8 px-4 py-8 sm:px-6 lg:px-8">
     {{-- 戻るボタン --}}
     <div>
-        <flux:button variant="ghost" href="{{ route('applications.index') }}" wire:navigate icon="arrow-left">
-            応募一覧に戻る
-        </flux:button>
+        @if (auth()->user()->isWorker())
+            <flux:button variant="ghost" href="{{ route('applications.index') }}" wire:navigate icon="arrow-left">
+                応募一覧に戻る
+            </flux:button>
+        @else
+            <flux:button variant="ghost" href="{{ route('applications.received') }}" wire:navigate icon="arrow-left">
+                応募一覧に戻る
+            </flux:button>
+        @endif
     </div>
 
     {{-- フラッシュメッセージ --}}
@@ -109,6 +147,8 @@ $getHowsoonLabel = function (string $howsoon): string {
         $company = $job->company;
         $companyProfile = $company->companyProfile;
         $location = $companyProfile?->location;
+        $worker = $application->worker;
+        $workerProfile = $worker->workerProfile;
     @endphp
 
     {{-- 応募情報カード --}}
@@ -155,15 +195,181 @@ $getHowsoonLabel = function (string $howsoon): string {
             @endif
         </div>
 
-        {{-- 辞退ボタン（応募中の場合のみ） --}}
+        {{-- アクションボタン --}}
         @if ($application->status === 'applied')
-            <div class="mt-6">
-                <flux:button variant="danger" wire:click="$dispatch('open-modal', 'decline-modal')">
-                    辞退する
-                </flux:button>
+            <div class="mt-6 flex flex-wrap gap-2">
+                {{-- ワーカー向け: 辞退ボタン --}}
+                @if (auth()->user()->isWorker())
+                    <flux:button variant="danger" wire:click="$dispatch('open-modal', 'decline-modal')">
+                        辞退する
+                    </flux:button>
+                @endif
+
+                {{-- 企業向け: 承認・不承認ボタン --}}
+                @if (auth()->user()->isCompany())
+                    <flux:button variant="primary" wire:click="$dispatch('open-modal', 'accept-modal')">
+                        承認する
+                    </flux:button>
+                    <flux:button variant="danger" wire:click="$dispatch('open-modal', 'reject-modal')">
+                        不承認にする
+                    </flux:button>
+                @endif
             </div>
         @endif
     </div>
+
+    {{-- ワーカー情報カード（企業向けのみ表示） --}}
+    @if (auth()->user()->isCompany() && $workerProfile)
+        <div class="rounded-xl border border-zinc-200 bg-white p-6 dark:border-zinc-700 dark:bg-zinc-800">
+            <flux:heading size="lg" class="mb-4">ワーカー情報</flux:heading>
+
+            <div class="space-y-6">
+                {{-- アイコンとハンドルネーム --}}
+                <div class="flex items-center gap-4">
+                    @if ($workerProfile->icon)
+                        <img
+                            src="{{ Storage::url($workerProfile->icon) }}"
+                            alt="{{ $workerProfile->handle_name }}"
+                            class="h-16 w-16 rounded-full object-cover"
+                        />
+                    @else
+                        <div class="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-blue-400 to-purple-500 text-xl font-bold text-white">
+                            {{ mb_substr($workerProfile->handle_name, 0, 1) }}
+                        </div>
+                    @endif
+                    <div>
+                        <flux:text class="font-semibold">ハンドルネーム</flux:text>
+                        <flux:heading size="md">{{ $workerProfile->handle_name }}</flux:heading>
+                    </div>
+                </div>
+
+                {{-- 氏名 --}}
+                <div>
+                    <flux:text class="mb-1 font-semibold">氏名</flux:text>
+                    <flux:text>{{ $worker->name }}</flux:text>
+                </div>
+
+                {{-- 性別 --}}
+                <div>
+                    <flux:text class="mb-1 font-semibold">性別</flux:text>
+                    <flux:text>{{ $workerProfile->gender_label }}</flux:text>
+                </div>
+
+                {{-- 生年月日と年齢 --}}
+                <div>
+                    <flux:text class="mb-1 font-semibold">生年月日</flux:text>
+                    <flux:text>
+                        {{ $workerProfile->birthdate->format('Y年n月j日') }}
+                        （{{ $workerProfile->age }}歳）
+                    </flux:text>
+                </div>
+
+                {{-- これまでの経験 --}}
+                @if ($workerProfile->experiences)
+                    <div>
+                        <flux:text class="mb-1 font-semibold">これまでの経験</flux:text>
+                        <flux:text class="whitespace-pre-wrap">{{ $workerProfile->experiences }}</flux:text>
+                    </div>
+                @endif
+
+                {{-- これからやりたいこと --}}
+                @if ($workerProfile->want_to_do)
+                    <div>
+                        <flux:text class="mb-1 font-semibold">これからやりたいこと</flux:text>
+                        <flux:text class="whitespace-pre-wrap">{{ $workerProfile->want_to_do }}</flux:text>
+                    </div>
+                @endif
+
+                {{-- 得意なことや貢献できること --}}
+                @if ($workerProfile->good_contribution)
+                    <div>
+                        <flux:text class="mb-1 font-semibold">得意なことや貢献できること</flux:text>
+                        <flux:text class="whitespace-pre-wrap">{{ $workerProfile->good_contribution }}</flux:text>
+                    </div>
+                @endif
+
+                {{-- 出身地 --}}
+                @if ($workerProfile->birthLocation)
+                    <div>
+                        <flux:text class="mb-1 font-semibold">出身地</flux:text>
+                        <flux:text>
+                            {{ $workerProfile->birthLocation->prefecture }}
+                            {{ $workerProfile->birthLocation->city }}
+                        </flux:text>
+                    </div>
+                @endif
+
+                {{-- 現在のお住まい1 --}}
+                @if ($workerProfile->currentLocation1)
+                    <div>
+                        <flux:text class="mb-1 font-semibold">現在のお住まい1</flux:text>
+                        <flux:text>
+                            {{ $workerProfile->currentLocation1->prefecture }}
+                            {{ $workerProfile->currentLocation1->city }}
+                        </flux:text>
+                    </div>
+                @endif
+
+                {{-- 現在のお住まい2 --}}
+                @if ($workerProfile->currentLocation2)
+                    <div>
+                        <flux:text class="mb-1 font-semibold">現在のお住まい2</flux:text>
+                        <flux:text>
+                            {{ $workerProfile->currentLocation2->prefecture }}
+                            {{ $workerProfile->currentLocation2->city }}
+                        </flux:text>
+                    </div>
+                @endif
+
+                {{-- 移住に関心のある地域1 --}}
+                @if ($workerProfile->favoriteLocation1)
+                    <div>
+                        <flux:text class="mb-1 font-semibold">移住に関心のある地域1</flux:text>
+                        <flux:text>
+                            {{ $workerProfile->favoriteLocation1->prefecture }}
+                            {{ $workerProfile->favoriteLocation1->city }}
+                        </flux:text>
+                    </div>
+                @endif
+
+                {{-- 移住に関心のある地域2 --}}
+                @if ($workerProfile->favoriteLocation2)
+                    <div>
+                        <flux:text class="mb-1 font-semibold">移住に関心のある地域2</flux:text>
+                        <flux:text>
+                            {{ $workerProfile->favoriteLocation2->prefecture }}
+                            {{ $workerProfile->favoriteLocation2->city }}
+                        </flux:text>
+                    </div>
+                @endif
+
+                {{-- 移住に関心のある地域3 --}}
+                @if ($workerProfile->favoriteLocation3)
+                    <div>
+                        <flux:text class="mb-1 font-semibold">移住に関心のある地域3</flux:text>
+                        <flux:text>
+                            {{ $workerProfile->favoriteLocation3->prefecture }}
+                            {{ $workerProfile->favoriteLocation3->city }}
+                        </flux:text>
+                    </div>
+                @endif
+
+                {{-- 興味のあるお手伝い --}}
+                @if ($workerProfile->available_action_labels)
+                    <div>
+                        <flux:text class="mb-2 font-semibold">興味のあるお手伝い</flux:text>
+                        <div class="flex flex-wrap gap-2">
+                            @foreach ($workerProfile->available_action_labels as $label)
+                                <span class="inline-flex items-center rounded-full bg-purple-100 px-2.5 py-0.5 text-xs font-medium text-purple-800 dark:bg-purple-900 dark:text-purple-200">
+                                    {{ $label }}
+                                </span>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
+            </div>
+        </div>
+    @endif
 
     {{-- 募集情報カード --}}
     <div class="rounded-xl border border-zinc-200 bg-white p-6 dark:border-zinc-700 dark:bg-zinc-800">
@@ -276,6 +482,44 @@ $getHowsoonLabel = function (string $howsoon): string {
             </flux:button>
             <flux:button variant="danger" wire:click="decline">
                 辞退する
+            </flux:button>
+        </div>
+    </flux:modal>
+
+    {{-- 承認確認モーダル --}}
+    <flux:modal name="accept-modal" class="space-y-6">
+        <div>
+            <flux:heading size="lg">応募を承認しますか？</flux:heading>
+            <flux:text class="mt-2">
+                この応募を承認してもよろしいですか？承認後、ワーカーに通知されます。
+            </flux:text>
+        </div>
+
+        <div class="flex justify-end gap-2">
+            <flux:button variant="ghost" wire:click="$dispatch('close-modal', 'accept-modal')">
+                キャンセル
+            </flux:button>
+            <flux:button variant="primary" wire:click="accept">
+                承認する
+            </flux:button>
+        </div>
+    </flux:modal>
+
+    {{-- 不承認確認モーダル --}}
+    <flux:modal name="reject-modal" class="space-y-6">
+        <div>
+            <flux:heading size="lg">応募を不承認にしますか？</flux:heading>
+            <flux:text class="mt-2">
+                この操作は取り消せません。本当に不承認にしてもよろしいですか？
+            </flux:text>
+        </div>
+
+        <div class="flex justify-end gap-2">
+            <flux:button variant="ghost" wire:click="$dispatch('close-modal', 'reject-modal')">
+                キャンセル
+            </flux:button>
+            <flux:button variant="danger" wire:click="reject">
+                不承認にする
             </flux:button>
         </div>
     </flux:modal>

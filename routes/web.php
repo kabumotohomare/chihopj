@@ -64,9 +64,14 @@ Volt::route('applications', 'applications.index')
     ->middleware(['auth', 'role:worker'])
     ->name('applications.index');
 
-// 応募詳細（ワーカーユーザーのみ、自分の応募のみ）
+// 応募一覧（企業向け、自社募集への応募）※動的ルートより前に配置
+Volt::route('applications/received', 'applications.received')
+    ->middleware(['auth', 'role:company'])
+    ->name('applications.received');
+
+// 応募詳細（ワーカーと企業が閲覧可能、認可はポリシーで制御）
 Volt::route('applications/{jobApplication}', 'applications.show')
-    ->middleware(['auth', 'role:worker'])
+    ->middleware(['auth'])
     ->name('applications.show');
 
 Route::middleware(['auth'])->group(function () {
