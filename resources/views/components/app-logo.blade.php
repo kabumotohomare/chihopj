@@ -1,6 +1,7 @@
-<div class="flex aspect-square size-8 items-center justify-center rounded-md bg-accent-content text-accent-foreground">
-    <x-app-logo-icon class="size-5 fill-current text-white dark:text-black" />
+<div class="flex aspect-square size-8 items-center justify-center">
+    <img src="{{ asset('images/presets/logo.png') }}" alt="ふるぼの" class="size-8 rounded-md object-cover">
 </div>
 <div class="ms-1 grid flex-1 text-start text-sm">
-    <img src="{{ asset('images/logo.png') }}" alt="Logo" {{ $attributes }}>ふるぼの - ふるさとプロボノ</span>
+    <span class="font-semibold text-zinc-900 dark:text-white">ふるぼの</span>
+    <span class="text-xs text-zinc-500 dark:text-zinc-400">ふるさとプロボノ</span>
 </div>

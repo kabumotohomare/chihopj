@@ -622,3 +622,100 @@ alwaysApply: true
   - 処理後、企業向け応募一覧（applications.received）にリダイレクト
 - **リレーション追加**: 
   - `worker.workerProfile.*Location`（birthLocation, currentLocation1/2, favoriteLocation1/2/3）
+ #### プロジェクト構成
+ - 通常のBladeビューとして実装
+ - `resources/views/welcome.blade.php`
+ - 認証後のリダイレクト先: `/jobs`（募集一覧）
+ 
+ #### ルーティング
+ - **ルート**: `GET /`
+ - **ルート名**: `welcome`
+ - **実装方法**: `routes/web.php`でクロージャとして実装
+ - **データ取得**:
+   - 最新の求人3件を取得（`JobPost::with(['companyProfile.user', 'location', 'employmentType'])>latest('posted_at')->take(3)->get()`）
+   - Eager Loading: companyProfile.user, location, employmentType
+ - **ビューに渡すデータ**:
+   - `latestJobs`: 最新の募集3件
+ - **実装例**:
+   ```php
+   Route::get('/', function () {
+       $latestJobs = JobPost::with(['companyProfile.user', 'location', 'employmentType'])
+           ->latest('posted_at')
+           ->take(3)
+           ->get();
+       
+       return view('welcome', [
+           'latestJobs' => $latestJobs,
+       ]);
+   })->name('welcome');
+   ```
+ 
+ #### デザイン
+ - やさしく温かみのある印象で、地方との心理的距離を縮めるデザイン
+ - 配色設計：
+  - ベージュ系（背景）
+    -  全体のベースカラーとして使用し、紙・土・木を連想させることで「暮らし」「日常」「安心感」を演出。長時間の閲覧でも疲れにくい。
+  - オレンジ（アクセント）
+    -  見出しの強調やCTAに使用。人の温度感・会話・一歩踏み出す勇気を象徴し、「旅のついでに」「話を聞きに行く」といった軽やかな行動喚起を担う。
+  -  グリーン（キーワード強調）
+    -  「地方」「自然」「地域」を象徴する色として、都市部（オレンジ）との対比に活用。都市と地方の“つながり”を色で直感的に理解させる役割。
+  -  ダークブラウン／ブラック（本文テキスト）
+    -  純粋な黒ではなく柔らかい濃色を使用し、可読性を保ちながら全体のトーンを穏やかに統一。
+ - レスポンシブ対応
+ - スクロールアニメーション
+ - インタラクティブな要素
+ - 手書き風フォントと丸みのある文字組みによる、親しみやすいトーン
+ - ファーストビューでコンセプトが直感的に伝わるコピー設計
+ - スマートフォン閲覧を前提とした縦スクロール中心のUI設計
+ - 写真を大きく使い、実在感・生活感・現場感を強調
+ - カード型UIによる事例紹介で、利用イメージを具体化
+
+ #### 構成
+ - **ヘッダー：**
+   - ロゴ画像(logo.png)を表示 
+   - サイト名「ふるぼの」をテキストで表示
+   - ナビゲーションメニュー：
+     - 地域の募集（#jobs へのアンカーリンク）
+     - ログイン（/login へのリンク、CTAボタンスタイル）
+   - モバイル時：ハンバーガーメニュー
+ 
+ - **ヒーローセクション：**
+   - 大きな見出し：「いつかやりたい」で地方とつながる
+   - サブタイトル：ふるさとプロボノサービス
+   - ファーストビュー画像(fv.png)を表示
+   - 背景：オレンジ系のグラデーション
+  
+ - **募集情報セクション（#jobs）：**
+   - 見出し: 「全国の地域から」
+   - サブタイトル: 「新着の募集をチェックしましょう」
+   - 最新の募集3件をカード形式で表示
+   - 各求人カードに表示する項目：
+     - アイキャッチ画像
+     - やりたいこと
+     - 所在地（都道府県 + 市区町村）
+   - 各カードはクリック可能（/jobs/{id} へのリンク）
+   - 「もっと見る」ボタン（/jobs へのリンク）
+   - 募集が存在しない場合：「現在、募集はありません」と表示
+ 
+ - **フッター：**
+   - 2カラム表示（モバイルは1カラム）：
+   - コピーライト：「© 2025 MEKABU.co. All rights reserved.」
+   - プライバシーポリシー（https://mekabu.tech/privacy-policy への外部リンク）
+ 
+ #### 使用技術
+ - Laravel Blade（テンプレートエンジン）
+ - Tailwind CSS（スタイリング）
+ - Alpine.js（インタラクティブ要素）
+ - Google Fonts（Noto Sans JP）: `https://fonts.bunny.net/css?family=noto-sans-jp:400,500,600,00`
+ - Font Awesome（アイコン、CDN）: `https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/ss/all.min.css`
+ 
+ #### SEO対策
+ - `<title>`: 「ふるぼの - ふるさとプロボノ」
+ - `<meta name="description">`: 「"いつかやりたい"で地方とつながる」
+ 
+ #### アクセシビリティ
+ - セマンティックHTMLの使用
+ - 画像のalt属性を必ず設定
+ - リンクには適切なaria-labelを使用
+ - キーボード操作対応
+ - コントラスト比の確保（WCAG AA基準）

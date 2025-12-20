@@ -1,12 +1,22 @@
 <?php
 
+use App\Models\JobPost;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Features;
 use Livewire\Volt\Volt;
 
 Route::get('/', function () {
-    return view('welcome');
-})->name('home');
+    // 最新の募集3件を取得（Eager Loading）
+    $latestJobs = JobPost::query()
+        ->with(['company.companyProfile.location', 'jobType'])
+        ->latest('posted_at')
+        ->take(3)
+        ->get();
+
+    return view('welcome', [
+        'latestJobs' => $latestJobs,
+    ]);
+})->name('welcome');
 
 Volt::route('dashboard', 'dashboard')
     ->middleware(['auth', 'verified'])

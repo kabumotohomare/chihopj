@@ -6,11 +6,15 @@ use App\Http\Requests\UpdateJobPostRequest;
 use App\Models\Code;
 use App\Models\JobPost;
 use Illuminate\Support\Facades\Storage;
+use Livewire\WithFileUploads;
 
 use function Livewire\Volt\computed;
 use function Livewire\Volt\layout;
 use function Livewire\Volt\mount;
 use function Livewire\Volt\state;
+use function Livewire\Volt\uses;
+
+uses([WithFileUploads::class]);
 
 layout('components.layouts.app');
 
@@ -204,7 +208,7 @@ $update = function () {
                         class="mt-3 w-full rounded-lg border border-gray-200 px-3 py-2 dark:border-gray-700 dark:bg-gray-800">
                     
                     <!-- プレビュー -->
-                    @if ($eyecatch)
+                    @if ($eyecatch && is_object($eyecatch) && method_exists($eyecatch, 'temporaryUrl'))
                         <div class="mt-3">
                             <img src="{{ $eyecatch->temporaryUrl() }}" alt="プレビュー" class="h-32 w-auto rounded-lg">
                         </div>

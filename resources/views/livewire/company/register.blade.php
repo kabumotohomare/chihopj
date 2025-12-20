@@ -197,7 +197,7 @@ class extends Component
 
             <!-- 送信ボタン -->
             <div class="flex flex-col sm:flex-row gap-4 justify-end">
-                <flux:button href="{{ route('home') }}" variant="ghost" class="order-2 sm:order-1">
+                <flux:button href="{{ route('welcome') }}" variant="ghost" class="order-2 sm:order-1">
                     キャンセル
                 </flux:button>
                 <flux:button type="submit" variant="primary" class="order-1 sm:order-2">
