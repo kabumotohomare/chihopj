@@ -6,6 +6,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * 募集投稿モデル
@@ -57,6 +58,14 @@ class JobPost extends Model
     public function jobType(): BelongsTo
     {
         return $this->belongsTo(Code::class, 'job_type_id');
+    }
+
+    /**
+     * 応募情報とのリレーション
+     */
+    public function applications(): HasMany
+    {
+        return $this->hasMany(JobApplication::class, 'job_id');
     }
 
     /**
