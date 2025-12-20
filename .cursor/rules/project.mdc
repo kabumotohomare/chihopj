@@ -5,7 +5,7 @@ alwaysApply: true
 # プロジェクト仕様
 
 ## 概要
-日本の地方プロボノマッチングアプリケーション"じもプロ"
+日本の地方プロボノマッチングアプリケーション"ふるぼの"
 
 ## プロジェクトの目的
 - 地方貢献に興味のある人材が、地方の中小企業や自治体のプロジェクトに応募することによって、プロボノマッチングを実現
@@ -317,25 +317,41 @@ alwaysApply: true
  - **ルート**: `GET /jobs/{jobPost}`
  - **ルート名**: `jobs.show`
  - **コンポーネント**: `resources/views/livewire/jobs/show.blade.php`
- - **ミドルウェア**: `auth`
+ - **ミドルウェア**: なし（誰でも閲覧可能、ログイン不要）
  - **機能**: 募集詳細表示、応募ボタン、編集・削除ボタン
  - **表示内容**:
    - job_postsテーブルの全情報
    - リレーション情報（企業名、所在地）
+   - アイキャッチ画像（eyecatch）
+   - 募集形態タグ（job_type_id、青色バッジ）
+   - 希望タグ（want_you_ids、ハッシュタグ形式、グレーバッジ）
+   - 「いつまでに」ラベル（howsoon、赤色バッジ、目立つ表示）
+   - やりたいこと（job_title、見出し）
+   - 事業内容・困っていること（job_detail、全文表示）
+   - 御礼にタグ（can_do_ids、緑色バッジ）
+   - 企業名と所在地（アイコン付きラベル）
+   - 投稿日時（posted_at）
  - **アクション**:
-   - ワーカーユーザー: 「応募する」ボタン（jobs.apply へ遷移、次章で実装）
+   - ワーカーユーザー（認証済み）: 
+     - 未応募の場合: 「応募する」ボタン（jobs.apply へ遷移）
+     - 応募済みの場合: 「✓ 応募済み」バッジ表示（緑色、ボタン無効化）
    - 企業ユーザー（自社求人のみ）: 「編集」ボタン（jobs.edit へ遷移）
    - 企業ユーザー（自社求人のみ）: 「削除」ボタン（削除確認モーダル表示）
+   - ゲストユーザー（未認証）: 「応募する」ボタンをクリックするとログイン画面へ遷移
  - **削除機能**:
-   - 削除確認モーダル表示
-   - 削除後は求人一覧（jobs.index）にリダイレクト
- - **ポリシー**: `view`アクション（誰でも閲覧可能）
+   - 削除確認モーダル表示（「本当に削除しますか？」）
+   - 削除後は募集一覧（jobs.index）にリダイレクト
+   - 成功メッセージ「募集を削除しました。」を表示
+ - **ポリシー**: `view`アクション（誰でも閲覧可能、未認証ユーザーもOK）
  - **UI**:
-  - パソコン操作が苦手な事業者でもスマホで入力できるようにレスポンシブ対応する
-  - カード型のカセット構造で、1募集1カード
-  - カード内の見た目:eyecatch(アイキャッチ画像)が表示される。eyecath直下に、角丸のタグ形式での、job_type_id(プロボノ、副業、採用、地域おこし協力隊)と、ハッシュタグ形式でのwant_you_id(提案してほしい、ホームページの制作など)を表示。募集見出しとして、howsoon(いつか、いますぐにでも等)を目立たせたうえで、job_title(やりたいこと)を続けて表示する。job_detail(事業内容・困っていること)は90文字まで表示。その下に、i_can_id(駅まで車出します、オンラインで話せます等)を最下部に、company(募集している事業所名)、location_id(所在地)をラベル形式で表示。
+   - レスポンシブ対応（スマホでも見やすい）
+   - カード型レイアウト
+   - 戻るボタン（募集一覧へ）
+   - 削除確認モーダル（Flux UI Modal使用）
  - **リレーション**:
-   - company、location_idを先読み込み
+   - company.companyProfile.location を先読み込み（N+1問題回避）
+   - jobType を先読み込み
+   - ワーカーユーザーの場合、自分の応募状況も確認
  
  #### 募集登録画面
  - **ルート**: `GET /jobs/create`
@@ -463,3 +479,105 @@ alwaysApply: true
   - 全求人カード: クリックで求人詳細画面（jobs.show）へ遷移
 - **リレーション**:
   - company（企業）、location（所在地）を先読み込み（N+1問題回避）
+ #### 募集詳細画面
+ - 「募集管理」セクションの募集詳細画面を参照
+ 
+ #### 募集登録画面
+ - **ルート**: `GET /jobs/create`
+ - **ルート名**: `jobs.create`
+ - **コンポーネント**: `resources/views/livewire/jobs/create.blade.php`
+ - **ミドルウェア**: `auth`, `role:company`
+ - **機能**: 新規求人投稿
+ - **入力項目**:
+   - eyecatch: アイキャッチ画像（任意、画像アップロード）
+   - howsoon: いつまでに（必須、ラジオボタン：いつか / いますぐにでも / ◯月までに、 "◯月までに"を選択しようとすると、「プロプランに変更してください」というバリデーションメッセージを表示）
+   - job_title: やりたいこと（必須、日本語50文字以内、テキストエリア、"〇〇したい"とプレースホルダーで表示）
+   - job_detail: 事業内容・困っていること（必須、日本語200文字以内、テキストエリア、"〇〇をしています。✕✕をやりたいが、△△なのでできていません"とプレースホルダーで表示）
+   - job_type_id: 募集（必須、ラジオボタン、codesテーブルtype=1、"
+採用(有償/雇用)"、"地域おこし協力隊"を選択しようとすると、それぞれ「雇用を目的とした募集はプロプランに変更してください」「地域おこし協力隊募集はプロプランに変更してください」というバリデーションメッセージを表示し、選択をリセット）
+   - want_you_id: 希望（任意、チェックボックス、codesテーブルtype=2）
+   - job_type_id: できます（任意、チェックボックス、codesテーブルtype=3）
+ - **自動設定項目**:
+   - company_id: ログインユーザーのID
+   - posted_at: 現在日時
+ - **バリデーション**（Form Request使用）:
+   - title: required, max:100
+   - description: required, max:1000
+   - employment_type_id: required, exists:codes,type_id（type=1の範囲内）
+   - work_style_id: required, exists:codes,type_id（type=2の範囲内）
+   - industry_id: required, exists:codes,type_id（type=3の範囲内）
+   - location_id: required, exists:locations,id
+   - working_hours: required, max:100
+   - salary: required, integer, min:0
+   - number_of_positions: required, integer, min:1
+   - expires_at: nullable, date, after:today
+ - **処理**:
+   - バリデーション後、job_postsテーブルに登録
+   - 登録成功後、求人一覧（jobs.index）にリダイレクト
+ - **ポリシー**: `create`アクション（企業ユーザーのみ）
+ - **2段階選択の実装**:
+   - 都道府県選択時に`wire:model.live="prefecture_id"`を使用
+   - prefecture_idが変更されたら市区町村ドロップダウンを動的に更新
+   - 市区町村はupdatedPrefectureId()メソッド内で絞り込み
+ 
+ 
+ - **ルート**: `GET /jobs/{jobPost}/edit`
+ - **ルート名**: `jobs.edit`
+ - **コンポーネント**: `resources/views/livewire/jobs/edit.blade.php`
+ - **ミドルウェア**: `auth`, `role:company`
+ - **機能**: 既存募集の編集（自社求人のみ）
+ - **入力項目**: 求人登録画面と同じ
+ - **既存データ**: プリフィル（初期表示）
+   - 勤務地は既存location_idから都道府県と市区町村を取得して表示
+ - **posted_at**: 編集時は更新しない（既存値を保持）
+ - **バリデーション**: 求人登録画面と同じ
+ - **処理**:
+   - バリデーション後、job_postsテーブルを更新
+   - 更新成功後、求人詳細（jobs.show）にリダイレクト
+ - **ポリシー**: `update`アクション（自社求人のみ）
+ - **2段階選択の実装**:
+   - 都道府県選択時に`wire:model.live="prefecture_id"`を使用
+   - prefecture_idが変更されたら市区町村ドロップダウンを動的に更新
+   - 市区町村はupdatedPrefectureId()メソッド内で絞り込み
+   - mount時に既存のlocation_idから都道府県IDを取得してprefecture_idを設定
+ #### 応募一覧画面（ワーカー向け）
+ - **ルート**: `GET /applications`
+ - **ルート名**: `applications.index`
+ - **コンポーネント**: `resources/views/livewire/applications/index.blade.php`
+ - **ミドルウェア**: `auth`, `role:worker`
+ - **機能**: 自分の応募履歴一覧表示、検索・フィルタ機能
+ - **表示内容**:
+   - 自分が応募した求人のリスト（1ページ12件）
+   - アイキャッチ画像、やりたいこと、期待するサポート、できます、事業者名、所在地など
+   - ステータス（バッジ）
+   - 応募日
+   - 判定日（承認/不承認の場合のみ）
+ - **検索・フィルタ機能**:
+   - ステータスフィルタ（チェックボックス、applied, accepted, rejected, declined）
+   - キーワード検索（求人タイトル、企業名）
+   - 並び替え（応募日の新しい順/古い順）
+ - **ページネーション**: 1ページ12件
+ - **アクション**:
+   - 詳細ボタン（常に表示、applications.showへ遷移）
+ - **パフォーマンス**: N+1問題対策（`with(['jobPost.company', 'jobPost.employmentType', jobPost.location'])`）
+ 
+ #### 応募詳細画面（ワーカー向け）
+ - **ルート**: `GET /applications/{jobApplication}`
+ - **ルート名**: `applications.show`
+ - **コンポーネント**: `resources/views/livewire/applications/show.blade.php`
+ - **ミドルウェア**: `auth`（workerとcompany共通）
+ - **機能**: 応募詳細表示、辞退機能（ワーカー）、承認・不承認機能（企業、13.mdで追加）
+ - **表示内容**:
+   - 応募情報（応募日、ステータス、判定日、辞退日）
+   - 募集情報（アイキャッチ画像、やりたいこと、期待するサポート、できます、事業者名、所在地など）
+   - この募集が気になった理由は？
+   - メッセージ
+ - **アクション**:
+   - 辞退ボタン（status='applied'の場合のみ）
+   - 辞退確認モーダル（「本当に辞退しますか？」）
+ - **辞退処理**:
+   - statusを'declined'に更新
+   - declined_atに現在日時を設定
+   - 処理後、応募一覧（applications.index）にリダイレクト
+ - **ポリシー**: `view`アクション（自分の応募のみ閲覧可能）
+ - **パフォーマンス**: N+1問題対策（`with(['jobPost.company', 'jobPost.employmentType', 'jobPost.workStyle', 'jobPost.industry', 'jobPost.location'])`）

@@ -59,6 +59,16 @@ Volt::route('jobs/{jobPost}/apply', 'jobs.apply')
     ->middleware(['auth', 'role:worker'])
     ->name('jobs.apply');
 
+// 応募一覧（ワーカーユーザーのみ）
+Volt::route('applications', 'applications.index')
+    ->middleware(['auth', 'role:worker'])
+    ->name('applications.index');
+
+// 応募詳細（ワーカーユーザーのみ、自分の応募のみ）
+Volt::route('applications/{jobApplication}', 'applications.show')
+    ->middleware(['auth', 'role:worker'])
+    ->name('applications.show');
+
 Route::middleware(['auth'])->group(function () {
     Route::redirect('settings', 'settings/profile');
 

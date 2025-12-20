@@ -14,6 +14,10 @@
             <flux:navlist variant="outline">
                 <flux:navlist.group :heading="__('Platform')" class="grid">
                     <flux:navlist.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>{{ __('Dashboard') }}</flux:navlist.item>
+                    <flux:navlist.item icon="briefcase" :href="route('jobs.index')" :current="request()->routeIs('jobs.*')" wire:navigate>募集一覧</flux:navlist.item>
+                    @if(auth()->user()->role === 'worker')
+                        <flux:navlist.item icon="clipboard-document-list" :href="route('applications.index')" :current="request()->routeIs('applications.*')" wire:navigate>応募履歴</flux:navlist.item>
+                    @endif
                 </flux:navlist.group>
             </flux:navlist>
 
