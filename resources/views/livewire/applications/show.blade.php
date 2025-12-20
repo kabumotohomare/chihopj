@@ -1,4 +1,5 @@
-@php
+<?php
+
 declare(strict_types=1);
 
 use App\Models\JobApplication;
@@ -108,7 +109,7 @@ $getHowsoonLabel = function (string $howsoon): string {
     };
 };
 
-@endphp
+?>
 
 <div class="mx-auto max-w-4xl space-y-8 px-4 py-8 sm:px-6 lg:px-8">
     {{-- 戻るボタン --}}
