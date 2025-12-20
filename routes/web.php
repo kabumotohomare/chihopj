@@ -40,6 +40,11 @@ Volt::route('company/profile', 'company.show')
 Volt::route('jobs', 'jobs.index')
     ->name('jobs.index');
 
+// 自社の募集一覧（企業ユーザーのみ）※動的ルートより前に配置
+Volt::route('jobs/my-jobs', 'jobs.my-jobs')
+    ->middleware(['auth', 'role:company'])
+    ->name('jobs.my-jobs');
+
 // 募集登録（企業ユーザーのみ）※動的ルートより前に配置
 Volt::route('jobs/create', 'jobs.create')
     ->middleware(['auth', 'role:company'])

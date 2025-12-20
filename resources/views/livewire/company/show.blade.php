@@ -1,38 +1,34 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Models\CompanyProfile;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
-use Livewire\Volt\Component;
+use function Livewire\Volt\{layout, title, state, mount, computed};
 
-new class extends Component {
-    public CompanyProfile $profile;
+layout('components.layouts.app');
+title('企業プロフィール');
 
-    /**
-     * コンポーネントのマウント
-     */
-    public function mount(): void
-    {
-        $user = Auth::user();
+// 状態定義
+state(['profile' => null]);
 
-        // 企業プロフィールを取得（リレーションをEager Loading）
-        $this->profile = CompanyProfile::with(['location'])
-            ->where('user_id', $user->id)
-            ->firstOrFail();
+// コンポーネントのマウント
+mount(function () {
+    $this->profile = CompanyProfile::with(['location'])
+        ->where('user_id', auth()->id())
+        ->firstOrFail();
+});
+
+// 地域の表示名を取得（都道府県 市区町村）
+$getLocationDisplay = function (): string {
+    if (!$this->profile->location) {
+        return '未設定';
     }
+    
+    return $this->profile->location->display_name;
+};
 
-    /**
-     * 地域の表示名を取得（都道府県 市区町村）
-     */
-    public function getLocationDisplay(): string
-    {
-        if (!$this->profile->location) {
-            return '未設定';
-        }
-
-        return $this->profile->location->display_name;
-    }
-}; ?>
+?>
 
 <div class="mx-auto max-w-4xl px-4 py-8">
     <div class="mb-6 flex items-center justify-between">
@@ -113,4 +109,3 @@ new class extends Component {
         </div>
     </div>
 </div>
-
