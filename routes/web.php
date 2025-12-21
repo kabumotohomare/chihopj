@@ -6,7 +6,7 @@ use Laravel\Fortify\Features;
 use Livewire\Volt\Volt;
 
 Route::get('/', function () {
-    // 最新の募集3件を取得（Eager Loading）
+    // 最新の募集を取得（Eager Loading）
     $latestJobs = JobPost::query()
         ->with(['company.companyProfile.location', 'jobType'])
         ->latest('posted_at')
