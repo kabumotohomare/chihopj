@@ -7,6 +7,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
  * 応募状況モデル
@@ -60,6 +61,14 @@ class JobApplication extends Model
     public function worker(): BelongsTo
     {
         return $this->belongsTo(User::class, 'worker_id');
+    }
+
+    /**
+     * チャットルームとのリレーション
+     */
+    public function chatRoom(): HasOne
+    {
+        return $this->hasOne(ChatRoom::class, 'application_id');
     }
 
     /**

@@ -123,5 +123,54 @@ alwaysApply: true
 - statusのデフォルト値は'applied'
 - reasonsはJSON形式で複数の理由を配列として保存
 
+### chat_roomsテーブル
+
+**目的**: チャットルーム（1対1チャット）
+
+**カラム定義**:
+- id: bigint unsigned, primary key
+- application_id: bigint unsigned, 外部キー（job_applications.id）、応募情報
+- created_at, updated_at: timestamps
+
+**インデックス**:
+- PRIMARY: id
+- UNIQUE: application_id - 1つの応募に1つのチャットルーム
+- FOREIGN KEY: application_id (job_applications.id) ON DELETE CASCADE
+
+**リレーション**:
+- job_applications: 1対1（CASCADE削除）
+- messages: 1対多（CASCADE削除）
+
+**備考**:
+- application_idにユニーク制約を設定し、1つの応募に1つのチャットルームを保証
+- チャットルームは応募時に自動作成される
+
+---
+
+### messagesテーブル
+
+**目的**: チャットメッセージ
+
+**カラム定義**:
+- id: bigint unsigned, primary key
+- chat_room_id: bigint unsigned, 外部キー（chat_rooms.id）、チャットルーム
+- sender_id: bigint unsigned, 外部キー（users.id）、送信者
+- message: text, メッセージ内容
+- is_read: boolean, 既読フラグ（デフォルト: false）
+- created_at, updated_at: timestamps
+
+**インデックス**:
+- PRIMARY: id
+- INDEX: chat_room_id - チャットルームごとのメッセージ取得を高速化
+- FOREIGN KEY: chat_room_id (chat_rooms.id) ON DELETE CASCADE
+- FOREIGN KEY: sender_id (users.id) ON DELETE RESTRICT
+
+**リレーション**:
+- chat_rooms: 多対1（CASCADE削除）
+- users: 多対1（RESTRICT削除）
+
+**備考**:
+- is_readは受信者が既読にした時にtrueに更新
+- created_atを送信日時として使用
 
 <!-- ここから段階的に追加 -->

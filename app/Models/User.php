@@ -92,6 +92,14 @@ class User extends Authenticatable
     }
 
     /**
+     * 送信したメッセージとのリレーション
+     */
+    public function sentMessages(): HasMany
+    {
+        return $this->hasMany(Message::class, 'sender_id');
+    }
+
+    /**
      * 企業ユーザーかどうか
      */
     public function isCompany(): bool

@@ -271,7 +271,7 @@ $create = function () {
                     @if ($showSuggestions && !empty($suggestions))
                         <div class="absolute z-10 mt-1 w-full rounded-lg border border-gray-200 bg-white shadow-lg dark:border-gray-700 dark:bg-gray-800">
                             <div class="px-3 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400">
-                                入力補助
+                                他の事業者の募集を参考にしてください
                             </div>
                             <div class="max-h-60 overflow-y-auto">
                                 @foreach ($suggestions as $suggestion)
