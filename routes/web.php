@@ -89,6 +89,16 @@ Volt::route('applications/{jobApplication}', 'applications.show')
     ->middleware(['auth'])
     ->name('applications.show');
 
+// チャット一覧（認証済みユーザー）
+Volt::route('chats', 'chats.index')
+    ->middleware(['auth'])
+    ->name('chats.index');
+
+// チャット詳細（認証済みユーザー、認可はポリシーで制御）※動的ルートより前に配置
+Volt::route('chats/{chatRoom}', 'chats.show')
+    ->middleware(['auth'])
+    ->name('chats.show');
+
 Route::middleware(['auth'])->group(function () {
     Route::redirect('settings', 'settings/profile');
 

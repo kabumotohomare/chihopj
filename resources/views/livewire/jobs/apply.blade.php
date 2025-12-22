@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Http\Requests\StoreJobApplicationRequest;
+use App\Models\ChatRoom;
 use App\Models\JobApplication;
 use App\Models\JobPost;
 
@@ -32,27 +33,35 @@ mount(function (JobPost $jobPost) {
  */
 $submit = function () {
     // バリデーション
-    $validated = $this->validate([
-        'reasons' => 'nullable|array',
-        'reasons.*' => 'string|in:near_hometown,lived_before,wanted_to_visit,empathize_with_goal,travel_opportunity,can_use_experience,wanted_to_try,gain_new_experience',
-        'motive' => 'nullable|string|max:1000',
-    ], [
-        'reasons.array' => '応募理由の形式が正しくありません。',
-        'reasons.*.in' => '選択された応募理由が無効です。',
-        'motive.max' => 'メッセージは1000文字以内で入力してください。',
-    ]);
+    $validated = $this->validate(
+        [
+            'reasons' => 'nullable|array',
+            'reasons.*' => 'string|in:near_hometown,lived_before,wanted_to_visit,empathize_with_goal,travel_opportunity,can_use_experience,wanted_to_try,gain_new_experience',
+            'motive' => 'nullable|string|max:1000',
+        ],
+        [
+            'reasons.array' => '応募理由の形式が正しくありません。',
+            'reasons.*.in' => '選択された応募理由が無効です。',
+            'motive.max' => 'メッセージは1000文字以内で入力してください。',
+        ],
+    );
 
     // ポリシーで認可チェック（重複応募チェックを含む）
     $this->authorize('apply', $this->jobPost);
 
     // 応募データの作成（空文字列はnullに変換）
-    JobApplication::create([
+    $jobApplication = JobApplication::create([
         'job_id' => $this->jobPost->id,
         'worker_id' => auth()->id(),
-        'reasons' => ! empty($validated['reasons']) ? $validated['reasons'] : null,
+        'reasons' => !empty($validated['reasons']) ? $validated['reasons'] : null,
         'motive' => $validated['motive'] ?: null,
         'status' => 'applied',
         'applied_at' => now(),
+    ]);
+
+    // チャットルームを自動作成
+    ChatRoom::create([
+        'application_id' => $jobApplication->id,
     ]);
 
     session()->flash('status', '応募が完了しました。');
@@ -91,13 +100,11 @@ $getHowsoonLabel = function (): string {
             @if ($jobPost->eyecatch)
                 <div class="aspect-video w-full overflow-hidden">
                     @if (str_starts_with($jobPost->eyecatch, '/images/presets/'))
-                        <img src="{{ $jobPost->eyecatch }}" 
-                             alt="{{ $jobPost->job_title }}" 
-                             class="h-full w-full object-cover">
+                        <img src="{{ $jobPost->eyecatch }}" alt="{{ $jobPost->job_title }}"
+                            class="h-full w-full object-cover">
                     @else
-                        <img src="{{ Storage::url($jobPost->eyecatch) }}" 
-                             alt="{{ $jobPost->job_title }}" 
-                             class="h-full w-full object-cover">
+                        <img src="{{ Storage::url($jobPost->eyecatch) }}" alt="{{ $jobPost->job_title }}"
+                            class="h-full w-full object-cover">
                     @endif
                 </div>
             @endif
@@ -195,49 +202,57 @@ $getHowsoonLabel = function (): string {
                         </flux:text>
 
                         <div class="space-y-3">
-                            <label class="flex items-center gap-3 rounded-lg border border-gray-200 p-3 transition hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700/50">
+                            <label
+                                class="flex items-center gap-3 rounded-lg border border-gray-200 p-3 transition hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700/50">
                                 <input type="checkbox" wire:model="reasons" value="near_hometown"
                                     class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:focus:ring-blue-600">
                                 <span class="text-gray-700 dark:text-gray-300">地元の近く</span>
                             </label>
 
-                            <label class="flex items-center gap-3 rounded-lg border border-gray-200 p-3 transition hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700/50">
+                            <label
+                                class="flex items-center gap-3 rounded-lg border border-gray-200 p-3 transition hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700/50">
                                 <input type="checkbox" wire:model="reasons" value="lived_before"
                                     class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:focus:ring-blue-600">
                                 <span class="text-gray-700 dark:text-gray-300">昔住んでいた地域</span>
                             </label>
 
-                            <label class="flex items-center gap-3 rounded-lg border border-gray-200 p-3 transition hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700/50">
+                            <label
+                                class="flex items-center gap-3 rounded-lg border border-gray-200 p-3 transition hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700/50">
                                 <input type="checkbox" wire:model="reasons" value="wanted_to_visit"
                                     class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:focus:ring-blue-600">
                                 <span class="text-gray-700 dark:text-gray-300">行きたかった地域</span>
                             </label>
 
-                            <label class="flex items-center gap-3 rounded-lg border border-gray-200 p-3 transition hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700/50">
+                            <label
+                                class="flex items-center gap-3 rounded-lg border border-gray-200 p-3 transition hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700/50">
                                 <input type="checkbox" wire:model="reasons" value="empathize_with_goal"
                                     class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:focus:ring-blue-600">
                                 <span class="text-gray-700 dark:text-gray-300">やりたいことに共感</span>
                             </label>
 
-                            <label class="flex items-center gap-3 rounded-lg border border-gray-200 p-3 transition hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700/50">
+                            <label
+                                class="flex items-center gap-3 rounded-lg border border-gray-200 p-3 transition hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700/50">
                                 <input type="checkbox" wire:model="reasons" value="travel_opportunity"
                                     class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:focus:ring-blue-600">
                                 <span class="text-gray-700 dark:text-gray-300">旅のついで</span>
                             </label>
 
-                            <label class="flex items-center gap-3 rounded-lg border border-gray-200 p-3 transition hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700/50">
+                            <label
+                                class="flex items-center gap-3 rounded-lg border border-gray-200 p-3 transition hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700/50">
                                 <input type="checkbox" wire:model="reasons" value="can_use_experience"
                                     class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:focus:ring-blue-600">
                                 <span class="text-gray-700 dark:text-gray-300">経験が活かせそう</span>
                             </label>
 
-                            <label class="flex items-center gap-3 rounded-lg border border-gray-200 p-3 transition hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700/50">
+                            <label
+                                class="flex items-center gap-3 rounded-lg border border-gray-200 p-3 transition hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700/50">
                                 <input type="checkbox" wire:model="reasons" value="wanted_to_try"
                                     class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:focus:ring-blue-600">
                                 <span class="text-gray-700 dark:text-gray-300">自分もやってみたかった</span>
                             </label>
 
-                            <label class="flex items-center gap-3 rounded-lg border border-gray-200 p-3 transition hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700/50">
+                            <label
+                                class="flex items-center gap-3 rounded-lg border border-gray-200 p-3 transition hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700/50">
                                 <input type="checkbox" wire:model="reasons" value="gain_new_experience"
                                     class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:focus:ring-blue-600">
                                 <span class="text-gray-700 dark:text-gray-300">新しい経験を積みたい</span>
@@ -259,10 +274,9 @@ $getHowsoonLabel = function (): string {
 
                         <flux:field>
                             <flux:label>メッセージ（任意）</flux:label>
-                            <flux:textarea 
-                                wire:model="motive" 
-                                rows="6" 
-                                placeholder="例：&#10;・これまでの経験やスキル&#10;・応募の動機&#10;・どのようなサポートができるか&#10;・質問や確認したいこと">{{ $motive }}</flux:textarea>
+                            <flux:textarea wire:model="motive" rows="6"
+                                placeholder="例：&#10;・これまでの経験やスキル&#10;・応募の動機&#10;・どのようなサポートができるか&#10;・質問や確認したいこと">
+                                {{ $motive }}</flux:textarea>
                             <flux:error name="motive" />
                             <flux:description>
                                 1000文字以内で入力してください。
@@ -278,10 +292,7 @@ $getHowsoonLabel = function (): string {
                             </flux:button>
                         </flux:modal.trigger>
 
-                        <flux:button 
-                            href="{{ route('jobs.show', $jobPost) }}" 
-                            wire:navigate 
-                            variant="ghost" 
+                        <flux:button href="{{ route('jobs.show', $jobPost) }}" wire:navigate variant="ghost"
                             class="flex-1 sm:flex-none">
                             キャンセル
                         </flux:button>
@@ -308,11 +319,7 @@ $getHowsoonLabel = function (): string {
                     </flux:button>
                 </flux:modal.close>
 
-                <flux:button 
-                    wire:click="submit" 
-                    variant="primary" 
-                    class="flex-1"
-                    wire:loading.attr="disabled">
+                <flux:button wire:click="submit" variant="primary" class="flex-1" wire:loading.attr="disabled">
                     <span wire:loading.remove>応募する</span>
                     <span wire:loading>処理中...</span>
                 </flux:button>
