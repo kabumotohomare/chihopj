@@ -49,7 +49,7 @@ $submit = function () {
     // ポリシーで認可チェック（重複応募チェックを含む）
     $this->authorize('apply', $this->jobPost);
 
-    // 応募データの作成（空文字列はnullに変換）
+    // 1. 応募データ（JobApplication）を登録
     $jobApplication = JobApplication::create([
         'job_id' => $this->jobPost->id,
         'worker_id' => auth()->id(),
@@ -59,13 +59,14 @@ $submit = function () {
         'applied_at' => now(),
     ]);
 
-    // チャットルームを自動作成
+    // 2. 登録成功後、ChatRoomを作成（application_idを設定）
     ChatRoom::create([
         'application_id' => $jobApplication->id,
     ]);
 
     session()->flash('status', '応募が完了しました。');
 
+    // 3. 求人詳細画面にリダイレクト
     return $this->redirect(route('jobs.show', $this->jobPost), navigate: true);
 };
 

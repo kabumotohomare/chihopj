@@ -101,10 +101,10 @@
             <div class="container mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="max-w-3xl">
                     <h1 class="text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight drop-shadow-2xl">
-                        「いつかやりたい」で<br>地方とつながる
+                        「いつかやりたい」で<br>&nbsp;&nbsp;地域とつながる
                     </h1>
                     <p class="text-xl md:text-2xl text-white/90 mb-10 drop-shadow-lg">
-                        ふるさとプロボノサービス
+                        地域の力になりたいあなたを待っている「ふるさとプロボノ」
                     </p>
                     <div class="flex flex-col sm:flex-row gap-4">
                         <a href="#jobs" class="bg-[#FF6B35] hover:bg-[#E55A28] text-white px-8 py-4 rounded-full transition-all transform hover:scale-105 font-bold text-lg shadow-2xl text-center">

@@ -3,105 +3,79 @@
 declare(strict_types=1);
 
 use App\Models\ChatRoom;
-use App\Models\Message;
-use Illuminate\Support\Str;
-
-use function Livewire\Volt\computed;
-use function Livewire\Volt\layout;
-use function Livewire\Volt\state;
-use function Livewire\Volt\title;
+use function Livewire\Volt\{computed, layout, state, title};
 
 layout('components.layouts.app.header');
 title('チャット一覧');
 
-/**
- * 検索の状態
- */
+// 検索状態
 state(['keyword' => '']);
 
-/**
- * チャットルーム一覧を取得（検索・フィルタ適用）
- */
+// チャットルーム一覧（ページネーション付き）
 $chatRooms = computed(function () {
     $user = auth()->user();
-    $query = ChatRoom::query()
-        ->with([
-            'jobApplication.jobPost.company.companyProfile.user',
-            'jobApplication.worker',
-            'messages' => function ($q) {
-                $q->latest()->limit(1);
-            },
-        ])
-        ->withCount([
-            'messages as unread_count' => function ($q) {
-                $q->where('sender_id', '!=', auth()->id())
-                    ->where('is_read', false);
-            },
-        ]);
+    $query = ChatRoom::query();
 
-    // 企業：自社求人への応募のチャットルーム
+    // ロールに応じてチャットルームを絞り込み
     if ($user->role === 'company') {
+        // 企業：自社求人への応募のチャットルーム（全ステータス）
         $query->whereHas('jobApplication.jobPost', function ($q) use ($user) {
             $q->where('company_id', $user->id);
         });
-    }
-
-    // ワーカー：自分が応募した求人のチャットルーム
-    if ($user->role === 'worker') {
+    } else {
+        // ワーカー：自分が応募した求人のチャットルーム（全ステータス）
         $query->whereHas('jobApplication', function ($q) use ($user) {
             $q->where('worker_id', $user->id);
         });
     }
 
+    // Eager Loading
+    $query->with([
+        'jobApplication.jobPost',
+        'jobApplication.worker',
+        'jobApplication.jobPost.company.companyProfile.user',
+    ]);
+
     // キーワード検索（企業名、求人タイトル、ワーカー名）
-    if (! empty($this->keyword)) {
+    if ($this->keyword) {
         $query->where(function ($q) {
             $q->whereHas('jobApplication.jobPost.company', function ($companyQuery) {
-                $companyQuery->where('name', 'like', "%{$this->keyword}%");
+                $companyQuery->where('name', 'like', '%' . $this->keyword . '%');
             })
-                ->orWhereHas('jobApplication.jobPost', function ($jobQuery) {
-                    $jobQuery->where('job_title', 'like', "%{$this->keyword}%");
-                })
-                ->orWhereHas('jobApplication.worker', function ($workerQuery) {
-                    $workerQuery->where('name', 'like', "%{$this->keyword}%");
-                });
+            ->orWhereHas('jobApplication.jobPost', function ($jobQuery) {
+                $jobQuery->where('job_title', 'like', '%' . $this->keyword . '%');
+            })
+            ->orWhereHas('jobApplication.worker', function ($workerQuery) {
+                $workerQuery->where('name', 'like', '%' . $this->keyword . '%');
+            });
         });
     }
 
-    // 最新メッセージ順でソート（サブクエリで最新メッセージのcreated_atを取得）
-    $query->withMax('messages', 'created_at')
-        ->orderBy('messages_max_created_at', 'desc')
-        ->orderBy('id', 'desc');
+    // 最新メッセージ順でソート
+    $query->withCount(['messages' => function ($q) {
+        $q->where('is_read', false)
+            ->where('sender_id', '!=', auth()->id()); // 自分が送信したメッセージは除外
+    }])
+    ->orderByRaw('(SELECT MAX(created_at) FROM messages WHERE messages.chat_room_id = chat_rooms.id) DESC NULLS LAST');
 
     return $query->paginate(20);
 });
 
-/**
- * 相手の名前を取得
- */
-$getPartnerName = function (ChatRoom $chatRoom): string {
+// 相手の名前を取得（企業：ワーカー名、ワーカー：企業名）
+$getOpponentName = function (ChatRoom $chatRoom): string {
     $user = auth()->user();
     $application = $chatRoom->jobApplication;
 
     if ($user->role === 'company') {
-        // 企業の場合：ワーカー名
+        // 企業ユーザーの場合、ワーカー名を返す
         return $application->worker->name;
+    } else {
+        // ワーカーユーザーの場合、企業名を返す
+        return $application->jobPost->company->name;
     }
-
-    // ワーカーの場合：企業名
-    return $application->jobPost->company->name;
 };
 
-/**
- * 最新メッセージを取得
- */
-$getLatestMessage = function (ChatRoom $chatRoom): ?Message {
-    return $chatRoom->messages->first();
-};
-
-/**
- * ステータスラベル取得
- */
+// ステータスラベル取得
 $getStatusLabel = function (string $status): string {
     return match ($status) {
         'applied' => '応募中',
@@ -112,9 +86,7 @@ $getStatusLabel = function (string $status): string {
     };
 };
 
-/**
- * ステータスバッジのカラークラス取得
- */
+// ステータスバッジのカラークラス取得
 $getStatusBadgeClass = function (string $status): string {
     return match ($status) {
         'applied' => 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
@@ -125,13 +97,46 @@ $getStatusBadgeClass = function (string $status): string {
     };
 };
 
+// 最新メッセージを取得
+$getLatestMessage = function (ChatRoom $chatRoom): ?\App\Models\Message {
+    return \App\Models\Message::query()
+        ->where('chat_room_id', $chatRoom->id)
+        ->latest()
+        ->first();
+};
+
+// 最新メッセージのプレビューを取得（30文字まで）
+$getLatestMessagePreview = function (ChatRoom $chatRoom): ?string {
+    $latestMessage = $this->getLatestMessage($chatRoom);
+    if (!$latestMessage) {
+        return null;
+    }
+
+    return \Illuminate\Support\Str::limit($latestMessage->message, 30);
+};
+
+// 最新メッセージの送信日時を取得
+$getLatestMessageCreatedAt = function (ChatRoom $chatRoom): ?string {
+    $latestMessage = $this->getLatestMessage($chatRoom);
+    if (!$latestMessage) {
+        return null;
+    }
+
+    return $latestMessage->created_at->format('Y/m/d H:i');
+};
+
+// 未読メッセージ数を取得
+$getUnreadCount = function (ChatRoom $chatRoom): int {
+    return $chatRoom->messages_count ?? 0;
+};
+
 ?>
 
 <div class="mx-auto max-w-7xl space-y-8 px-4 py-8 sm:px-6 lg:px-8">
     {{-- ヘッダー --}}
     <div>
         <flux:heading size="xl" class="mb-2">チャット一覧</flux:heading>
-        <flux:text>応募に関するメッセージのやり取りができます</flux:text>
+        <flux:text>応募に関するメッセージのやり取りを確認できます</flux:text>
     </div>
 
     {{-- 検索 --}}
@@ -158,49 +163,53 @@ $getStatusBadgeClass = function (string $status): string {
                 <a href="{{ route('chats.show', $chatRoom) }}" wire:navigate
                     class="block overflow-hidden rounded-xl border border-zinc-200 bg-white transition hover:shadow-lg dark:border-zinc-700 dark:bg-zinc-800">
                     <div class="p-6">
-                        <div class="flex items-start justify-between gap-4">
-                            <div class="flex-1 space-y-3">
-                                {{-- 相手の名前と求人タイトル --}}
-                                <div>
-                                    <div class="flex items-center gap-2">
-                                        <flux:heading size="md" class="text-gray-900 dark:text-white">
-                                            {{ $this->getPartnerName($chatRoom) }}
-                                        </flux:heading>
-                                        @if ($chatRoom->unread_count > 0)
-                                            <flux:badge color="red" size="sm" class="rounded-full">
-                                                {{ $chatRoom->unread_count }}
-                                            </flux:badge>
-                                        @endif
-                                    </div>
-                                    <flux:text variant="subtle" class="mt-1">
-                                        {{ $chatRoom->jobApplication->jobPost->job_title }}
-                                    </flux:text>
-                                </div>
-
-                                {{-- 応募ステータスバッジ --}}
-                                <div>
+                        <div class="flex items-start gap-4">
+                            {{-- メインコンテンツ --}}
+                            <div class="flex-1 space-y-2">
+                                {{-- 相手の名前とステータス --}}
+                                <div class="flex items-center gap-3">
+                                    <flux:heading size="lg" class="text-gray-900 dark:text-white">
+                                        {{ $this->getOpponentName($chatRoom) }}
+                                    </flux:heading>
                                     <span
-                                        class="inline-flex items-center rounded-full px-3 py-1 text-xs font-medium {{ $this->getStatusBadgeClass($chatRoom->jobApplication->status) }}">
+                                        class="rounded-full px-2.5 py-0.5 text-xs font-medium {{ $this->getStatusBadgeClass($chatRoom->jobApplication->status) }}">
                                         {{ $this->getStatusLabel($chatRoom->jobApplication->status) }}
                                     </span>
                                 </div>
 
+                                {{-- 求人タイトル --}}
+                                <flux:text class="font-medium text-gray-900 dark:text-white">
+                                    {{ $chatRoom->jobApplication->jobPost->job_title }}
+                                </flux:text>
+
                                 {{-- 最新メッセージプレビュー --}}
-                                @if ($latestMessage = $this->getLatestMessage($chatRoom))
-                                    <div class="flex items-center gap-2">
-                                        <flux:text variant="subtle" class="line-clamp-1 flex-1">
-                                            {{ Str::limit($latestMessage->message, 30) }}
-                                        </flux:text>
-                                        <flux:text variant="subtle" class="text-xs">
-                                            {{ $latestMessage->created_at->format('Y/m/d H:i') }}
-                                        </flux:text>
-                                    </div>
+                                @if ($this->getLatestMessagePreview($chatRoom))
+                                    <flux:text variant="subtle" class="line-clamp-1">
+                                        {{ $this->getLatestMessagePreview($chatRoom) }}
+                                    </flux:text>
                                 @else
-                                    <flux:text variant="subtle" class="text-sm">
-                                        メッセージはまだありません
+                                    <flux:text variant="subtle" class="text-gray-400">
+                                        メッセージがありません
+                                    </flux:text>
+                                @endif
+
+                                {{-- 最新メッセージの送信日時 --}}
+                                @if ($this->getLatestMessageCreatedAt($chatRoom))
+                                    <flux:text variant="subtle" class="text-xs text-gray-500">
+                                        {{ $this->getLatestMessageCreatedAt($chatRoom) }}
                                     </flux:text>
                                 @endif
                             </div>
+
+                            {{-- 未読メッセージ数バッジ --}}
+                            @if ($this->getUnreadCount($chatRoom) > 0)
+                                <div class="flex-shrink-0">
+                                    <span
+                                        class="flex h-6 w-6 items-center justify-center rounded-full bg-blue-600 text-xs font-bold text-white">
+                                        {{ $this->getUnreadCount($chatRoom) }}
+                                    </span>
+                                </div>
+                            @endif
                         </div>
                     </div>
                 </a>
