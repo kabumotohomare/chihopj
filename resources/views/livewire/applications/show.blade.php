@@ -27,6 +27,7 @@ mount(function (JobApplication $jobApplication) {
         'worker.workerProfile.favoriteLocation1',
         'worker.workerProfile.favoriteLocation2',
         'worker.workerProfile.favoriteLocation3',
+        'chatRoom',
     ]);
 });
 
@@ -197,8 +198,15 @@ $getHowsoonLabel = function (string $howsoon): string {
         </div>
 
         {{-- アクションボタン --}}
-        @if ($application->status === 'applied')
-            <div class="mt-6 flex flex-wrap gap-2">
+        <div class="mt-6 flex flex-wrap gap-2">
+            {{-- チャットボタン（チャットルームが存在する場合） --}}
+            @if ($application->chatRoom)
+                <flux:button variant="primary" href="{{ route('chats.show', $application->chatRoom) }}" wire:navigate icon="chat-bubble-left-right">
+                    チャットで返信
+                </flux:button>
+            @endif
+
+            @if ($application->status === 'applied')
                 {{-- ワーカー向け: 辞退ボタン --}}
                 @if (auth()->user()->isWorker())
                     <flux:button variant="danger" wire:click="$dispatch('open-modal', 'decline-modal')">
@@ -215,8 +223,8 @@ $getHowsoonLabel = function (string $howsoon): string {
                         不承認にする
                     </flux:button>
                 @endif
-            </div>
-        @endif
+            @endif
+        </div>
     </div>
 
     {{-- ワーカー情報カード（企業向けのみ表示） --}}

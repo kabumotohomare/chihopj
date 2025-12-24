@@ -29,7 +29,7 @@ mount(function (ChatRoom $chatRoom) {
 
     // リレーションを先読み込み
     $this->chatRoom = $chatRoom->load([
-        'jobApplication.jobPost.company.companyProfile.user',
+        'jobApplication.jobPost.company',
         'jobApplication.worker',
         'messages.sender',
     ]);
@@ -84,6 +84,9 @@ $sendMessage = function () {
     // メッセージリストを更新するためにリロード
     $this->chatRoom->refresh();
     $this->chatRoom->load('messages.sender');
+
+    // computedプロパティを再計算するためにdispatch
+    $this->dispatch('$refresh');
 
     // 最新メッセージまでスクロール（JavaScriptで処理）
     $this->dispatch('scroll-to-bottom');
