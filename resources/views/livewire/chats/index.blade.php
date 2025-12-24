@@ -33,7 +33,7 @@ $chatRooms = computed(function () {
     $query->with([
         'jobApplication.jobPost',
         'jobApplication.worker',
-        'jobApplication.jobPost.company.companyProfile.user',
+        'jobApplication.jobPost.company',
     ]);
 
     // キーワード検索（企業名、求人タイトル、ワーカー名）
@@ -51,12 +51,14 @@ $chatRooms = computed(function () {
         });
     }
 
-    // 最新メッセージ順でソート
+    // 未読メッセージ数をカウント（自分が送信したメッセージは除外）
     $query->withCount(['messages' => function ($q) {
         $q->where('is_read', false)
-            ->where('sender_id', '!=', auth()->id()); // 自分が送信したメッセージは除外
-    }])
-    ->orderByRaw('(SELECT MAX(created_at) FROM messages WHERE messages.chat_room_id = chat_rooms.id) DESC NULLS LAST');
+            ->where('sender_id', '!=', auth()->id());
+    }]);
+
+    // 最新メッセージ順でソート（メッセージがない場合は作成日時でソート）
+    $query->orderByRaw('COALESCE((SELECT MAX(created_at) FROM messages WHERE messages.chat_room_id = chat_rooms.id), chat_rooms.created_at) DESC');
 
     return $query->paginate(20);
 });

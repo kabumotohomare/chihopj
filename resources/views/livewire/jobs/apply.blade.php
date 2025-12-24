@@ -6,6 +6,7 @@ use App\Http\Requests\StoreJobApplicationRequest;
 use App\Models\ChatRoom;
 use App\Models\JobApplication;
 use App\Models\JobPost;
+use Illuminate\Support\Facades\DB;
 
 use function Livewire\Volt\layout;
 use function Livewire\Volt\mount;
@@ -49,20 +50,22 @@ $submit = function () {
     // ポリシーで認可チェック（重複応募チェックを含む）
     $this->authorize('apply', $this->jobPost);
 
-    // 1. 応募データ（JobApplication）を登録
-    $jobApplication = JobApplication::create([
-        'job_id' => $this->jobPost->id,
-        'worker_id' => auth()->id(),
-        'reasons' => !empty($validated['reasons']) ? $validated['reasons'] : null,
-        'motive' => $validated['motive'] ?: null,
-        'status' => 'applied',
-        'applied_at' => now(),
-    ]);
+    // トランザクション内で応募データとチャットルームを作成
+    DB::transaction(function () use ($validated) {
+        // 1. 応募データ（JobApplication）を登録
+        $jobApplication = JobApplication::create([
+            'job_id' => $this->jobPost->id,
+            'worker_id' => auth()->id(),
+            'reasons' => !empty($validated['reasons']) ? $validated['reasons'] : null,
+            'motive' => $validated['motive'] ?: null,
+            'status' => 'applied',
+            'applied_at' => now(),
+        ]);
 
-    // 2. 登録成功後、ChatRoomを作成（application_idを設定）
-    ChatRoom::create([
-        'application_id' => $jobApplication->id,
-    ]);
+        // 2. 登録成功後、ChatRoomを作成（application_idを設定）
+        // 既に存在する場合は作成しない（firstOrCreateを使用）
+        ChatRoom::firstOrCreate(['application_id' => $jobApplication->id]);
+    });
 
     session()->flash('status', '応募が完了しました。');
 
