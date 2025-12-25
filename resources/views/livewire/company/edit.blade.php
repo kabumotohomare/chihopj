@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Models\CompanyProfile;
 use App\Models\Location;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Validate;
 use Livewire\Volt\Component;
@@ -37,19 +38,37 @@ class extends Component
 
     public $cities = [];
 
+    public $profile = null;
+
+    public $existingIcon = null;
+
     public function mount(): void
     {
-        // 認証済みユーザーで既にプロフィールが登録されている場合は詳細画面にリダイレクト
-        if (auth()->check() && auth()->user()->companyProfile) {
-            $this->redirect(route('company.profile'), navigate: true);
-
-            return;
+        $this->profile = CompanyProfile::with(['location'])
+            ->where('user_id', auth()->id())
+            ->firstOrFail();
+        
+        // 既存データを初期値として設定
+        $this->location_id = $this->profile->location_id;
+        $this->address = $this->profile->address;
+        $this->representative = $this->profile->representative;
+        $this->phone_number = $this->profile->phone_number;
+        $this->existingIcon = $this->profile->icon;
+        
+        // 既存の所在地から都道府県を取得
+        if ($this->profile->location) {
+            $this->prefecture = $this->profile->location->prefecture;
         }
-
+        
         // 都道府県リストを取得
         $this->prefectures = Location::whereNull('city')
             ->orderBy('code')
             ->get();
+        
+        // 都道府県が設定されている場合は市区町村リストを取得
+        if ($this->prefecture) {
+            $this->cities = $this->getCities($this->prefecture);
+        }
     }
 
     public function updatedPrefecture($value): void
@@ -75,22 +94,32 @@ class extends Component
             ->get();
     }
 
-    public function register(): void
+    public function update(): void
     {
         $this->validate();
-
-        // 企業プロフィール作成
-        CompanyProfile::create([
-            'user_id' => auth()->id(),
-            'icon' => $this->icon ? $this->icon->store('icons', 'public') : null,
+        
+        // アイコン画像の処理
+        $iconPath = $this->existingIcon;
+        if ($this->icon) {
+            // 既存のアイコンを削除
+            if ($this->existingIcon) {
+                Storage::disk('public')->delete($this->existingIcon);
+            }
+            // 新しいアイコンを保存
+            $iconPath = $this->icon->store('icons', 'public');
+        }
+        
+        // プロフィール更新
+        $this->profile->update([
+            'icon' => $iconPath,
             'location_id' => $this->location_id,
             'address' => $this->address,
             'representative' => $this->representative,
             'phone_number' => $this->phone_number,
         ]);
-
-        session()->flash('status', '企業プロフィールを登録しました。');
-
+        
+        session()->flash('status', '企業プロフィールを更新しました。');
+        
         $this->redirect(route('company.profile'), navigate: true);
     }
 }; ?>
@@ -98,13 +127,13 @@ class extends Component
 <div class="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
     <div class="flex flex-col gap-6">
         <div>
-            <h1 class="text-2xl font-bold">企業プロフィール登録</h1>
+            <h1 class="text-2xl font-bold">企業プロフィール編集</h1>
             <p class="text-sm text-zinc-600 dark:text-zinc-400 mt-2">
-                事業者としてのプロフィールを登録してください
+                企業プロフィール情報を編集してください
             </p>
         </div>
 
-        <form wire:submit="register" class="flex flex-col gap-6">
+        <form wire:submit="update" class="flex flex-col gap-6">
             <!-- アイコン画像 -->
             <flux:field>
                 <flux:label>アイコン画像 <span class="text-zinc-500">(任意)</span></flux:label>
@@ -121,6 +150,12 @@ class extends Component
                                 class="size-24 rounded-full object-cover border-2 border-zinc-300 dark:border-zinc-600">
                         </div>
                     @endif
+                @elseif ($existingIcon)
+                    <div class="mb-4">
+                        <img src="{{ Storage::url($existingIcon) }}"
+                            alt="現在のアイコン"
+                            class="size-24 rounded-full object-cover border-2 border-zinc-300 dark:border-zinc-600">
+                    </div>
                 @endif
 
                 <input type="file"
@@ -146,7 +181,9 @@ class extends Component
                                 class="w-full px-3 py-2 rounded-lg border border-zinc-300 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white focus:ring-2 focus:ring-blue-500">
                             <option value="">都道府県を選択</option>
                             @foreach($prefectures as $pref)
-                                <option value="{{ $pref->prefecture }}">{{ $pref->prefecture }}</option>
+                                <option value="{{ $pref->prefecture }}" @selected($prefecture === $pref->prefecture)>
+                                    {{ $pref->prefecture }}
+                                </option>
                             @endforeach
                         </select>
                     </div>
@@ -157,7 +194,9 @@ class extends Component
                             <option value="">市区町村を選択</option>
                             @if(!empty($cities))
                                 @foreach($cities as $city)
-                                    <option value="{{ $city->id }}">{{ $city->city }}</option>
+                                    <option value="{{ $city->id }}" @selected($location_id == $city->id)>
+                                        {{ $city->city }}
+                                    </option>
                                 @endforeach
                             @endif
                         </select>
@@ -197,11 +236,11 @@ class extends Component
 
             <!-- 送信ボタン -->
             <div class="flex flex-col sm:flex-row gap-4 justify-end">
-                <flux:button href="{{ route('welcome') }}" variant="ghost" class="order-2 sm:order-1">
+                <flux:button href="{{ route('company.profile') }}" variant="ghost" class="order-2 sm:order-1" wire:navigate>
                     キャンセル
                 </flux:button>
                 <flux:button type="submit" variant="primary" class="order-1 sm:order-2">
-                    登録する
+                    更新する
                 </flux:button>
             </div>
         </form>

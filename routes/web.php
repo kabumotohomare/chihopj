@@ -46,6 +46,11 @@ Volt::route('company/profile', 'company.show')
     ->middleware(['auth', 'role:company'])
     ->name('company.profile');
 
+// 企業プロフィール編集
+Volt::route('company/edit', 'company.edit')
+    ->middleware(['auth', 'role:company'])
+    ->name('company.edit');
+
 // 募集一覧（誰でも閲覧可能）
 Volt::route('jobs', 'jobs.index')
     ->name('jobs.index');

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use App\Models\CompanyProfile;
 use Illuminate\Support\Facades\Storage;
-use function Livewire\Volt\{layout, title, state, mount, computed};
+use function Livewire\Volt\{layout, title, state, mount};
 
 layout('components.layouts.app');
 title('企業プロフィール');
@@ -14,9 +14,14 @@ state(['profile' => null]);
 
 // コンポーネントのマウント
 mount(function () {
-    $this->profile = CompanyProfile::with(['location'])
+    $this->profile = CompanyProfile::with(['location', 'user'])
         ->where('user_id', auth()->id())
-        ->firstOrFail();
+        ->first();
+    
+    // プロフィールが存在しない場合は企業登録画面にリダイレクト
+    if (!$this->profile) {
+        return $this->redirect(route('company.register'), navigate: true);
+    }
 });
 
 // 地域の表示名を取得（都道府県 市区町村）
@@ -33,8 +38,8 @@ $getLocationDisplay = function (): string {
 <div class="mx-auto max-w-4xl px-4 py-8">
     <div class="mb-6 flex items-center justify-between">
         <flux:heading size="xl">企業プロフィール</flux:heading>
-        <flux:button disabled>
-            編集（準備中）
+        <flux:button href="{{ route('company.edit') }}" wire:navigate>
+            編集
         </flux:button>
     </div>
 
