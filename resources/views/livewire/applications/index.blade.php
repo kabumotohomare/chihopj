@@ -187,9 +187,10 @@ $getHowsoonLabel = function (string $howsoon): string {
                     $location = $companyProfile?->location;
                 @endphp
 
-                <div
-                    class="group cursor-pointer overflow-hidden rounded-xl border border-zinc-200 bg-white transition-all duration-200 hover:scale-105 hover:shadow-xl dark:border-zinc-700 dark:bg-zinc-800"
-                    wire:click="$navigate('{{ route('applications.show', $application) }}')"
+                <a
+                    href="{{ route('applications.show', $application) }}"
+                    wire:navigate
+                    class="group block overflow-hidden rounded-xl border border-zinc-200 bg-white transition-all duration-200 hover:scale-105 hover:shadow-xl dark:border-zinc-700 dark:bg-zinc-800"
                 >
                     {{-- アイキャッチ画像 --}}
                     @if ($job->eyecatch)
@@ -281,7 +282,7 @@ $getHowsoonLabel = function (string $howsoon): string {
                             </div>
                         @endif
                     </div>
-                </div>
+                </a>
             @endforeach
         </div>
 
