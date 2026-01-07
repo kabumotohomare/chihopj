@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 use App\Models\CompanyProfile;
-use App\Models\Location;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Validate;
 use Livewire\Volt\Component;
@@ -18,11 +17,6 @@ class extends Component
     public $icon;
 
     // 企業プロフィール情報
-    public ?string $prefecture = null;
-
-    #[Validate('required|exists:locations,id')]
-    public ?int $location_id = null;
-
     #[Validate('required|string|max:200')]
     public string $address = '';
 
@@ -32,11 +26,6 @@ class extends Component
     #[Validate('required|string|max:30')]
     public string $phone_number = '';
 
-    // 都道府県・市区町村リスト
-    public $prefectures = [];
-
-    public $cities = [];
-
     public function mount(): void
     {
         // 認証済みユーザーで既にプロフィールが登録されている場合は詳細画面にリダイレクト
@@ -45,34 +34,6 @@ class extends Component
 
             return;
         }
-
-        // 都道府県リストを取得
-        $this->prefectures = Location::whereNull('city')
-            ->orderBy('code')
-            ->get();
-    }
-
-    public function updatedPrefecture($value): void
-    {
-        if (empty($value)) {
-            $this->cities = [];
-            $this->location_id = null;
-        } else {
-            $this->cities = $this->getCities($value);
-            $this->location_id = null;
-        }
-    }
-
-    private function getCities(?string $prefecture)
-    {
-        if (! $prefecture) {
-            return [];
-        }
-
-        return Location::where('prefecture', $prefecture)
-            ->whereNotNull('city')
-            ->orderBy('code')
-            ->get();
     }
 
     public function register(): void
@@ -83,7 +44,6 @@ class extends Component
         CompanyProfile::create([
             'user_id' => auth()->id(),
             'icon' => $this->icon ? $this->icon->store('icons', 'public') : null,
-            'location_id' => $this->location_id,
             'address' => $this->address,
             'representative' => $this->representative,
             'phone_number' => $this->phone_number,
@@ -134,39 +94,6 @@ class extends Component
 
                 <flux:error name="icon" />
             </flux:field>
-
-            <!-- 所在地 -->
-            <div class="flex flex-col gap-2">
-                <label class="text-sm font-medium">
-                    所在地 <span class="text-red-500">*</span>
-                </label>
-                <div class="flex flex-col sm:flex-row gap-2">
-                    <div class="flex-1">
-                        <select wire:model.live="prefecture" 
-                                class="w-full px-3 py-2 rounded-lg border border-zinc-300 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white focus:ring-2 focus:ring-blue-500">
-                            <option value="">都道府県を選択</option>
-                            @foreach($prefectures as $pref)
-                                <option value="{{ $pref->prefecture }}">{{ $pref->prefecture }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="flex-1">
-                        <select wire:model="location_id" 
-                                @if(empty($cities)) disabled @endif
-                                class="w-full px-3 py-2 rounded-lg border border-zinc-300 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed">
-                            <option value="">市区町村を選択</option>
-                            @if(!empty($cities))
-                                @foreach($cities as $city)
-                                    <option value="{{ $city->id }}">{{ $city->city }}</option>
-                                @endforeach
-                            @endif
-                        </select>
-                    </div>
-                </div>
-                @error('location_id')
-                    <p class="text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
-                @enderror
-            </div>
 
             <!-- 所在地住所 -->
             <flux:field>

@@ -25,11 +25,9 @@ state([
     'eyecatch_type' => 'upload', // 'upload' or 'preset'
     'preset_image' => null,
     'existing_eyecatch' => null,
-    'howsoon' => '',
-    'howsoon_error' => '',
+    'purpose' => '',
     'job_title' => '',
     'job_detail' => '',
-    'job_type_id' => null,
     'want_you_ids' => [],
     'can_do_ids' => [],
 ]);
@@ -40,14 +38,13 @@ mount(function (JobPost $jobPost) {
     $this->authorize('update', $jobPost);
 
     // リレーションを先読み込み
-    $this->jobPost = $jobPost->load(['jobType']);
+    $this->jobPost = $jobPost;
 
     // 既存データをセット
     $this->existing_eyecatch = $jobPost->eyecatch;
-    $this->howsoon = $jobPost->howsoon;
+    $this->purpose = $jobPost->purpose;
     $this->job_title = $jobPost->job_title;
     $this->job_detail = $jobPost->job_detail;
-    $this->job_type_id = $jobPost->job_type_id;
     $this->want_you_ids = $jobPost->want_you_ids ?? [];
     $this->can_do_ids = $jobPost->can_do_ids ?? [];
 
@@ -72,11 +69,6 @@ $presetImages = computed(function () {
     ];
 });
 
-// 募集形態のリストを取得
-$recruitmentTypes = computed(function () {
-    return Code::getRecruitmentTypes();
-});
-
 // 希望のリストを取得
 $requests = computed(function () {
     return Code::getRequests();
@@ -86,16 +78,6 @@ $requests = computed(function () {
 $offers = computed(function () {
     return Code::getOffers();
 });
-
-// howsoonの変更を監視
-$updatedHowsoon = function ($value) {
-    if ($value === 'specific_month') {
-        $this->howsoon_error = '具体的な期限の設定は、プロプラン限定です';
-        $this->howsoon = $this->jobPost->howsoon; // 元の値に戻す
-    } else {
-        $this->howsoon_error = '';
-    }
-};
 
 // 募集更新処理
 $update = function () {
@@ -129,10 +111,9 @@ $update = function () {
     // 募集投稿を更新
     $this->jobPost->update([
         'eyecatch' => $eyecatchPath,
-        'howsoon' => $validated['howsoon'],
+        'purpose' => $validated['purpose'],
         'job_title' => $validated['job_title'],
         'job_detail' => $validated['job_detail'],
-        'job_type_id' => $validated['job_type_id'],
         'want_you_ids' => $validated['want_you_ids'] ?? [],
         'can_do_ids' => $validated['can_do_ids'] ?? [],
         // posted_atは更新しない
@@ -218,30 +199,22 @@ $update = function () {
                 <flux:error name="eyecatch" />
             </flux:field>
 
-            <!-- いつまでに -->
+            <!-- 募集目的 -->
             <flux:field>
-                <flux:label>いつまでに <span class="text-red-500">*</span></flux:label>
+                <flux:label>募集目的 <span class="text-red-500">*</span></flux:label>
                 <div class="mt-2 space-y-2">
                     <label class="flex items-center gap-2">
-                        <input type="radio" wire:model.live="howsoon" value="someday"
+                        <input type="radio" wire:model="purpose" value="want_to_do"
                             class="h-4 w-4 border-gray-300 text-blue-600 focus:ring-blue-500">
-                        <span>いつか</span>
+                        <span>いつかやりたい</span>
                     </label>
                     <label class="flex items-center gap-2">
-                        <input type="radio" wire:model.live="howsoon" value="asap"
+                        <input type="radio" wire:model="purpose" value="need_help"
                             class="h-4 w-4 border-gray-300 text-blue-600 focus:ring-blue-500">
-                        <span>いますぐにでも</span>
-                    </label>
-                    <label class="flex items-center gap-2">
-                        <input type="radio" wire:model.live="howsoon" value="specific_month"
-                            class="h-4 w-4 border-gray-300 text-blue-600 focus:ring-blue-500">
-                        <span>●月までに</span>
+                        <span>人手が足りない</span>
                     </label>
                 </div>
-                @if ($howsoon_error)
-                    <div class="mt-2 text-sm text-red-600 dark:text-red-400">{{ $howsoon_error }}</div>
-                @endif
-                <flux:error name="howsoon" />
+                <flux:error name="purpose" />
             </flux:field>
 
             <!-- やりたいこと -->
@@ -259,21 +232,6 @@ $update = function () {
                 <flux:textarea wire:model="job_detail" rows="5" 
                     placeholder="〇〇をしています。✕✕をやりたいが、△△なのでできていません">{{ $job_detail }}</flux:textarea>
                 <flux:error name="job_detail" />
-            </flux:field>
-
-            <!-- 募集形態 -->
-            <flux:field>
-                <flux:label>募集形態 <span class="text-red-500">*</span></flux:label>
-                <div class="mt-2 space-y-2">
-                    @foreach ($this->recruitmentTypes as $type)
-                        <label class="flex items-center gap-2">
-                            <input type="radio" wire:model="job_type_id" value="{{ $type->id }}"
-                                class="h-4 w-4 border-gray-300 text-blue-600 focus:ring-blue-500">
-                            <span>{{ $type->name }}</span>
-                        </label>
-                    @endforeach
-                </div>
-                <flux:error name="job_type_id" />
             </flux:field>
 
             <!-- 期待するサポート -->

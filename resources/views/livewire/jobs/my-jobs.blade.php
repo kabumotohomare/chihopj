@@ -17,7 +17,7 @@ state(['perPage' => 15]);
 
 // 自社の募集一覧を取得（computed）
 $jobs = computed(function () {
-    return JobPost::with(['company', 'jobType', 'company.companyProfile.location'])
+    return JobPost::with(['company', 'company.companyProfile'])
         ->where('company_id', auth()->id())
         ->latest('posted_at')
         ->paginate($this->perPage);
@@ -74,16 +74,9 @@ $jobs = computed(function () {
                         <div class="flex flex-1 flex-col p-6">
                             {{-- タグとラベル --}}
                             <div class="mb-3 flex flex-wrap items-center gap-2">
-                                {{-- 募集形態タグ（青色バッジ） --}}
-                                @if($job->jobType)
-                                    <flux:badge color="blue" size="sm">
-                                        {{ $job->jobType->name }}
-                                    </flux:badge>
-                                @endif
-
-                                {{-- いつまでにラベル（赤色バッジ） --}}
+                                {{-- 募集目的ラベル（赤色バッジ） --}}
                                 <flux:badge color="red" size="sm">
-                                    {{ $job->howsoon }}
+                                    {{ $job->getPurposeLabel() }}
                                 </flux:badge>
                             </div>
 
@@ -124,9 +117,6 @@ $jobs = computed(function () {
                                     </svg>
                                     <span>
                                         {{ $job->company->name }}
-                                        @if($job->company->companyProfile?->location)
-                                            • {{ $job->company->companyProfile->location->prefecture }}
-                                        @endif
                                     </span>
                                 </div>
 

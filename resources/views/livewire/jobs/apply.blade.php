@@ -23,7 +23,7 @@ state(['jobPost', 'reasons' => [], 'motive' => '']);
  */
 mount(function (JobPost $jobPost) {
     // リレーションを先読み込み
-    $this->jobPost = $jobPost->load(['company.companyProfile.location', 'jobType']);
+    $this->jobPost = $jobPost->load(['company.companyProfile']);
 
     // 応募可否チェック（ポリシーで重複応募もチェック）
     $this->authorize('apply', $jobPost);
@@ -74,10 +74,10 @@ $submit = function () {
 };
 
 /**
- * 「いつまでに」のラベル取得
+ * 募集目的のラベル取得
  */
-$getHowsoonLabel = function (): string {
-    return $this->jobPost->getHowsoonLabel();
+$getPurposeLabel = function (): string {
+    return $this->jobPost->getPurposeLabel();
 };
 
 ?>
@@ -116,13 +116,6 @@ $getHowsoonLabel = function (): string {
             <div class="p-6 sm:p-8">
                 <!-- タグエリア -->
                 <div class="mb-4 flex flex-wrap gap-2">
-                    <!-- 募集形態タグ -->
-                    @if ($jobPost->jobType)
-                        <flux:badge color="blue" size="sm" class="rounded-full">
-                            {{ $jobPost->jobType->name }}
-                        </flux:badge>
-                    @endif
-
                     <!-- 希望タグ -->
                     @foreach ($jobPost->getWantYouCodes() as $code)
                         <flux:badge color="zinc" size="sm" class="rounded-full">
@@ -134,7 +127,7 @@ $getHowsoonLabel = function (): string {
                 <!-- 募集見出し -->
                 <div class="mb-4 flex items-start gap-3">
                     <flux:badge color="red" size="lg" class="flex-shrink-0 font-bold">
-                        {{ $this->getHowsoonLabel() }}
+                        {{ $this->getPurposeLabel() }}
                     </flux:badge>
                     <flux:heading size="lg" class="flex-1 text-gray-900 dark:text-white">
                         {{ $jobPost->job_title }}
@@ -173,19 +166,6 @@ $getHowsoonLabel = function (): string {
                                 </span>
                             </flux:badge>
                         </div>
-
-                        <!-- 所在地 -->
-                        @if ($jobPost->company->companyProfile?->location)
-                            <div class="flex items-center gap-2">
-                                <flux:badge color="zinc" size="sm">
-                                    <span class="flex items-center gap-1">
-                                        <flux:icon.map-pin variant="micro" />
-                                        {{ $jobPost->company->companyProfile->location->prefecture }}
-                                        {{ $jobPost->company->companyProfile->location->city }}
-                                    </span>
-                                </flux:badge>
-                            </div>
-                        @endif
                     </div>
                 </div>
             </div>

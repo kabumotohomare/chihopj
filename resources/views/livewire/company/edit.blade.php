@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 use App\Models\CompanyProfile;
-use App\Models\Location;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Validate;
@@ -19,11 +18,6 @@ class extends Component
     public $icon;
 
     // 企業プロフィール情報
-    public ?string $prefecture = null;
-
-    #[Validate('required|exists:locations,id')]
-    public ?int $location_id = null;
-
     #[Validate('required|string|max:200')]
     public string $address = '';
 
@@ -33,65 +27,21 @@ class extends Component
     #[Validate('required|string|max:30')]
     public string $phone_number = '';
 
-    // 都道府県・市区町村リスト
-    public $prefectures = [];
-
-    public $cities = [];
-
     public $profile = null;
 
     public $existingIcon = null;
 
     public function mount(): void
     {
-        $this->profile = CompanyProfile::with(['location'])
+        $this->profile = CompanyProfile::query()
             ->where('user_id', auth()->id())
             ->firstOrFail();
         
         // 既存データを初期値として設定
-        $this->location_id = $this->profile->location_id;
         $this->address = $this->profile->address;
         $this->representative = $this->profile->representative;
         $this->phone_number = $this->profile->phone_number;
         $this->existingIcon = $this->profile->icon;
-        
-        // 既存の所在地から都道府県を取得
-        if ($this->profile->location) {
-            $this->prefecture = $this->profile->location->prefecture;
-        }
-        
-        // 都道府県リストを取得
-        $this->prefectures = Location::whereNull('city')
-            ->orderBy('code')
-            ->get();
-        
-        // 都道府県が設定されている場合は市区町村リストを取得
-        if ($this->prefecture) {
-            $this->cities = $this->getCities($this->prefecture);
-        }
-    }
-
-    public function updatedPrefecture($value): void
-    {
-        if (empty($value)) {
-            $this->cities = [];
-            $this->location_id = null;
-        } else {
-            $this->cities = $this->getCities($value);
-            $this->location_id = null;
-        }
-    }
-
-    private function getCities(?string $prefecture)
-    {
-        if (! $prefecture) {
-            return [];
-        }
-
-        return Location::where('prefecture', $prefecture)
-            ->whereNotNull('city')
-            ->orderBy('code')
-            ->get();
     }
 
     public function update(): void
@@ -112,7 +62,6 @@ class extends Component
         // プロフィール更新
         $this->profile->update([
             'icon' => $iconPath,
-            'location_id' => $this->location_id,
             'address' => $this->address,
             'representative' => $this->representative,
             'phone_number' => $this->phone_number,
@@ -169,43 +118,6 @@ class extends Component
 
                 <flux:error name="icon" />
             </flux:field>
-
-            <!-- 所在地 -->
-            <div class="flex flex-col gap-2">
-                <label class="text-sm font-medium">
-                    所在地 <span class="text-red-500">*</span>
-                </label>
-                <div class="flex flex-col sm:flex-row gap-2">
-                    <div class="flex-1">
-                        <select wire:model.live="prefecture" 
-                                class="w-full px-3 py-2 rounded-lg border border-zinc-300 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white focus:ring-2 focus:ring-blue-500">
-                            <option value="">都道府県を選択</option>
-                            @foreach($prefectures as $pref)
-                                <option value="{{ $pref->prefecture }}" @selected($prefecture === $pref->prefecture)>
-                                    {{ $pref->prefecture }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="flex-1">
-                        <select wire:model="location_id" 
-                                @if(empty($cities)) disabled @endif
-                                class="w-full px-3 py-2 rounded-lg border border-zinc-300 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed">
-                            <option value="">市区町村を選択</option>
-                            @if(!empty($cities))
-                                @foreach($cities as $city)
-                                    <option value="{{ $city->id }}" @selected($location_id == $city->id)>
-                                        {{ $city->city }}
-                                    </option>
-                                @endforeach
-                            @endif
-                        </select>
-                    </div>
-                </div>
-                @error('location_id')
-                    <p class="text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
-                @enderror
-            </div>
 
             <!-- 所在地住所 -->
             <flux:field>

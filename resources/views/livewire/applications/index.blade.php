@@ -21,8 +21,7 @@ $applications = computed(function () {
     $query = JobApplication::query()
         ->where('worker_id', auth()->id())
         ->with([
-            'jobPost.company.companyProfile.location',
-            'jobPost.jobType',
+            'jobPost.company.companyProfile',
         ]);
 
     // キーワード検索（求人タイトル、企業名）
@@ -70,11 +69,11 @@ $getStatusBadgeClass = function (string $status): string {
     };
 };
 
-// 「いつまでに」ラベル取得
-$getHowsoonLabel = function (string $howsoon): string {
-    return match ($howsoon) {
-        'someday' => 'いつか',
-        'asap' => 'いますぐにでも',
+// 募集目的ラベル取得
+$getPurposeLabel = function (string $purpose): string {
+    return match ($purpose) {
+        'want_to_do' => 'いつかやりたい',
+        'need_help' => '人手が足りない',
         default => '不明',
     };
 };
@@ -219,13 +218,6 @@ $getHowsoonLabel = function (string $howsoon): string {
                                 {{ $this->getStatusLabel($application->status) }}
                             </span>
 
-                            {{-- 募集形態タグ --}}
-                            @if ($job->jobType)
-                                <span class="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800 dark:bg-blue-900 dark:text-blue-200">
-                                    {{ $job->jobType->name }}
-                                </span>
-                            @endif
-
                             {{-- 希望タグ（最大2つ） --}}
                             @foreach ($job->getWantYouCodes()->take(2) as $wantYou)
                                 <span class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800 dark:bg-gray-700 dark:text-gray-200">
@@ -235,7 +227,7 @@ $getHowsoonLabel = function (string $howsoon): string {
 
                             {{-- いつまでに --}}
                             <span class="inline-flex items-center rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800 dark:bg-red-900 dark:text-red-200">
-                                {{ $this->getHowsoonLabel($job->howsoon) }}
+                                {{ $this->getPurposeLabel($job->purpose) }}
                             </span>
                         </div>
 
@@ -260,14 +252,10 @@ $getHowsoonLabel = function (string $howsoon): string {
                             </div>
                         @endif
 
-                        {{-- 企業名と所在地 --}}
+                        {{-- 企業名 --}}
                         <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
                             <flux:icon.building-office class="h-4 w-4" />
                             <span>{{ $company->name }}</span>
-                            @if ($location)
-                                <span>・</span>
-                                <span>{{ $location->prefecture }} {{ $location->city }}</span>
-                            @endif
                         </div>
 
                         {{-- 応募日 --}}

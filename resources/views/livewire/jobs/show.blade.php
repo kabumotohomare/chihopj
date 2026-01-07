@@ -51,7 +51,7 @@ $delete = function () {
  * 「いつまでに」のラベル取得
  */
 $getHowsoonLabel = function (): string {
-    return $this->jobPost->getHowsoonLabel();
+    return $this->jobPost->getPurposeLabel();
 };
 
 /**
@@ -81,10 +81,13 @@ $isWorker = function (): bool {
     <div class="container mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
         <!-- 成功メッセージ -->
         @if (session('status'))
-            <div class="mb-6 rounded-lg border border-green-200 bg-green-50 p-4 dark:border-green-800 dark:bg-green-900/20">
+            <div
+                class="mb-6 rounded-lg border border-green-200 bg-green-50 p-4 dark:border-green-800 dark:bg-green-900/20">
                 <div class="flex items-center gap-3">
-                    <svg class="h-5 w-5 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    <svg class="h-5 w-5 text-green-600 dark:text-green-400" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                     <flux:text class="text-green-800 dark:text-green-200">
                         {{ session('status') }}
@@ -106,27 +109,18 @@ $isWorker = function (): bool {
             @if ($jobPost->eyecatch)
                 <div class="aspect-video w-full overflow-hidden">
                     @if (str_starts_with($jobPost->eyecatch, '/images/presets/'))
-                        <img src="{{ $jobPost->eyecatch }}" 
-                             alt="{{ $jobPost->job_title }}" 
-                             class="h-full w-full object-cover">
+                        <img src="{{ $jobPost->eyecatch }}" alt="{{ $jobPost->job_title }}"
+                            class="h-full w-full object-cover">
                     @else
-                        <img src="{{ Storage::url($jobPost->eyecatch) }}" 
-                             alt="{{ $jobPost->job_title }}" 
-                             class="h-full w-full object-cover">
+                        <img src="{{ Storage::url($jobPost->eyecatch) }}" alt="{{ $jobPost->job_title }}"
+                            class="h-full w-full object-cover">
                     @endif
                 </div>
             @endif
 
             <div class="p-6 sm:p-8">
-                <!-- タグエリア：募集形態と希望 -->
+                <!-- タグエリア：希望 -->
                 <div class="mb-4 flex flex-wrap gap-2">
-                    <!-- 募集形態タグ -->
-                    @if ($jobPost->jobType)
-                        <flux:badge color="blue" size="sm" class="rounded-full">
-                            {{ $jobPost->jobType->name }}
-                        </flux:badge>
-                    @endif
-
                     <!-- 希望タグ（ハッシュタグ形式） -->
                     @foreach ($jobPost->getWantYouCodes() as $code)
                         <flux:badge color="zinc" size="sm" class="rounded-full">
@@ -147,9 +141,6 @@ $isWorker = function (): bool {
 
                 <!-- 事業内容・困っていること -->
                 <div class="mb-6">
-                    <flux:subheading class="mb-2 text-gray-700 dark:text-gray-300">
-                        事業内容・困っていること
-                    </flux:subheading>
                     <flux:text class="whitespace-pre-wrap text-gray-600 dark:text-gray-400">
                         {{ $jobPost->job_detail }}
                     </flux:text>
@@ -183,19 +174,6 @@ $isWorker = function (): bool {
                                 </span>
                             </flux:badge>
                         </div>
-
-                        <!-- 所在地 -->
-                        @if ($jobPost->company->companyProfile?->location)
-                            <div class="flex items-center gap-2">
-                                <flux:badge color="zinc" size="sm">
-                                    <span class="flex items-center gap-1">
-                                        <flux:icon.map-pin variant="micro" />
-                                        {{ $jobPost->company->companyProfile->location->prefecture }}
-                                        {{ $jobPost->company->companyProfile->location->city }}
-                                    </span>
-                                </flux:badge>
-                            </div>
-                        @endif
                     </div>
 
                     <!-- 投稿日時 -->
@@ -222,7 +200,8 @@ $isWorker = function (): bool {
                             </div>
                         @else
                             <!-- 未応募の場合 -->
-                            <flux:button href="{{ route('jobs.apply', $jobPost) }}" wire:navigate variant="primary" icon="paper-airplane" class="flex-1 sm:flex-none">
+                            <flux:button href="{{ route('jobs.apply', $jobPost) }}" wire:navigate variant="primary"
+                                icon="paper-airplane" class="flex-1 sm:flex-none">
                                 応募する
                             </flux:button>
                         @endif
@@ -230,7 +209,8 @@ $isWorker = function (): bool {
 
                     <!-- 企業ユーザー（自社求人）: 編集・削除ボタン -->
                     @if ($this->canUpdate())
-                        <flux:button href="{{ route('jobs.edit', $jobPost) }}" wire:navigate variant="ghost" icon="pencil" class="flex-1 sm:flex-none">
+                        <flux:button href="{{ route('jobs.edit', $jobPost) }}" wire:navigate variant="ghost"
+                            icon="pencil" class="flex-1 sm:flex-none">
                             編集
                         </flux:button>
                     @endif

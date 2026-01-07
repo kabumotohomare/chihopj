@@ -83,22 +83,6 @@ class extends Component
     // 興味のあるお手伝い
     public array $available_action = [];
 
-    // 都道府県リスト
-    public $prefectures = [];
-
-    // 市区町村リスト
-    public $birth_cities = [];
-
-    public $current_1_cities = [];
-
-    public $current_2_cities = [];
-
-    public $favorite_1_cities = [];
-
-    public $favorite_2_cities = [];
-
-    public $favorite_3_cities = [];
-
     // 年月日リスト
     public $years = [];
 
@@ -115,11 +99,6 @@ class extends Component
             return;
         }
 
-        // 都道府県リストを取得
-        $this->prefectures = Location::whereNull('city')
-            ->orderBy('code')
-            ->get();
-
         // 年リストを生成（現在年 - 18歳 から 現在年 - 80歳 まで）
         $currentYear = (int) date('Y');
         $this->years = range($currentYear - 18, $currentYear - 80);
@@ -131,70 +110,113 @@ class extends Component
         $this->days = range(1, 31);
     }
 
+    public function getPrefecturesProperty()
+    {
+        return Location::whereNull('city')
+            ->orderBy('code')
+            ->get();
+    }
+
+    public function getBirthCitiesProperty()
+    {
+        if (empty($this->birth_prefecture)) {
+            return collect();
+        }
+
+        return Location::where('prefecture', $this->birth_prefecture)
+            ->whereNotNull('city')
+            ->orderBy('code')
+            ->get();
+    }
+
+    public function getCurrent1CitiesProperty()
+    {
+        if (empty($this->current_1_prefecture)) {
+            return collect();
+        }
+
+        return Location::where('prefecture', $this->current_1_prefecture)
+            ->whereNotNull('city')
+            ->orderBy('code')
+            ->get();
+    }
+
+    public function getCurrent2CitiesProperty()
+    {
+        if (empty($this->current_2_prefecture)) {
+            return collect();
+        }
+
+        return Location::where('prefecture', $this->current_2_prefecture)
+            ->whereNotNull('city')
+            ->orderBy('code')
+            ->get();
+    }
+
+    public function getFavorite1CitiesProperty()
+    {
+        if (empty($this->favorite_1_prefecture)) {
+            return collect();
+        }
+
+        return Location::where('prefecture', $this->favorite_1_prefecture)
+            ->whereNotNull('city')
+            ->orderBy('code')
+            ->get();
+    }
+
+    public function getFavorite2CitiesProperty()
+    {
+        if (empty($this->favorite_2_prefecture)) {
+            return collect();
+        }
+
+        return Location::where('prefecture', $this->favorite_2_prefecture)
+            ->whereNotNull('city')
+            ->orderBy('code')
+            ->get();
+    }
+
+    public function getFavorite3CitiesProperty()
+    {
+        if (empty($this->favorite_3_prefecture)) {
+            return collect();
+        }
+
+        return Location::where('prefecture', $this->favorite_3_prefecture)
+            ->whereNotNull('city')
+            ->orderBy('code')
+            ->get();
+    }
+
     public function updatedBirthPrefecture($value): void
     {
-        if (empty($value)) {
-            $this->birth_cities = [];
-            $this->birth_location_id = null;
-        } else {
-            $this->birth_cities = $this->getCities($value);
-            $this->birth_location_id = null;
-        }
+        $this->birth_location_id = null;
     }
 
     public function updatedCurrent1Prefecture($value): void
     {
-        if (empty($value)) {
-            $this->current_1_cities = [];
-            $this->current_location_1_id = null;
-        } else {
-            $this->current_1_cities = $this->getCities($value);
-            $this->current_location_1_id = null;
-        }
+        $this->current_location_1_id = null;
     }
 
     public function updatedCurrent2Prefecture($value): void
     {
-        if (empty($value)) {
-            $this->current_2_cities = [];
-            $this->current_location_2_id = null;
-        } else {
-            $this->current_2_cities = $this->getCities($value);
-            $this->current_location_2_id = null;
-        }
+        $this->current_location_2_id = null;
     }
 
     public function updatedFavorite1Prefecture($value): void
     {
-        if (empty($value)) {
-            $this->favorite_1_cities = [];
-            $this->favorite_location_1_id = null;
-        } else {
-            $this->favorite_1_cities = $this->getCities($value);
-            $this->favorite_location_1_id = null;
-        }
+        $this->favorite_location_1_id = null;
     }
 
     public function updatedFavorite2Prefecture($value): void
     {
-        if (empty($value)) {
-            $this->favorite_2_cities = [];
-            $this->favorite_location_2_id = null;
-        } else {
-            $this->favorite_2_cities = $this->getCities($value);
-            $this->favorite_location_2_id = null;
-        }
+        $this->favorite_location_2_id = null;
     }
 
     public function updatedFavorite3Prefecture($value): void
     {
-        if (empty($value)) {
-            $this->favorite_3_cities = [];
-            $this->favorite_location_3_id = null;
-        } else {
-            $this->favorite_3_cities = $this->getCities($value);
-            $this->favorite_location_3_id = null;
-        }
+        $this->favorite_location_3_id = null;
     }
 
     public function updatedBirthYear(): void
@@ -205,27 +227,6 @@ class extends Component
     public function updatedBirthMonth(): void
     {
         $this->updateDays();
-    }
-
-    private function getCities(?string $prefecture)
-    {
-        if (! $prefecture) {
-            return [];
-        }
-
-        $cities = Location::where('prefecture', $prefecture)
-            ->whereNotNull('city')
-            ->orderBy('code')
-            ->get();
-
-        // デバッグログ
-        \Log::info('getCities called', [
-            'prefecture' => $prefecture,
-            'cities_count' => $cities->count(),
-            'first_city' => $cities->first()?->city,
-        ]);
-
-        return $cities;
     }
 
     private function updateDays(): void
@@ -421,20 +422,23 @@ class extends Component
             <flux:field>
                 <flux:label>出身地 <span class="text-red-500">*</span></flux:label>
                 <div class="flex gap-2">
-                    <flux:select wire:model.live="birth_prefecture" placeholder="都道府県を選択">
+                    <select wire:model.live="birth_prefecture"
+                        class="w-full rounded-lg border border-gray-200 px-3 py-2 dark:border-gray-700 dark:bg-gray-800">
                         <option value="">都道府県を選択</option>
-                        @foreach($prefectures as $prefecture)
+                        @foreach($this->prefectures as $prefecture)
                             <option value="{{ $prefecture->prefecture }}">{{ $prefecture->prefecture }}</option>
                         @endforeach
-                    </flux:select>
-                    <flux:select wire:model="birth_location_id" placeholder="市区町村を選択" :disabled="empty($birth_cities)">
+                    </select>
+                    <select wire:model="birth_location_id"
+                        class="w-full rounded-lg border border-gray-200 px-3 py-2 dark:border-gray-700 dark:bg-gray-800"
+                        @disabled(empty($this->birth_cities))>
                         <option value="">市区町村を選択</option>
-                        @if(!empty($birth_cities))
-                            @foreach($birth_cities as $city)
+                        @if(!empty($this->birth_cities))
+                            @foreach($this->birth_cities as $city)
                                 <option value="{{ $city->id }}">{{ $city->city }}</option>
                             @endforeach
                         @endif
-                    </flux:select>
+                    </select>
                 </div>
                 <flux:error name="birth_location_id" />
             </flux:field>
@@ -443,20 +447,23 @@ class extends Component
             <flux:field>
                 <flux:label>現在のお住まい1 <span class="text-red-500">*</span></flux:label>
                 <div class="flex gap-2">
-                    <flux:select wire:model.live="current_1_prefecture" placeholder="都道府県を選択">
+                    <select wire:model.live="current_1_prefecture"
+                        class="w-full rounded-lg border border-gray-200 px-3 py-2 dark:border-gray-700 dark:bg-gray-800">
                         <option value="">都道府県を選択</option>
-                        @foreach($prefectures as $prefecture)
+                        @foreach($this->prefectures as $prefecture)
                             <option value="{{ $prefecture->prefecture }}">{{ $prefecture->prefecture }}</option>
                         @endforeach
-                    </flux:select>
-                    <flux:select wire:model="current_location_1_id" placeholder="市区町村を選択" :disabled="empty($current_1_cities)">
+                    </select>
+                    <select wire:model="current_location_1_id"
+                        class="w-full rounded-lg border border-gray-200 px-3 py-2 dark:border-gray-700 dark:bg-gray-800"
+                        @disabled(empty($this->current_1_cities))>
                         <option value="">市区町村を選択</option>
-                        @if(!empty($current_1_cities))
-                            @foreach($current_1_cities as $city)
+                        @if(!empty($this->current_1_cities))
+                            @foreach($this->current_1_cities as $city)
                                 <option value="{{ $city->id }}">{{ $city->city }}</option>
                             @endforeach
                         @endif
-                    </flux:select>
+                    </select>
                 </div>
                 <flux:error name="current_location_1_id" />
             </flux:field>
@@ -465,20 +472,23 @@ class extends Component
             <flux:field>
                 <flux:label>現在のお住まい2 <span class="text-zinc-500">(任意)</span></flux:label>
                 <div class="flex gap-2">
-                    <flux:select wire:model.live="current_2_prefecture" placeholder="都道府県を選択">
+                    <select wire:model.live="current_2_prefecture"
+                        class="w-full rounded-lg border border-gray-200 px-3 py-2 dark:border-gray-700 dark:bg-gray-800">
                         <option value="">都道府県を選択</option>
-                        @foreach($prefectures as $prefecture)
+                        @foreach($this->prefectures as $prefecture)
                             <option value="{{ $prefecture->prefecture }}">{{ $prefecture->prefecture }}</option>
                         @endforeach
-                    </flux:select>
-                    <flux:select wire:model="current_location_2_id" placeholder="市区町村を選択" :disabled="empty($current_2_cities)">
+                    </select>
+                    <select wire:model="current_location_2_id"
+                        class="w-full rounded-lg border border-gray-200 px-3 py-2 dark:border-gray-700 dark:bg-gray-800"
+                        @disabled(empty($this->current_2_cities))>
                         <option value="">市区町村を選択</option>
-                        @if(!empty($current_2_cities))
-                            @foreach($current_2_cities as $city)
+                        @if(!empty($this->current_2_cities))
+                            @foreach($this->current_2_cities as $city)
                                 <option value="{{ $city->id }}">{{ $city->city }}</option>
                             @endforeach
                         @endif
-                    </flux:select>
+                    </select>
                 </div>
                 <flux:error name="current_location_2_id" />
             </flux:field>
@@ -487,20 +497,23 @@ class extends Component
             <flux:field>
                 <flux:label>移住に関心のある地域1 <span class="text-zinc-500">(任意)</span></flux:label>
                 <div class="flex gap-2">
-                    <flux:select wire:model.live="favorite_1_prefecture" placeholder="都道府県を選択">
+                    <select wire:model.live="favorite_1_prefecture"
+                        class="w-full rounded-lg border border-gray-200 px-3 py-2 dark:border-gray-700 dark:bg-gray-800">
                         <option value="">都道府県を選択</option>
-                        @foreach($prefectures as $prefecture)
+                        @foreach($this->prefectures as $prefecture)
                             <option value="{{ $prefecture->prefecture }}">{{ $prefecture->prefecture }}</option>
                         @endforeach
-                    </flux:select>
-                    <flux:select wire:model="favorite_location_1_id" placeholder="市区町村を選択" :disabled="empty($favorite_1_cities)">
+                    </select>
+                    <select wire:model="favorite_location_1_id"
+                        class="w-full rounded-lg border border-gray-200 px-3 py-2 dark:border-gray-700 dark:bg-gray-800"
+                        @disabled(empty($this->favorite_1_cities))>
                         <option value="">市区町村を選択</option>
-                        @if(!empty($favorite_1_cities))
-                            @foreach($favorite_1_cities as $city)
+                        @if(!empty($this->favorite_1_cities))
+                            @foreach($this->favorite_1_cities as $city)
                                 <option value="{{ $city->id }}">{{ $city->city }}</option>
                             @endforeach
                         @endif
-                    </flux:select>
+                    </select>
                 </div>
                 <flux:error name="favorite_location_1_id" />
             </flux:field>
@@ -509,20 +522,23 @@ class extends Component
             <flux:field>
                 <flux:label>移住に関心のある地域2 <span class="text-zinc-500">(任意)</span></flux:label>
                 <div class="flex gap-2">
-                    <flux:select wire:model.live="favorite_2_prefecture" placeholder="都道府県を選択">
+                    <select wire:model.live="favorite_2_prefecture"
+                        class="w-full rounded-lg border border-gray-200 px-3 py-2 dark:border-gray-700 dark:bg-gray-800">
                         <option value="">都道府県を選択</option>
-                        @foreach($prefectures as $prefecture)
+                        @foreach($this->prefectures as $prefecture)
                             <option value="{{ $prefecture->prefecture }}">{{ $prefecture->prefecture }}</option>
                         @endforeach
-                    </flux:select>
-                    <flux:select wire:model="favorite_location_2_id" placeholder="市区町村を選択" :disabled="empty($favorite_2_cities)">
+                    </select>
+                    <select wire:model="favorite_location_2_id"
+                        class="w-full rounded-lg border border-gray-200 px-3 py-2 dark:border-gray-700 dark:bg-gray-800"
+                        @disabled(empty($this->favorite_2_cities))>
                         <option value="">市区町村を選択</option>
-                        @if(!empty($favorite_2_cities))
-                            @foreach($favorite_2_cities as $city)
+                        @if(!empty($this->favorite_2_cities))
+                            @foreach($this->favorite_2_cities as $city)
                                 <option value="{{ $city->id }}">{{ $city->city }}</option>
                             @endforeach
                         @endif
-                    </flux:select>
+                    </select>
                 </div>
                 <flux:error name="favorite_location_2_id" />
             </flux:field>
@@ -531,20 +547,23 @@ class extends Component
             <flux:field>
                 <flux:label>移住に関心のある地域3 <span class="text-zinc-500">(任意)</span></flux:label>
                 <div class="flex gap-2">
-                    <flux:select wire:model.live="favorite_3_prefecture" placeholder="都道府県を選択">
+                    <select wire:model.live="favorite_3_prefecture"
+                        class="w-full rounded-lg border border-gray-200 px-3 py-2 dark:border-gray-700 dark:bg-gray-800">
                         <option value="">都道府県を選択</option>
-                        @foreach($prefectures as $prefecture)
+                        @foreach($this->prefectures as $prefecture)
                             <option value="{{ $prefecture->prefecture }}">{{ $prefecture->prefecture }}</option>
                         @endforeach
-                    </flux:select>
-                    <flux:select wire:model="favorite_location_3_id" placeholder="市区町村を選択" :disabled="empty($favorite_3_cities)">
+                    </select>
+                    <select wire:model="favorite_location_3_id"
+                        class="w-full rounded-lg border border-gray-200 px-3 py-2 dark:border-gray-700 dark:bg-gray-800"
+                        @disabled(empty($this->favorite_3_cities))>
                         <option value="">市区町村を選択</option>
-                        @if(!empty($favorite_3_cities))
-                            @foreach($favorite_3_cities as $city)
+                        @if(!empty($this->favorite_3_cities))
+                            @foreach($this->favorite_3_cities as $city)
                                 <option value="{{ $city->id }}">{{ $city->city }}</option>
                             @endforeach
                         @endif
-                    </flux:select>
+                    </select>
                 </div>
                 <flux:error name="favorite_location_3_id" />
             </flux:field>

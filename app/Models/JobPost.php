@@ -24,10 +24,9 @@ class JobPost extends Model
     protected $fillable = [
         'company_id',
         'eyecatch',
-        'howsoon',
+        'purpose',
         'job_title',
         'job_detail',
-        'job_type_id',
         'want_you_ids',
         'can_do_ids',
         'posted_at',
@@ -72,14 +71,13 @@ class JobPost extends Model
     }
 
     /**
-     * 「いつまでに」の日本語表示を取得
+     * 募集目的の日本語表示を取得
      */
-    public function getHowsoonLabel(): string
+    public function getPurposeLabel(): string
     {
-        return match ($this->howsoon) {
-            'someday' => 'いつか',
-            'asap' => 'いますぐにでも',
-            'specific_month' => '◯月までに',
+        return match ($this->purpose) {
+            'want_to_do' => 'いつかやりたい',
+            'need_help' => '人手が足りない',
             default => '不明',
         };
     }

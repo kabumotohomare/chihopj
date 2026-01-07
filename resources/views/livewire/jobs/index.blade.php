@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 use App\Models\Code;
 use App\Models\JobPost;
-use App\Models\Location;
 
 use function Livewire\Volt\computed;
 use function Livewire\Volt\layout;
@@ -20,40 +19,16 @@ title('募集一覧');
  */
 state([
     'keyword' => '',
-    'prefecture' => '',
-    'city_location_id' => null,
-    'job_types' => [],
     'want_you_types' => [],
     'can_do_types' => [],
 ]);
-
-/**
- * 市区町村の選択肢を動的に取得
- */
-$cities = computed(function () {
-    if (empty($this->prefecture)) {
-        return collect();
-    }
-
-    return Location::where('prefecture', $this->prefecture)
-        ->whereNotNull('city')
-        ->orderBy('code')
-        ->get();
-});
-
-/**
- * 都道府県変更時に市区町村をリセット
- */
-$updatedPrefecture = function (): void {
-    $this->city_location_id = null;
-};
 
 /**
  * 募集一覧を取得（検索・フィルタ適用）
  */
 $jobPosts = computed(function () {
     $query = JobPost::query()
-        ->with(['company.companyProfile.location', 'jobType'])
+        ->with(['company.companyProfile'])
         ->orderBy('posted_at', 'desc');
 
     // キーワード検索（タイトル・詳細内容）
@@ -62,25 +37,6 @@ $jobPosts = computed(function () {
             $q->where('job_title', 'like', "%{$this->keyword}%")
                 ->orWhere('job_detail', 'like', "%{$this->keyword}%");
         });
-    }
-
-    // 所在地フィルタ（都道府県）
-    if (! empty($this->prefecture)) {
-        $query->whereHas('company.companyProfile.location', function ($q) {
-            $q->where('prefecture', $this->prefecture);
-        });
-    }
-
-    // 所在地フィルタ（市区町村）
-    if (! empty($this->city_location_id)) {
-        $query->whereHas('company.companyProfile', function ($q) {
-            $q->where('location_id', $this->city_location_id);
-        });
-    }
-
-    // 募集形態フィルタ
-    if (! empty($this->job_types)) {
-        $query->whereIn('job_type_id', $this->job_types);
     }
 
     // 希望フィルタ
@@ -159,9 +115,6 @@ $getCanDoLabel = function (): string {
  */
 $resetFilters = function (): void {
     $this->keyword = '';
-    $this->prefecture = '';
-    $this->city_location_id = null;
-    $this->job_types = [];
     $this->want_you_types = [];
     $this->can_do_types = [];
 };
@@ -170,8 +123,6 @@ $resetFilters = function (): void {
  * データを提供
  */
 with(fn () => [
-    'prefectures' => Location::whereNull('city')->orderBy('code')->get(),
-    'jobTypeCodes' => Code::getRecruitmentTypes(),
     'wantYouCodes' => Code::getRequests(),
     'canDoCodes' => Code::getOffers(),
 ]);
@@ -210,56 +161,6 @@ with(fn () => [
                             placeholder="タイトルや内容で検索..."
                             icon="magnifying-glass"
                         />
-                    </flux:field>
-                </div>
-
-                <!-- 所在地フィルタ -->
-                <div class="grid gap-4 md:grid-cols-2">
-                    <flux:field>
-                        <flux:label>都道府県</flux:label>
-                        <select 
-                            wire:model.live="prefecture"
-                            class="w-full rounded-lg border border-gray-200 px-3 py-2 dark:border-gray-700 dark:bg-gray-800"
-                        >
-                            <option value="">すべて</option>
-                            @foreach ($prefectures as $pref)
-                                <option value="{{ $pref->prefecture }}">{{ $pref->prefecture }}</option>
-                            @endforeach
-                        </select>
-                    </flux:field>
-
-                    <flux:field>
-                        <flux:label>市区町村</flux:label>
-                        <select 
-                            wire:model.live="city_location_id"
-                            class="w-full rounded-lg border border-gray-200 px-3 py-2 dark:border-gray-700 dark:bg-gray-800"
-                            @disabled(!$prefecture)
-                        >
-                            <option value="">すべて</option>
-                            @foreach ($this->cities as $city)
-                                <option value="{{ $city->id }}">{{ $city->city }}</option>
-                            @endforeach
-                        </select>
-                    </flux:field>
-                </div>
-
-                <!-- 募集形態フィルタ -->
-                <div>
-                    <flux:field>
-                        <flux:label>募集形態</flux:label>
-                        <div class="flex flex-wrap gap-4">
-                            @foreach ($jobTypeCodes as $code)
-                                <label class="flex items-center gap-2">
-                                    <input 
-                                        type="checkbox" 
-                                        wire:model.live="job_types" 
-                                        value="{{ $code->type_id }}"
-                                        class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                                    >
-                                    <span class="text-sm text-gray-700 dark:text-gray-300">{{ $code->name }}</span>
-                                </label>
-                            @endforeach
-                        </div>
                     </flux:field>
                 </div>
 
@@ -375,13 +276,6 @@ with(fn () => [
                         <div class="p-5">
                             <!-- タグエリア -->
                             <div class="mb-3 flex flex-wrap gap-2">
-                                <!-- 募集形態タグ -->
-                                @if ($jobPost->jobType)
-                                    <flux:badge color="blue" size="sm" class="rounded-full">
-                                        {{ $jobPost->jobType->name }}
-                                    </flux:badge>
-                                @endif
-
                                 <!-- 希望タグ（最大2つまで表示） -->
                                 @foreach ($jobPost->getWantYouCodes()->take(2) as $code)
                                     <flux:badge color="zinc" size="sm" class="rounded-full">
@@ -393,7 +287,7 @@ with(fn () => [
                             <!-- 募集見出し -->
                             <div class="mb-3 flex items-start gap-2">
                                 <flux:badge color="red" size="sm" class="flex-shrink-0 font-bold">
-                                    {{ $jobPost->getHowsoonLabel() }}
+                                    {{ $jobPost->getPurposeLabel() }}
                                 </flux:badge>
                                 <flux:heading size="md" class="line-clamp-2 flex-1 text-gray-900 dark:text-white">
                                     {{ $jobPost->job_title }}
@@ -426,17 +320,6 @@ with(fn () => [
                                             {{ $jobPost->company->name }}
                                         </span>
                                     </flux:badge>
-
-                                    <!-- 所在地 -->
-                                    @if ($jobPost->company->companyProfile?->location)
-                                        <flux:badge color="zinc" size="sm">
-                                            <span class="flex items-center gap-1">
-                                                <flux:icon.map-pin variant="micro" />
-                                                {{ $jobPost->company->companyProfile->location->prefecture }}
-                                                {{ $jobPost->company->companyProfile->location->city }}
-                                            </span>
-                                        </flux:badge>
-                                    @endif
                                 </div>
                             </div>
                         </div>

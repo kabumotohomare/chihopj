@@ -14,7 +14,7 @@ state(['profile' => null]);
 
 // コンポーネントのマウント
 mount(function () {
-    $this->profile = CompanyProfile::with(['location', 'user'])
+    $this->profile = CompanyProfile::with(['user'])
         ->where('user_id', auth()->id())
         ->first();
     
@@ -23,15 +23,6 @@ mount(function () {
         return $this->redirect(route('company.register'), navigate: true);
     }
 });
-
-// 地域の表示名を取得（都道府県 市区町村）
-$getLocationDisplay = function (): string {
-    if (!$this->profile->location) {
-        return '未設定';
-    }
-    
-    return $this->profile->location->display_name;
-};
 
 ?>
 
@@ -72,10 +63,6 @@ $getLocationDisplay = function (): string {
         <div class="rounded-lg border border-zinc-200 bg-white p-6 dark:border-zinc-700 dark:bg-zinc-800">
             <flux:heading size="lg" class="mb-4">所在地</flux:heading>
             <div class="space-y-4">
-                <div>
-                    <flux:text class="font-semibold text-zinc-700 dark:text-zinc-300">都道府県・市区町村</flux:text>
-                    <flux:text class="mt-1">{{ $this->getLocationDisplay() }}</flux:text>
-                </div>
                 <div>
                     <flux:text class="font-semibold text-zinc-700 dark:text-zinc-300">所在地住所</flux:text>
                     <flux:text class="mt-1 whitespace-pre-wrap">{{ $profile->address }}</flux:text>
