@@ -3,7 +3,7 @@
 use App\Models\{Location, WorkerProfile};
 use Illuminate\Support\Facades\{Auth, Storage};
 use Livewire\WithFileUploads;
-use function Livewire\Volt\{layout, mount, state, uses, with};
+use function Livewire\Volt\{computed, layout, mount, state, uses, with};
 
 uses([WithFileUploads::class]);
 
@@ -76,7 +76,7 @@ state(['available_action' => []]);
 mount(function () {
     $user = Auth::user();
 
-    // ワーカープロフィールを取得
+    // ワーカープロフィールを取得（存在しない場合はnull）
     $this->profile = WorkerProfile::with([
         'birthLocation',
         'currentLocation1',
@@ -86,96 +86,176 @@ mount(function () {
         'favoriteLocation3',
     ])
         ->where('user_id', $user->id)
-        ->firstOrFail();
+        ->first();
 
-    // 基本情報の初期値を設定
-    $this->handle_name = $this->profile->handle_name;
-    $this->gender = $this->profile->gender;
+    // プロフィールが存在する場合は既存データを初期値として設定
+    if ($this->profile) {
+        // 基本情報の初期値を設定
+        $this->handle_name = $this->profile->handle_name;
+        $this->gender = $this->profile->gender;
 
-    // 生年月日を分割
-    if ($this->profile->birthdate) {
-        $this->birthYear = (int) $this->profile->birthdate->format('Y');
-        $this->birthMonth = (int) $this->profile->birthdate->format('m');
-        $this->birthDay = (int) $this->profile->birthdate->format('d');
+        // 生年月日を分割
+        if ($this->profile->birthdate) {
+            $this->birthYear = (int) $this->profile->birthdate->format('Y');
+            $this->birthMonth = (int) $this->profile->birthdate->format('m');
+            $this->birthDay = (int) $this->profile->birthdate->format('d');
+        }
+
+        // テキストエリアの初期値
+        $this->experiences = $this->profile->experiences ?? '';
+        $this->want_to_do = $this->profile->want_to_do ?? '';
+        $this->good_contribution = $this->profile->good_contribution ?? '';
+
+        // 出身地の初期値
+        if ($this->profile->birthLocation) {
+            $this->birth_prefecture = $this->profile->birthLocation->prefecture;
+            $this->birth_location_id = $this->profile->birth_location_id;
+        }
+
+        // 現在のお住まい1の初期値
+        if ($this->profile->currentLocation1) {
+            $this->current_1_prefecture = $this->profile->currentLocation1->prefecture;
+            $this->current_location_1_id = $this->profile->current_location_1_id;
+        }
+
+        // 現在のお住まい2の初期値
+        if ($this->profile->currentLocation2) {
+            $this->current_2_prefecture = $this->profile->currentLocation2->prefecture;
+            $this->current_location_2_id = $this->profile->current_location_2_id;
+        }
+
+        // 移住に関心のある地域1の初期値
+        if ($this->profile->favoriteLocation1) {
+            $this->favorite_1_prefecture = $this->profile->favoriteLocation1->prefecture;
+            $this->favorite_location_1_id = $this->profile->favorite_location_1_id;
+        }
+
+        // 移住に関心のある地域2の初期値
+        if ($this->profile->favoriteLocation2) {
+            $this->favorite_2_prefecture = $this->profile->favoriteLocation2->prefecture;
+            $this->favorite_location_2_id = $this->profile->favorite_location_2_id;
+        }
+
+        // 移住に関心のある地域3の初期値
+        if ($this->profile->favoriteLocation3) {
+            $this->favorite_3_prefecture = $this->profile->favoriteLocation3->prefecture;
+            $this->favorite_location_3_id = $this->profile->favorite_location_3_id;
+        }
+
+        // 興味のあるお手伝いの初期値
+        $this->available_action = $this->profile->available_action ?? [];
     }
-
-    // テキストエリアの初期値
-    $this->experiences = $this->profile->experiences ?? '';
-    $this->want_to_do = $this->profile->want_to_do ?? '';
-    $this->good_contribution = $this->profile->good_contribution ?? '';
-
-    // 出身地の初期値
-    if ($this->profile->birthLocation) {
-        $this->birth_prefecture = $this->profile->birthLocation->prefecture;
-        $this->birth_location_id = $this->profile->birth_location_id;
-    }
-
-    // 現在のお住まい1の初期値
-    if ($this->profile->currentLocation1) {
-        $this->current_1_prefecture = $this->profile->currentLocation1->prefecture;
-        $this->current_location_1_id = $this->profile->current_location_1_id;
-    }
-
-    // 現在のお住まい2の初期値
-    if ($this->profile->currentLocation2) {
-        $this->current_2_prefecture = $this->profile->currentLocation2->prefecture;
-        $this->current_location_2_id = $this->profile->current_location_2_id;
-    }
-
-    // 移住に関心のある地域1の初期値
-    if ($this->profile->favoriteLocation1) {
-        $this->favorite_1_prefecture = $this->profile->favoriteLocation1->prefecture;
-        $this->favorite_location_1_id = $this->profile->favorite_location_1_id;
-    }
-
-    // 移住に関心のある地域2の初期値
-    if ($this->profile->favoriteLocation2) {
-        $this->favorite_2_prefecture = $this->profile->favoriteLocation2->prefecture;
-        $this->favorite_location_2_id = $this->profile->favorite_location_2_id;
-    }
-
-    // 移住に関心のある地域3の初期値
-    if ($this->profile->favoriteLocation3) {
-        $this->favorite_3_prefecture = $this->profile->favoriteLocation3->prefecture;
-        $this->favorite_location_3_id = $this->profile->favorite_location_3_id;
-    }
-
-    // 興味のあるお手伝いの初期値
-    $this->available_action = $this->profile->available_action ?? [];
 });
 
 /**
- * データ提供
+ * 都道府県リスト
  */
-with(fn () => [
-    'prefectures' => Location::whereNull('city')->orderBy('code')->get(),
-    'birth_cities' => $this->birth_prefecture
-        ? Location::where('prefecture', $this->birth_prefecture)->whereNotNull('city')->orderBy('code')->get()
-        : collect(),
-    'current_1_cities' => $this->current_1_prefecture
-        ? Location::where('prefecture', $this->current_1_prefecture)->whereNotNull('city')->orderBy('code')->get()
-        : collect(),
-    'current_2_cities' => $this->current_2_prefecture
-        ? Location::where('prefecture', $this->current_2_prefecture)->whereNotNull('city')->orderBy('code')->get()
-        : collect(),
-    'favorite_1_cities' => $this->favorite_1_prefecture
-        ? Location::where('prefecture', $this->favorite_1_prefecture)->whereNotNull('city')->orderBy('code')->get()
-        : collect(),
-    'favorite_2_cities' => $this->favorite_2_prefecture
-        ? Location::where('prefecture', $this->favorite_2_prefecture)->whereNotNull('city')->orderBy('code')->get()
-        : collect(),
-    'favorite_3_cities' => $this->favorite_3_prefecture
-        ? Location::where('prefecture', $this->favorite_3_prefecture)->whereNotNull('city')->orderBy('code')->get()
-        : collect(),
-    'years' => range(now()->year - 18, now()->year - 80),
-    'months' => range(1, 12),
-    'days' => $this->getDays(),
-]);
+$prefectures = computed(function () {
+    return Location::whereNull('city')->orderBy('code')->get();
+});
 
 /**
- * 日の選択肢を取得
+ * 出身地の市区町村リスト
  */
-$getDays = function (): array {
+$birthCities = computed(function () {
+    if (!$this->birth_prefecture) {
+        return collect();
+    }
+
+    return Location::where('prefecture', $this->birth_prefecture)
+        ->whereNotNull('city')
+        ->orderBy('code')
+        ->get();
+});
+
+/**
+ * 現在のお住まい1の市区町村リスト
+ */
+$current1Cities = computed(function () {
+    if (!$this->current_1_prefecture) {
+        return collect();
+    }
+
+    return Location::where('prefecture', $this->current_1_prefecture)
+        ->whereNotNull('city')
+        ->orderBy('code')
+        ->get();
+});
+
+/**
+ * 現在のお住まい2の市区町村リスト
+ */
+$current2Cities = computed(function () {
+    if (!$this->current_2_prefecture) {
+        return collect();
+    }
+
+    return Location::where('prefecture', $this->current_2_prefecture)
+        ->whereNotNull('city')
+        ->orderBy('code')
+        ->get();
+});
+
+/**
+ * 移住に関心のある地域1の市区町村リスト
+ */
+$favorite1Cities = computed(function () {
+    if (!$this->favorite_1_prefecture) {
+        return collect();
+    }
+
+    return Location::where('prefecture', $this->favorite_1_prefecture)
+        ->whereNotNull('city')
+        ->orderBy('code')
+        ->get();
+});
+
+/**
+ * 移住に関心のある地域2の市区町村リスト
+ */
+$favorite2Cities = computed(function () {
+    if (!$this->favorite_2_prefecture) {
+        return collect();
+    }
+
+    return Location::where('prefecture', $this->favorite_2_prefecture)
+        ->whereNotNull('city')
+        ->orderBy('code')
+        ->get();
+});
+
+/**
+ * 移住に関心のある地域3の市区町村リスト
+ */
+$favorite3Cities = computed(function () {
+    if (!$this->favorite_3_prefecture) {
+        return collect();
+    }
+
+    return Location::where('prefecture', $this->favorite_3_prefecture)
+        ->whereNotNull('city')
+        ->orderBy('code')
+        ->get();
+});
+
+/**
+ * 年のリスト
+ */
+$years = computed(function () {
+    return range(now()->year - 18, now()->year - 80);
+});
+
+/**
+ * 月のリスト
+ */
+$months = computed(function () {
+    return range(1, 12);
+});
+
+/**
+ * 日のリスト
+ */
+$days = computed(function () {
     if (!$this->birthYear || !$this->birthMonth) {
         return range(1, 31);
     }
@@ -183,7 +263,7 @@ $getDays = function (): array {
     $daysInMonth = cal_days_in_month(CAL_GREGORIAN, (int) $this->birthMonth, (int) $this->birthYear);
 
     return range(1, $daysInMonth);
-};
+});
 
 /**
  * 都道府県変更時の処理
@@ -237,7 +317,7 @@ $updatedBirthMonth = function (): void {
  * アイコン画像のURLを取得
  */
 $getIconUrl = function (): ?string {
-    if (!$this->profile->icon) {
+    if (!$this->profile || !$this->profile->icon) {
         return null;
     }
 
@@ -313,17 +393,24 @@ $update = function () {
 
     // アイコン画像の処理
     if ($this->icon) {
-        // 古いアイコンを削除
-        if ($this->profile->icon) {
+        // 古いアイコンを削除（更新時のみ）
+        if ($this->profile && $this->profile->icon) {
             Storage::disk('public')->delete($this->profile->icon);
         }
         $data['icon'] = $this->icon->store('icons', 'public');
     }
 
-    // プロフィールを更新
-    $this->profile->update($data);
-
-    session()->flash('status', 'ワーカープロフィールを更新しました。');
+    // プロフィールを更新または新規作成
+    if ($this->profile) {
+        // 既存プロフィールを更新
+        $this->profile->update($data);
+        session()->flash('status', 'ワーカープロフィールを更新しました。');
+    } else {
+        // 新規プロフィールを作成
+        $data['user_id'] = Auth::id();
+        $this->profile = WorkerProfile::create($data);
+        session()->flash('status', 'ワーカープロフィールを登録しました。');
+    }
 
     return $this->redirect(route('worker.profile'), navigate: true);
 };
@@ -332,7 +419,9 @@ $update = function () {
 
 <div class="mx-auto max-w-4xl px-4 py-8">
     <div class="mb-6 flex items-center justify-between">
-        <flux:heading size="xl">ワーカープロフィール編集</flux:heading>
+        <flux:heading size="xl">
+            {{ $profile ? 'ワーカープロフィール編集' : 'ワーカープロフィール登録' }}
+        </flux:heading>
     </div>
 
     @if (session('status'))
@@ -357,7 +446,7 @@ $update = function () {
                 <flux:label>アイコン画像 <span class="text-zinc-500">(任意)</span></flux:label>
 
                 {{-- 現在のアイコン表示 --}}
-                @if ($this->getIconUrl() && !$icon)
+                @if ($profile && $this->getIconUrl() && !$icon)
                     <div class="mb-4">
                         <img src="{{ $this->getIconUrl() }}" alt="現在のアイコン"
                             class="size-24 rounded-full object-cover border-2 border-zinc-300 dark:border-zinc-600">
@@ -424,21 +513,21 @@ $update = function () {
                     <select wire:model.live="birthYear"
                         class="w-full rounded-lg border border-gray-200 px-3 py-2 dark:border-gray-700 dark:bg-gray-800">
                         <option value="">年</option>
-                        @foreach ($years as $year)
+                        @foreach ($this->years as $year)
                             <option value="{{ $year }}">{{ $year }}年</option>
                         @endforeach
                     </select>
                     <select wire:model.live="birthMonth"
                         class="w-full rounded-lg border border-gray-200 px-3 py-2 dark:border-gray-700 dark:bg-gray-800">
                         <option value="">月</option>
-                        @foreach ($months as $month)
+                        @foreach ($this->months as $month)
                             <option value="{{ $month }}">{{ $month }}月</option>
                         @endforeach
                     </select>
                     <select wire:model="birthDay"
                         class="w-full rounded-lg border border-gray-200 px-3 py-2 dark:border-gray-700 dark:bg-gray-800">
                         <option value="">日</option>
-                        @foreach ($days as $day)
+                        @foreach ($this->days as $day)
                             <option value="{{ $day }}">{{ $day }}日</option>
                         @endforeach
                     </select>
@@ -488,7 +577,7 @@ $update = function () {
                     <select wire:model.live="birth_prefecture"
                         class="w-full rounded-lg border border-gray-200 px-3 py-2 dark:border-gray-700 dark:bg-gray-800">
                         <option value="">都道府県を選択</option>
-                        @foreach ($prefectures as $prefecture)
+                        @foreach ($this->prefectures as $prefecture)
                             <option value="{{ $prefecture->prefecture }}">{{ $prefecture->prefecture }}</option>
                         @endforeach
                     </select>
@@ -497,11 +586,13 @@ $update = function () {
                     <flux:label>市区町村</flux:label>
                     <select wire:model="birth_location_id"
                         class="w-full rounded-lg border border-gray-200 px-3 py-2 dark:border-gray-700 dark:bg-gray-800"
-                        @disabled(!$birth_prefecture)>
+                        @disabled($this->birthCities->isEmpty())>
                         <option value="">市区町村を選択</option>
-                        @foreach ($birth_cities as $city)
-                            <option value="{{ $city->id }}">{{ $city->city }}</option>
-                        @endforeach
+                        @if ($this->birthCities->isNotEmpty())
+                            @foreach ($this->birthCities as $city)
+                                <option value="{{ $city->id }}">{{ $city->city }}</option>
+                            @endforeach
+                        @endif
                     </select>
                     <flux:error name="birth_location_id" />
                 </flux:field>
@@ -517,7 +608,7 @@ $update = function () {
                     <select wire:model.live="current_1_prefecture"
                         class="w-full rounded-lg border border-gray-200 px-3 py-2 dark:border-gray-700 dark:bg-gray-800">
                         <option value="">都道府県を選択</option>
-                        @foreach ($prefectures as $prefecture)
+                        @foreach ($this->prefectures as $prefecture)
                             <option value="{{ $prefecture->prefecture }}">{{ $prefecture->prefecture }}</option>
                         @endforeach
                     </select>
@@ -526,11 +617,13 @@ $update = function () {
                     <flux:label>市区町村</flux:label>
                     <select wire:model="current_location_1_id"
                         class="w-full rounded-lg border border-gray-200 px-3 py-2 dark:border-gray-700 dark:bg-gray-800"
-                        @disabled(!$current_1_prefecture)>
+                        @disabled($this->current1Cities->isEmpty())>
                         <option value="">市区町村を選択</option>
-                        @foreach ($current_1_cities as $city)
-                            <option value="{{ $city->id }}">{{ $city->city }}</option>
-                        @endforeach
+                        @if ($this->current1Cities->isNotEmpty())
+                            @foreach ($this->current1Cities as $city)
+                                <option value="{{ $city->id }}">{{ $city->city }}</option>
+                            @endforeach
+                        @endif
                     </select>
                     <flux:error name="current_location_1_id" />
                 </flux:field>
@@ -546,7 +639,7 @@ $update = function () {
                     <select wire:model.live="current_2_prefecture"
                         class="w-full rounded-lg border border-gray-200 px-3 py-2 dark:border-gray-700 dark:bg-gray-800">
                         <option value="">選択しない</option>
-                        @foreach ($prefectures as $prefecture)
+                        @foreach ($this->prefectures as $prefecture)
                             <option value="{{ $prefecture->prefecture }}">{{ $prefecture->prefecture }}</option>
                         @endforeach
                     </select>
@@ -555,11 +648,13 @@ $update = function () {
                     <flux:label>市区町村</flux:label>
                     <select wire:model="current_location_2_id"
                         class="w-full rounded-lg border border-gray-200 px-3 py-2 dark:border-gray-700 dark:bg-gray-800"
-                        @disabled(!$current_2_prefecture)>
+                        @disabled($this->current2Cities->isEmpty())>
                         <option value="">選択しない</option>
-                        @foreach ($current_2_cities as $city)
-                            <option value="{{ $city->id }}">{{ $city->city }}</option>
-                        @endforeach
+                        @if ($this->current2Cities->isNotEmpty())
+                            @foreach ($this->current2Cities as $city)
+                                <option value="{{ $city->id }}">{{ $city->city }}</option>
+                            @endforeach
+                        @endif
                     </select>
                 </flux:field>
             </div>
@@ -574,7 +669,7 @@ $update = function () {
                     <select wire:model.live="favorite_1_prefecture"
                         class="w-full rounded-lg border border-gray-200 px-3 py-2 dark:border-gray-700 dark:bg-gray-800">
                         <option value="">選択しない</option>
-                        @foreach ($prefectures as $prefecture)
+                        @foreach ($this->prefectures as $prefecture)
                             <option value="{{ $prefecture->prefecture }}">{{ $prefecture->prefecture }}</option>
                         @endforeach
                     </select>
@@ -583,11 +678,13 @@ $update = function () {
                     <flux:label>市区町村</flux:label>
                     <select wire:model="favorite_location_1_id"
                         class="w-full rounded-lg border border-gray-200 px-3 py-2 dark:border-gray-700 dark:bg-gray-800"
-                        @disabled(!$favorite_1_prefecture)>
+                        @disabled($this->favorite1Cities->isEmpty())>
                         <option value="">選択しない</option>
-                        @foreach ($favorite_1_cities as $city)
-                            <option value="{{ $city->id }}">{{ $city->city }}</option>
-                        @endforeach
+                        @if ($this->favorite1Cities->isNotEmpty())
+                            @foreach ($this->favorite1Cities as $city)
+                                <option value="{{ $city->id }}">{{ $city->city }}</option>
+                            @endforeach
+                        @endif
                     </select>
                 </flux:field>
             </div>
@@ -602,7 +699,7 @@ $update = function () {
                     <select wire:model.live="favorite_2_prefecture"
                         class="w-full rounded-lg border border-gray-200 px-3 py-2 dark:border-gray-700 dark:bg-gray-800">
                         <option value="">選択しない</option>
-                        @foreach ($prefectures as $prefecture)
+                        @foreach ($this->prefectures as $prefecture)
                             <option value="{{ $prefecture->prefecture }}">{{ $prefecture->prefecture }}</option>
                         @endforeach
                     </select>
@@ -611,11 +708,13 @@ $update = function () {
                     <flux:label>市区町村</flux:label>
                     <select wire:model="favorite_location_2_id"
                         class="w-full rounded-lg border border-gray-200 px-3 py-2 dark:border-gray-700 dark:bg-gray-800"
-                        @disabled(!$favorite_2_prefecture)>
+                        @disabled($this->favorite2Cities->isEmpty())>
                         <option value="">選択しない</option>
-                        @foreach ($favorite_2_cities as $city)
-                            <option value="{{ $city->id }}">{{ $city->city }}</option>
-                        @endforeach
+                        @if ($this->favorite2Cities->isNotEmpty())
+                            @foreach ($this->favorite2Cities as $city)
+                                <option value="{{ $city->id }}">{{ $city->city }}</option>
+                            @endforeach
+                        @endif
                     </select>
                 </flux:field>
             </div>
@@ -630,7 +729,7 @@ $update = function () {
                     <select wire:model.live="favorite_3_prefecture"
                         class="w-full rounded-lg border border-gray-200 px-3 py-2 dark:border-gray-700 dark:bg-gray-800">
                         <option value="">選択しない</option>
-                        @foreach ($prefectures as $prefecture)
+                        @foreach ($this->prefectures as $prefecture)
                             <option value="{{ $prefecture->prefecture }}">{{ $prefecture->prefecture }}</option>
                         @endforeach
                     </select>
@@ -639,11 +738,13 @@ $update = function () {
                     <flux:label>市区町村</flux:label>
                     <select wire:model="favorite_location_3_id"
                         class="w-full rounded-lg border border-gray-200 px-3 py-2 dark:border-gray-700 dark:bg-gray-800"
-                        @disabled(!$favorite_3_prefecture)>
+                        @disabled($this->favorite3Cities->isEmpty())>
                         <option value="">選択しない</option>
-                        @foreach ($favorite_3_cities as $city)
-                            <option value="{{ $city->id }}">{{ $city->city }}</option>
-                        @endforeach
+                        @if ($this->favorite3Cities->isNotEmpty())
+                            @foreach ($this->favorite3Cities as $city)
+                                <option value="{{ $city->id }}">{{ $city->city }}</option>
+                            @endforeach
+                        @endif
                     </select>
                 </flux:field>
             </div>
@@ -686,11 +787,17 @@ $update = function () {
 
         {{-- 更新ボタン --}}
         <div class="flex justify-between">
-            <flux:button href="{{ route('worker.profile') }}" wire:navigate variant="ghost">
-                キャンセル
-            </flux:button>
+            @if ($profile)
+                <flux:button href="{{ route('worker.profile') }}" wire:navigate variant="ghost">
+                    キャンセル
+                </flux:button>
+            @else
+                <flux:button href="{{ route('dashboard') }}" wire:navigate variant="ghost">
+                    キャンセル
+                </flux:button>
+            @endif
             <flux:button type="submit" variant="primary">
-                更新する
+                {{ $profile ? '更新する' : '登録する' }}
             </flux:button>
         </div>
     </form>

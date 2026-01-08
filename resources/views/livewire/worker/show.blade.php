@@ -1,66 +1,78 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Models\WorkerProfile;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
-use Livewire\Volt\Component;
+use function Livewire\Volt\{layout, mount, state, title};
 
-new class extends Component {
-    public WorkerProfile $profile;
+layout('components.layouts.app');
+title('ワーカープロフィール');
 
-    /**
-     * コンポーネントのマウント
-     */
-    public function mount(): void
-    {
-        $user = Auth::user();
+state(['profile' => null]);
 
-        // ワーカープロフィールを取得（リレーションをEager Loading）
-        $this->profile = WorkerProfile::with(['birthLocation', 'currentLocation1', 'currentLocation2', 'favoriteLocation1', 'favoriteLocation2', 'favoriteLocation3'])
-            ->where('user_id', $user->id)
-            ->firstOrFail();
+/**
+ * コンポーネントのマウント
+ */
+mount(function () {
+    $user = Auth::user();
+
+    // ワーカープロフィールを取得（リレーションをEager Loading）
+    $this->profile = WorkerProfile::with([
+        'birthLocation',
+        'currentLocation1',
+        'currentLocation2',
+        'favoriteLocation1',
+        'favoriteLocation2',
+        'favoriteLocation3',
+    ])
+        ->where('user_id', $user->id)
+        ->first();
+
+    // プロフィールが存在しない場合は編集画面にリダイレクト
+    if (!$this->profile) {
+        return $this->redirect(route('worker.edit'), navigate: true);
+    }
+});
+
+/**
+ * 地域の表示名を取得
+ */
+$getLocationDisplay = function (?object $location): string {
+    if (!$location) {
+        return '未設定';
     }
 
-    /**
-     * 地域の表示名を取得
-     */
-    public function getLocationDisplay(?object $location): string
-    {
-        if (!$location) {
-            return '未設定';
-        }
+    return $location->display_name;
+};
 
-        return $location->display_name;
+/**
+ * 生年月日と年齢の表示を取得
+ */
+$getBirthdateDisplay = function (): string {
+    if (!$this->profile->birthdate) {
+        return '未設定';
     }
 
-    /**
-     * 生年月日と年齢の表示を取得
-     */
-    public function getBirthdateDisplay(): string
-    {
-        if (!$this->profile->birthdate) {
-            return '未設定';
-        }
+    $date = $this->profile->birthdate->format('Y年n月j日');
+    $age = $this->profile->age;
 
-        $date = $this->profile->birthdate->format('Y年n月j日');
-        $age = $this->profile->age;
+    return "{$date}（{$age}歳）";
+};
 
-        return "{$date}（{$age}歳）";
+/**
+ * アイコン画像のURLを取得
+ */
+$getIconUrl = function (): ?string {
+    if (!$this->profile->icon) {
+        return null;
     }
 
-    /**
-     * アイコン画像のURLを取得
-     */
-    public function getIconUrl(): ?string
-    {
-        if (!$this->profile->icon) {
-            return null;
-        }
+    // 相対パスを返す（環境に依存しない）
+    return '/storage/' . $this->profile->icon;
+};
 
-        // 相対パスを返す（環境に依存しない）
-        return '/storage/' . $this->profile->icon;
-    }
-}; ?>
+?>
 
 <div class="mx-auto max-w-4xl px-4 py-8">
     <div class="mb-6 flex items-center justify-between">
@@ -93,7 +105,7 @@ new class extends Component {
             <div class="space-y-4">
                 <div>
                     <flux:text class="font-semibold text-zinc-700 dark:text-zinc-300">性別</flux:text>
-                    <flux:text class="mt-1">{{ $profile->gender_label }}</flux:text>
+                    <flux:text class="mt-1">{{ $profile->genderLabel }}</flux:text>
                 </div>
                 <div>
                     <flux:text class="font-semibold text-zinc-700 dark:text-zinc-300">生年月日</flux:text>
