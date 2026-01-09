@@ -29,11 +29,14 @@ $chatRooms = computed(function () {
         });
     }
 
-    // Eager Loading
+    // Eager Loading: application.jobPost, application.worker, application.jobPost.companyProfile.user, messages（最新1件のみ）
     $query->with([
         'jobApplication.jobPost',
         'jobApplication.worker',
-        'jobApplication.jobPost.company',
+        'jobApplication.jobPost.company.companyProfile',
+        'messages' => function ($q) {
+            $q->latest()->limit(1);
+        },
     ]);
 
     // キーワード検索（企業名、求人タイトル、ワーカー名）
@@ -99,12 +102,9 @@ $getStatusBadgeClass = function (string $status): string {
     };
 };
 
-// 最新メッセージを取得
+// 最新メッセージを取得（Eager Loadingされたメッセージから取得）
 $getLatestMessage = function (ChatRoom $chatRoom): ?\App\Models\Message {
-    return \App\Models\Message::query()
-        ->where('chat_room_id', $chatRoom->id)
-        ->latest()
-        ->first();
+    return $chatRoom->messages->first();
 };
 
 // 最新メッセージのプレビューを取得（30文字まで）

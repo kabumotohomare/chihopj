@@ -62,9 +62,16 @@ $submit = function () {
             'applied_at' => now(),
         ]);
 
-        // 2. 登録成功後、ChatRoomを作成（application_idを設定）
-        // 既に存在する場合は作成しない（firstOrCreateを使用）
-        ChatRoom::firstOrCreate(['application_id' => $jobApplication->id]);
+        // 2. 登録成功後、ChatRoomを自動作成（application_idを設定）
+        // application_idにユニーク制約があるため、firstOrCreateで重複を防止
+        ChatRoom::firstOrCreate(
+            ['application_id' => $jobApplication->id],
+            [
+                'application_id' => $jobApplication->id,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]
+        );
     });
 
     session()->flash('status', '応募が完了しました。');

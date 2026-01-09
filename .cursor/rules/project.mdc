@@ -738,6 +738,94 @@ alwaysApply: true
 - **ポリシー**: `view`アクション（チャットルームの参加者のみ閲覧可能）
 - **データ取得**:
   - Eager Loading: application.jobPost, application.worker, application.jobPost.companyProfile.user, messages.sender
+#### 応募画面の修正（chatRoom自動作成）
+- **コンポーネント**: `resources/views/livewire/jobs/apply.blade.php`（11.mdで作成済み）
+- **変更内容**: 応募処理成功後にchatRoomを自動作成
+- **作成条件**: JobApplicationの作成直後
+- **処理フロー**:
+  1. 応募データ（JobApplication）を登録
+  2. 登録成功後、ChatRoomを作成（application_idを設定）
+  3. 求人詳細画面にリダイレクト
+- **ChatRoom作成時の設定**:
+  - application_id: 作成した応募のID
+  - created_at, updated_at: 現在日時
+
+#### チャット一覧画面
+- **ルート**: `GET /chats`
+- **ルート名**: `chats.index`
+- **コンポーネント**: `resources/views/livewire/chats/index.blade.php`
+- **ミドルウェア**: `auth`
+- **機能**: チャットルーム一覧表示
+- **表示内容**:
+  - チャットルームのリスト（カード形式）
+  - 各カードに以下を表示:
+    - 相手の名前（企業：ワーカー名、ワーカー：企業名）
+    - 求人タイトル
+    - 応募ステータスバッジ（応募中、承認済み、不承認、辞退）
+    - 最新メッセージのプレビュー（30文字まで）
+    - 最新メッセージの送信日時
+    - 未読メッセージ数（バッジ表示）
+- **検索機能**:
+  - キーワード検索（企業名、求人タイトル、ワーカー名）
+  - リアルタイム検索（wire:model.live.debounce.300ms）
+- **ソート**:
+  - 最新メッセージ順（デフォルト）
+- **ページネーション**: 20件/ページ
+- **データ取得**:
+  - 企業：自社求人への応募のチャットルーム（全ステータス）
+  - ワーカー：自分が応募した求人のチャットルーム（全ステータス）
+  - Eager Loading: application.jobPost, application.worker, application.jobPost.companyProfile.user, ssages（最新1件のみ）
+- **アクション**:
+  - チャットルームカードクリック → チャット詳細画面に遷移
+
+#### チャット詳細画面
+- **ルート**: `GET /chats/{chatRoom}`
+- **ルート名**: `chats.show`
+- **コンポーネント**: `resources/views/livewire/chats/show.blade.php`
+- **ミドルウェア**: `auth`
+- **機能**: メッセージ一覧表示とメッセージ送信
+- **表示内容**:
+  - 応募情報サマリー:
+    - 求人タイトル
+    - 企業名
+    - ワーカー名
+    - 応募ステータスバッジ（応募中、承認済み、不承認、辞退）
+  - メッセージ一覧:
+    - 時系列順（古い順）
+    - 送信者名
+    - メッセージ内容
+    - 送信日時
+    - 既読/未読表示（送信者のみ）
+  - メッセージ送信フォーム:
+    - テキストエリア（メッセージ入力）
+    - 送信ボタン
+    - **表示条件**: status='applied'の場合のみ表示
+  - 送信不可メッセージ:
+    - status='applied'以外の場合に表示
+    - 「この応募は{ステータス}のため、メッセージを送信できません。」
+- **リアルタイム更新**:
+  - 5秒ごとにポーリング（wire:poll.5s）
+  - 新しいメッセージを自動取得
+- **既読機能**:
+  - 画面を開いた時に、自分宛の未読メッセージを既読にする
+  - 既読処理はmount時に実行
+- **入力項目**:
+  - message: メッセージ内容（必須、1000文字以内、テキストエリア）
+- **自動設定項目**:
+  - chat_room_id: パラメータから取得
+  - sender_id: ログインユーザーID
+  - is_read: false
+  - created_at: 現在日時
+- **バリデーション**（Form Request使用）:
+  - message: required, max:1000
+- **処理**:
+  - バリデーション後、messagesテーブルに登録
+  - 送信成功後、メッセージリストを更新
+  - テキストエリアをクリア
+  - 最新メッセージまでスクロール
+- **ポリシー**: `view`アクション（チャットルームの参加者のみ閲覧可能）
+- **データ取得**:
+  - Eager Loading: application.jobPost, application.worker, application.jobPost.companyProfile.user, messages.sender
 
 #### 応募画面の修正（chatRoom自動作成）
 - **コンポーネント**: `resources/views/livewire/jobs/apply.blade.php`（11.mdで作成み）
