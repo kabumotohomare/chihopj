@@ -108,7 +108,7 @@
                 <div class="max-w-3xl">
                     <h1
                         class="text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight drop-shadow-2xl">
-                        いつかやりたい。<br>&nbsp;&nbsp;人手が足りない。
+                        いつかやりたい。<br>&nbsp;人手が足りない。
                     </h1>
                     <p class="text-xl md:text-2xl text-white/90 mb-10 drop-shadow-lg">
                         &nbsp;通りすがり旅の人よ。助太刀に来てくれませんか？
@@ -144,7 +144,7 @@
         <div class="container mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-12">
                 <h2 class="text-3xl md:text-4xl font-bold text-[#3E3A35] mb-4">
-                    あなたの参加を、待っています
+                    あなたが来るのを待っています
                 </h2>
                 <p class="text-lg text-[#6B6760]">
                     新着の募集をチェックしましょう
