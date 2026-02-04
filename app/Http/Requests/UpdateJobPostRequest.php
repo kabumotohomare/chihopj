@@ -58,5 +58,4 @@ class UpdateJobPostRequest extends FormRequest
             'can_do_ids.*.exists' => '選択されたできますが存在しません。',
         ];
     }
-
 }

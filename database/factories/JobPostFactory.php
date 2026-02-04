@@ -38,7 +38,7 @@ class JobPostFactory extends Factory
         return [
             'company_id' => User::factory()->company(),
             'eyecatch' => null,
-            'howsoon' => fake()->randomElement(['someday', 'asap']),
+            'purpose' => fake()->randomElement(['want_to_do', 'need_help']),
             'job_title' => fake()->realText(50),
             'job_detail' => fake()->realText(200),
             'job_type_id' => $jobTypeId, // 「プロボノ(無償)」のID

@@ -40,7 +40,26 @@ $delete = function () {
     // 削除権限チェック
     $this->authorize('delete', $this->jobPost);
 
-    $this->jobPost->delete();
+    // 「応募中」のステータスの応募が存在するかチェック
+    if ($this->jobPost->applications()->where('status', 'applied')->exists()) {
+        session()->flash('error', 'この募集には応募中の応募があるため削除できません。');
+
+        return;
+    }
+
+    // トランザクション開始
+    \DB::transaction(function () {
+        // 関連する応募とチャットルームを削除
+        foreach ($this->jobPost->applications as $application) {
+            // チャットルームとメッセージを削除（CASCADE設定により自動削除）
+            $application->chatRoom?->delete();
+            // 応募を削除
+            $application->delete();
+        }
+
+        // 募集を削除
+        $this->jobPost->delete();
+    });
 
     session()->flash('status', '募集を削除しました。');
 
@@ -91,6 +110,23 @@ $isWorker = function (): bool {
                     </svg>
                     <flux:text class="text-green-800 dark:text-green-200">
                         {{ session('status') }}
+                    </flux:text>
+                </div>
+            </div>
+        @endif
+
+        <!-- エラーメッセージ -->
+        @if (session('error'))
+            <div
+                class="mb-6 rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-800 dark:bg-red-900/20">
+                <div class="flex items-center gap-3">
+                    <svg class="h-5 w-5 text-red-600 dark:text-red-400" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <flux:text class="text-red-800 dark:text-red-200">
+                        {{ session('error') }}
                     </flux:text>
                 </div>
             </div>
@@ -244,9 +280,11 @@ $isWorker = function (): bool {
                     </flux:button>
                 </flux:modal.close>
 
-                <flux:button wire:click="delete" variant="danger" class="flex-1">
-                    削除する
-                </flux:button>
+                <flux:modal.close>
+                    <flux:button wire:click="delete" variant="danger" class="flex-1">
+                        削除する
+                    </flux:button>
+                </flux:modal.close>
             </div>
         </div>
     </flux:modal>

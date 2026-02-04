@@ -208,19 +208,25 @@ $getPurposeLabel = function (string $purpose): string {
             @if ($application->status === 'applied')
                 {{-- ワーカー向け: 辞退ボタン --}}
                 @if (auth()->user()->isWorker())
-                    <flux:button variant="danger" wire:click="$dispatch('open-modal', 'decline-modal')">
-                        辞退する
-                    </flux:button>
+                    <flux:modal.trigger name="decline-modal">
+                        <flux:button variant="danger">
+                            辞退する
+                        </flux:button>
+                    </flux:modal.trigger>
                 @endif
 
                 {{-- 企業向け: 承認・不承認ボタン --}}
                 @if (auth()->user()->isCompany())
-                    <flux:button variant="primary" wire:click="$dispatch('open-modal', 'accept-modal')">
-                        承認する
-                    </flux:button>
-                    <flux:button variant="danger" wire:click="$dispatch('open-modal', 'reject-modal')">
-                        不承認にする
-                    </flux:button>
+                    <flux:modal.trigger name="accept-modal">
+                        <flux:button variant="primary">
+                            承認する
+                        </flux:button>
+                    </flux:modal.trigger>
+                    <flux:modal.trigger name="reject-modal">
+                        <flux:button variant="danger">
+                            不承認にする
+                        </flux:button>
+                    </flux:modal.trigger>
                 @endif
             @endif
         </div>
@@ -474,12 +480,16 @@ $getPurposeLabel = function (string $purpose): string {
         </div>
 
         <div class="flex justify-end gap-2">
-            <flux:button variant="ghost" wire:click="$dispatch('close-modal', 'decline-modal')">
-                キャンセル
-            </flux:button>
-            <flux:button variant="danger" wire:click="decline">
-                辞退する
-            </flux:button>
+            <flux:modal.close>
+                <flux:button variant="ghost">
+                    キャンセル
+                </flux:button>
+            </flux:modal.close>
+            <flux:modal.close>
+                <flux:button variant="danger" wire:click="decline">
+                    辞退する
+                </flux:button>
+            </flux:modal.close>
         </div>
     </flux:modal>
 
@@ -493,12 +503,16 @@ $getPurposeLabel = function (string $purpose): string {
         </div>
 
         <div class="flex justify-end gap-2">
-            <flux:button variant="ghost" wire:click="$dispatch('close-modal', 'accept-modal')">
-                キャンセル
-            </flux:button>
-            <flux:button variant="primary" wire:click="accept">
-                承認する
-            </flux:button>
+            <flux:modal.close>
+                <flux:button variant="ghost">
+                    キャンセル
+                </flux:button>
+            </flux:modal.close>
+            <flux:modal.close>
+                <flux:button variant="primary" wire:click="accept">
+                    承認する
+                </flux:button>
+            </flux:modal.close>
         </div>
     </flux:modal>
 
@@ -512,12 +526,16 @@ $getPurposeLabel = function (string $purpose): string {
         </div>
 
         <div class="flex justify-end gap-2">
-            <flux:button variant="ghost" wire:click="$dispatch('close-modal', 'reject-modal')">
-                キャンセル
-            </flux:button>
-            <flux:button variant="danger" wire:click="reject">
-                不承認にする
-            </flux:button>
+            <flux:modal.close>
+                <flux:button variant="ghost">
+                    キャンセル
+                </flux:button>
+            </flux:modal.close>
+            <flux:modal.close>
+                <flux:button variant="danger" wire:click="reject">
+                    不承認にする
+                </flux:button>
+            </flux:modal.close>
         </div>
     </flux:modal>
 </div>
