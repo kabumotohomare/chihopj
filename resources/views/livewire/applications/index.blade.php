@@ -231,7 +231,7 @@ $getPurposeLabel = function (string $purpose): string {
                             </span>
                         </div>
 
-                        {{-- やりたいこと --}}
+                        {{-- やること --}}
                         <flux:heading size="sm" class="line-clamp-2">
                             {{ $job->job_title }}
                         </flux:heading>

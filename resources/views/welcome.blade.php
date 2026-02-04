@@ -108,10 +108,10 @@
                 <div class="max-w-3xl">
                     <h1
                         class="text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight drop-shadow-2xl">
-                        平泉で、<br>ちょっと手伝ってもらえませんか？
+                        平泉を、<br>手伝いませんか？
                     </h1>
                     <p class="text-xl md:text-2xl text-white/90 mb-10 drop-shadow-lg">
-                        旅の途中で、地域の人と繋がる体験を。
+                        地域と混ざって平泉暮らしを楽しもう。
                     </p>
                     <div class="flex flex-col sm:flex-row gap-4">
                         <a href="#jobs"
@@ -181,7 +181,7 @@
                             </div>
 
                             <div class="p-6">
-                                <!-- やりたいこと -->
+                                <!-- やること -->
                                 <h3
                                     class="text-xl font-bold text-[#3E3A35] mb-3 line-clamp-2 group-hover:text-[#FF6B35] transition-colors">
                                     {{ $job->job_title }}

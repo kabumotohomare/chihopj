@@ -80,7 +80,7 @@ $jobs = computed(function () {
                                 </flux:badge>
                             </div>
 
-                            {{-- やりたいこと --}}
+                            {{-- やること --}}
                             <flux:heading size="lg" class="mb-2 line-clamp-2">
                                 <a href="{{ route('jobs.show', $job) }}" wire:navigate class="hover:text-blue-600 dark:hover:text-blue-400">
                                     {{ $job->job_title }}

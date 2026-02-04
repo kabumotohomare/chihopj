@@ -20,8 +20,8 @@ return new class extends Migration
             $table->foreignId('company_id')->constrained('users')->cascadeOnDelete()->comment('企業ユーザーID');
             $table->string('eyecatch', 255)->nullable()->comment('アイキャッチ画像パス');
             $table->string('howsoon', 50)->comment('いつまでに（someday, asap, specific_month）');
-            $table->string('job_title', 50)->comment('やりたいこと');
-            $table->text('job_detail')->comment('事業内容・困っていること');
+            $table->string('job_title', 50)->comment('やること');
+            $table->text('job_detail')->comment('具体的にはこんなことを手伝ってほしい');
             $table->foreignId('job_type_id')->constrained('codes')->comment('募集形態（codesテーブルtype=1）');
             $table->json('want_you_ids')->nullable()->comment('希望（codesテーブルtype=2の配列）');
             $table->json('can_do_ids')->nullable()->comment('できます（codesテーブルtype=3の配列）');

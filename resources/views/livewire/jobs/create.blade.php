@@ -192,28 +192,28 @@ $create = function () {
                     <label class="flex items-center gap-2">
                         <input type="radio" wire:model="purpose" value="want_to_do"
                             class="h-4 w-4 border-gray-300 text-blue-600 focus:ring-blue-500">
-                        <span>いつかやりたい</span>
+                        <span>いつでも募集</span>
                     </label>
                     <label class="flex items-center gap-2">
                         <input type="radio" wire:model="purpose" value="need_help"
                             class="h-4 w-4 border-gray-300 text-blue-600 focus:ring-blue-500">
-                        <span>人手が足りない</span>
+                        <span>決まった日に募集</span>
                     </label>
                 </div>
                 <flux:error name="purpose" />
             </flux:field>
 
-            <!-- やりたいこと -->
+            <!-- やること -->
             <flux:field>
-                <flux:label>やりたいこと <span class="text-red-500">*</span></flux:label>
+                <flux:label>やること <span class="text-red-500">*</span></flux:label>
                 <flux:description>50文字以内で入力してください</flux:description>
                 <flux:textarea wire:model="job_title" rows="2" placeholder="〇〇したい"></flux:textarea>
                 <flux:error name="job_title" />
             </flux:field>
 
-            <!-- 事業内容・困っていること -->
+            <!-- 具体的にはこんなことを手伝ってほしい -->
             <flux:field>
-                <flux:label>事業内容・困っていること <span class="text-red-500">*</span></flux:label>
+                <flux:label>具体的にはこんなことを手伝ってほしい <span class="text-red-500">*</span></flux:label>
                 <flux:description>200文字以内で入力してください</flux:description>
                 <div class="relative">
                     <flux:textarea wire:model.live.debounce.300ms="job_detail" rows="5" 
@@ -245,9 +245,9 @@ $create = function () {
                 <flux:error name="job_detail" />
             </flux:field>
 
-            <!-- 期待するサポート -->
+            <!-- こんな人に来てほしい -->
             <flux:field>
-                <flux:label>期待するサポート（任意）</flux:label>
+                <flux:label>こんな人に来てほしい（任意）</flux:label>
                 <flux:description>複数選択可能です</flux:description>
                 
                 <!-- 選択済みアイテムの表示 -->

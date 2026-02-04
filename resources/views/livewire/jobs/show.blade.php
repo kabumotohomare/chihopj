@@ -175,7 +175,7 @@ $isWorker = function (): bool {
                     </flux:heading>
                 </div>
 
-                <!-- 事業内容・困っていること -->
+                <!-- 具体的にはこんなことを手伝ってほしい -->
                 <div class="mb-6">
                     <flux:text class="whitespace-pre-wrap text-gray-600 dark:text-gray-400">
                         {{ $jobPost->job_detail }}

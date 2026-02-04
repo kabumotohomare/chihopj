@@ -218,7 +218,7 @@ $getPurposeLabel = function (): string {
                                 class="flex items-center gap-3 rounded-lg border border-gray-200 p-3 transition hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700/50">
                                 <input type="checkbox" wire:model="reasons" value="empathize_with_goal"
                                     class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:focus:ring-blue-600">
-                                <span class="text-gray-700 dark:text-gray-300">やりたいことに共感</span>
+                                <span class="text-gray-700 dark:text-gray-300">やることに共感</span>
                             </label>
 
                             <label
