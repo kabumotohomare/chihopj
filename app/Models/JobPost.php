@@ -25,6 +25,8 @@ class JobPost extends Model
         'company_id',
         'eyecatch',
         'purpose',
+        'start_datetime',
+        'end_datetime',
         'job_title',
         'job_detail',
         'want_you_ids',
@@ -43,6 +45,8 @@ class JobPost extends Model
             'want_you_ids' => 'array',
             'can_do_ids' => 'array',
             'posted_at' => 'datetime',
+            'start_datetime' => 'datetime',
+            'end_datetime' => 'datetime',
         ];
     }
 

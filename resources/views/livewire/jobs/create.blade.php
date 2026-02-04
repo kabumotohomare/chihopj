@@ -23,6 +23,8 @@ state([
     'eyecatch_type' => 'upload', // 'upload' or 'preset'
     'preset_image' => null,
     'purpose' => '',
+    'start_datetime' => '',
+    'end_datetime' => '',
     'job_title' => '',
     'job_detail' => '',
     'want_you_ids' => [],
@@ -110,6 +112,8 @@ $create = function () {
         'company_id' => auth()->id(),
         'eyecatch' => $eyecatchPath,
         'purpose' => $validated['purpose'],
+        'start_datetime' => $validated['start_datetime'] ?? null,
+        'end_datetime' => $validated['end_datetime'] ?? null,
         'job_title' => $validated['job_title'],
         'job_detail' => $validated['job_detail'],
         'want_you_ids' => $validated['want_you_ids'] ?? [],
@@ -190,18 +194,37 @@ $create = function () {
                 <flux:label>募集目的 <span class="text-red-500">*</span></flux:label>
                 <div class="mt-2 space-y-2">
                     <label class="flex items-center gap-2">
-                        <input type="radio" wire:model="purpose" value="want_to_do"
+                        <input type="radio" wire:model.live="purpose" value="want_to_do"
                             class="h-4 w-4 border-gray-300 text-blue-600 focus:ring-blue-500">
                         <span>いつでも募集</span>
                     </label>
                     <label class="flex items-center gap-2">
-                        <input type="radio" wire:model="purpose" value="need_help"
+                        <input type="radio" wire:model.live="purpose" value="need_help"
                             class="h-4 w-4 border-gray-300 text-blue-600 focus:ring-blue-500">
                         <span>決まった日に募集</span>
                     </label>
                 </div>
                 <flux:error name="purpose" />
             </flux:field>
+
+            <!-- 開始日時・終了日時（決まった日に募集の場合のみ表示） -->
+            @if($purpose === 'need_help')
+                <div class="space-y-4 rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-950">
+                    <!-- 開始日時 -->
+                    <flux:field>
+                        <flux:label>開始日時 <span class="text-red-500">*</span></flux:label>
+                        <flux:input type="datetime-local" wire:model="start_datetime" />
+                        <flux:error name="start_datetime" />
+                    </flux:field>
+
+                    <!-- 終了日時 -->
+                    <flux:field>
+                        <flux:label>終了日時 <span class="text-red-500">*</span></flux:label>
+                        <flux:input type="datetime-local" wire:model="end_datetime" />
+                        <flux:error name="end_datetime" />
+                    </flux:field>
+                </div>
+            @endif
 
             <!-- やること -->
             <flux:field>

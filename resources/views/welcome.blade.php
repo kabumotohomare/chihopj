@@ -111,7 +111,7 @@
                         平泉を、<br>手伝いませんか？
                     </h1>
                     <p class="text-xl md:text-2xl text-white/90 mb-10 drop-shadow-lg">
-                        地域と混ざって平泉暮らしを楽しもう。
+                        お手伝いで"ひらいずみ暮らし"を味わおう。
                     </p>
                     <div class="flex flex-col sm:flex-row gap-4">
                         <a href="#jobs"

@@ -58,29 +58,58 @@ alwaysApply: true
 - type=1, type_id=4, name="地域おこし協力隊", sort_order=4
 
 希望（type=2）:
-- type=2, type_id=1, name="提案してほしい", sort_order=1
-- type=2, type_id=2, name="ホームページの制作", sort_order=2
-- type=2, type_id=3, name="写真・動画の撮影", sort_order=3
-- type=2, type_id=4, name="補助金・助成金の申請", sort_order=4
-- type=2, type_id=5, name="従業員の育成・定着", sort_order=5
-- type=2, type_id=6, name="労務管理の方法", sort_order=6
-- type=2, type_id=7, name="リノベについて教えて", sort_order=7
-- type=2, type_id=8, name="ITについて教えて", sort_order=8
-- type=2, type_id=9, name="LINEについて教えて", sort_order=9
-- type=2, type_id=10, name="通販について教えて", sort_order=10
-- type=2, type_id=11, name="Google MAPについて教えて", sort_order=11
-- type=2, type_id=12, name="インスタグラムについて教えて", sort_order=12
-- type=2, type_id=13, name="食品表示について教えて", sort_order=13
-- type=2, type_id=14, name="バイヤーと出会いたい", sort_order=14
-- type=2, type_id=15, name="話を聞きに来てほしい", sort_order=15
+- type=2, type_id=1, name="若い人大歓迎", sort_order=1
+- type=2, type_id=2, name="初めての人大歓迎", sort_order=2
+- type=2, type_id=3, name="車を運転できる人", sort_order=3
+- type=2, type_id=4, name="パソコンが得意な人", sort_order=4
+- type=2, type_id=5, name="農業に興味がある人", sort_order=5
+- type=2, type_id=6, name="お寺に興味がある人", sort_order=6
+- type=2, type_id=7, name="音楽に興味がある人", sort_order=7
+- type=2, type_id=8, name="お祭りに興味がある人", sort_order=8
 
 できます（type=3）:
-- type=3, type_id=1, name="駅まで車出します", sort_order=1
-- type=3, type_id=2, name="お食事しましょう", sort_order=2
-- type=3, type_id=3, name="お土産あげます", sort_order=3
-- type=3, type_id=4, name="観光案内します", sort_order=4
-- type=3, type_id=5, name="空き部屋に滞在OK", sort_order=5
-- type=3, type_id=6, name="オンラインで話せます", sort_order=6
+- type=3, type_id=1, name="車で迎えに行きます", sort_order=1
+- type=3, type_id=2, name="お食事をご馳走します", sort_order=2
+- type=3, type_id=3, name="お土産をあげます", sort_order=3
+- type=3, type_id=4, name="体験ができます", sort_order=4
+
+### job_postsテーブル
+
+**目的**: お手伝い募集投稿の管理
+
+**カラム定義**:
+- id: bigint unsigned, primary key
+- company_id: bigint unsigned, 外部キー（users.id）、企業ユーザーID
+- eyecatch: string(255), nullable, アイキャッチ画像パス
+- purpose: string(50), 募集目的（want_to_do=いつでも募集、need_help=決まった日に募集）
+- start_datetime: datetime, nullable, 開始日時（決まった日に募集の場合のみ）
+- end_datetime: datetime, nullable, 終了日時（決まった日に募集の場合のみ）
+- job_title: string(50), やること
+- job_detail: text, 具体的にはこんなことを手伝ってほしい（200文字以内）
+- want_you_ids: json, nullable, こんな人に来てほしい（codesテーブルtype=2の配列）
+- can_do_ids: json, nullable, できます（codesテーブルtype=3の配列）
+- posted_at: datetime, 投稿日時
+- created_at, updated_at: timestamps
+
+**インデックス**:
+- PRIMARY: id
+- INDEX: company_id - 企業ごとの募集一覧取得を高速化
+- INDEX: posted_at - 投稿日時順の一覧取得を高速化
+- FOREIGN KEY: company_id (users.id) ON DELETE CASCADE
+
+**リレーション**:
+- users: 多対1（CASCADE削除） - 企業ユーザー
+- job_applications: 1対多 - 応募情報
+
+**募集目的の種類**:
+- want_to_do: いつでも募集（開始日時・終了日時は不要）
+- need_help: 決まった日に募集（開始日時・終了日時が必須）
+
+**備考**:
+- eyecatchはアップロード画像パスまたはプリセット画像パス（/images/presets/）
+- purposeが'need_help'の場合、start_datetimeとend_datetimeが必須
+- want_you_idsとcan_do_idsはJSON形式でIDの配列を保存
+- job_detailは200文字制限
 
 ### job_applicationsテーブル
 
@@ -102,7 +131,7 @@ alwaysApply: true
 - near_hometown: 地元の近く
 - lived_before: 昔住んでいた地域
 - wanted_to_visit: 行きたかった地域
-- empathize_with_goal: やりたいことに共感
+- empathize_with_goal: やることに共感
 - travel_opportunity: 旅のついで
 - can_use_experience: 経験が活かせそう
 - wanted_to_try: 自分もやってみたかった
