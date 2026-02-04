@@ -119,12 +119,23 @@ class extends Component
                 <flux:error name="icon" />
             </flux:field>
 
+            <!-- 所在地（固定表示） -->
+            <flux:field>
+                <flux:label>所在地</flux:label>
+                <div class="rounded-lg border border-zinc-300 bg-zinc-50 px-4 py-3 text-sm text-zinc-700 dark:border-zinc-600 dark:bg-zinc-700 dark:text-zinc-300">
+                    岩手県西磐井郡平泉町
+                </div>
+                <flux:description>
+                    このサービスは平泉町内の事業者専用です
+                </flux:description>
+            </flux:field>
+
             <!-- 所在地住所 -->
             <flux:field>
                 <flux:label>所在地住所 <span class="text-red-500">*</span></flux:label>
-                <flux:input wire:model="address" placeholder="例：◯◯町1-2-3 ◯◯ビル4F" />
+                <flux:input wire:model="address" placeholder="例：平泉字泉屋1-1" />
                 <flux:description>
-                    市区町村以降の住所を入力してください（200文字以内）
+                    町名以降の住所を入力してください（200文字以内）
                 </flux:description>
                 <flux:error name="address" />
             </flux:field>

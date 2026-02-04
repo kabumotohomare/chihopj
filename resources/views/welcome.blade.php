@@ -5,8 +5,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>ふるぼの - ふるさとプロボノ</title>
-    <meta name="description" content="「いつかやりたい」で地方とつながる">
+    <title>みんなの平泉 - 平泉のお手伝い案内所</title>
+    <meta name="description" content="平泉町でのお手伝いを通じて、地域と繋がる体験ができます">
 
     <link rel="icon" href="{{ asset('favicon.ico') }}" sizes="any">
     <link rel="icon" href="{{ asset('favicon.svg') }}" type="image/svg+xml">
@@ -35,14 +35,14 @@
             <nav class="flex items-center justify-between h-16">
                 <!-- ロゴ -->
                 <div class="flex items-center gap-3">
-                    <img src="{{ asset('images/presets/logo.png') }}" alt="ふるぼのロゴ" class="h-10 w-auto">
-                    <span class="text-2xl font-bold text-[#FF6B35]">ふるぼの@平泉</span>
+                    <img src="{{ asset('images/presets/logo.png') }}" alt="みんなの平泉ロゴ" class="h-10 w-auto">
+                    <span class="text-2xl font-bold text-[#FF6B35]">みんなの平泉</span>
                 </div>
 
                 <!-- デスクトップメニュー -->
                 <div class="hidden md:flex items-center gap-6">
                     <a href="#jobs" class="text-[#3E3A35] hover:text-[#FF6B35] transition-colors font-medium">
-                        募集
+                        お手伝い
                     </a>
                     @auth
                         <a href="{{ url('/dashboard') }}"
@@ -75,7 +75,7 @@
                 x-transition:leave-end="opacity-0 transform -translate-y-2" class="md:hidden py-4 space-y-3">
                 <a href="#jobs" @click="mobileMenuOpen = false"
                     class="block text-[#3E3A35] hover:text-[#FF6B35] transition-colors font-medium py-2">
-                    地域の募集
+                    地域のお手伝い
                 </a>
                 @auth
                     <a href="{{ url('/dashboard') }}"
@@ -108,15 +108,15 @@
                 <div class="max-w-3xl">
                     <h1
                         class="text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight drop-shadow-2xl">
-                        いつかやりたい。<br>&nbsp;人手が足りない。
+                        平泉で、<br>ちょっと手伝ってもらえませんか？
                     </h1>
                     <p class="text-xl md:text-2xl text-white/90 mb-10 drop-shadow-lg">
-                        &nbsp;通りすがり旅の人よ。助太刀に来てくれませんか？
+                        旅の途中で、地域の人と繋がる体験を。
                     </p>
                     <div class="flex flex-col sm:flex-row gap-4">
                         <a href="#jobs"
                             class="bg-[#FF6B35] hover:bg-[#E55A28] text-white px-8 py-4 rounded-full transition-all transform hover:scale-105 font-bold text-lg shadow-2xl text-center">
-                            募集を見る
+                            お手伝いを見る
                         </a>
                         @guest
                             @if (Route::has('login'))
@@ -139,7 +139,7 @@
         </div>
     </section>
 
-    <!-- 募集情報セクション -->
+    <!-- お手伝い情報セクション -->
     <section id="jobs" class="py-16 md:py-24">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-12">
@@ -147,14 +147,14 @@
                     あなたが来るのを待っています
                 </h2>
                 <p class="text-lg text-[#6B6760]">
-                    新着の募集をチェックしましょう
+                    新着のお手伝いをチェックしましょう
                 </p>
             </div>
 
             @if ($latestJobs->isEmpty())
                 <div class="text-center py-16">
                     <i class="fas fa-inbox text-6xl text-gray-300 mb-4"></i>
-                    <p class="text-xl text-[#6B6760]">現在、募集はありません</p>
+                    <p class="text-xl text-[#6B6760]">現在、お手伝いはありません</p>
                 </div>
             @else
                 <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
@@ -200,7 +200,7 @@
                 <div class="text-center">
                     <a href="{{ route('jobs.index') }}"
                         class="inline-flex items-center gap-2 bg-[#4CAF50] hover:bg-[#45A049] text-white px-8 py-4 rounded-full transition-all transform hover:scale-105 font-bold text-lg shadow-lg">
-                        <span>もっと見る</span>
+                        <span>もっとお手伝いを見る</span>
                         <i class="fas fa-arrow-right"></i>
                     </a>
                 </div>
@@ -214,8 +214,8 @@
             <div class="grid md:grid-cols-2 gap-8 items-center">
                 <div class="text-center md:text-left">
                     <div class="flex items-center gap-3 justify-center md:justify-start mb-4">
-                        <img src="{{ asset('images/presets/logo.png') }}" alt="ふるぼのロゴ" class="h-8 w-auto">
-                        <span class="text-xl font-bold">ふるぼの</span>
+                        <img src="{{ asset('images/presets/logo.png') }}" alt="みんなの平泉ロゴ" class="h-8 w-auto">
+                        <span class="text-xl font-bold">みんなの平泉</span>
                     </div>
                     <p class="text-sm text-gray-300">お手伝いで地域とつながる</p>
                 </div>

@@ -10,7 +10,7 @@ use function Livewire\Volt\state;
 use function Livewire\Volt\title;
 
 layout('components.layouts.app.header');
-title('募集詳細');
+title('お手伝い詳細');
 
 state(['jobPost', 'hasApplied' => false]);
 
@@ -135,11 +135,11 @@ $isWorker = function (): bool {
         <!-- 戻るボタン -->
         <div class="mb-6">
             <flux:button href="{{ route('jobs.index') }}" wire:navigate variant="ghost" icon="arrow-left">
-                募集一覧に戻る
+                お手伝い一覧に戻る
             </flux:button>
         </div>
 
-        <!-- 募集カード -->
+        <!-- お手伝いカード -->
         <div class="overflow-hidden rounded-xl bg-white shadow-lg dark:bg-gray-800">
             <!-- アイキャッチ画像 -->
             @if ($jobPost->eyecatch)
@@ -222,23 +222,23 @@ $isWorker = function (): bool {
 
                 <!-- アクションボタン -->
                 <div class="mt-8 flex flex-wrap gap-3">
-                    <!-- ワーカーユーザー: 応募ボタンまたは応募済みバッジ -->
+                    <!-- ワーカーユーザー: 参加ボタンまたは参加済みバッジ -->
                     @if ($this->isWorker())
                         @if ($hasApplied)
-                            <!-- 応募済みの場合 -->
+                            <!-- 参加済みの場合 -->
                             <div class="flex items-center gap-3">
                                 <flux:badge color="green" size="lg" class="rounded-full font-bold">
-                                    ✓ 応募済み
+                                    ✓ 参加済み
                                 </flux:badge>
                                 <flux:text variant="subtle" size="sm">
-                                    この募集に応募済みです
+                                    このお手伝いに参加済みです
                                 </flux:text>
                             </div>
                         @else
-                            <!-- 未応募の場合 -->
+                            <!-- 未参加の場合 -->
                             <flux:button href="{{ route('jobs.apply', $jobPost) }}" wire:navigate variant="primary"
                                 icon="paper-airplane" class="flex-1 sm:flex-none">
-                                応募する
+                                参加する
                             </flux:button>
                         @endif
                     @endif
@@ -267,7 +267,7 @@ $isWorker = function (): bool {
     <flux:modal name="confirm-delete" class="max-w-md">
         <div class="space-y-6">
             <div>
-                <flux:heading size="lg">募集を削除しますか？</flux:heading>
+                <flux:heading size="lg">お手伝いを削除しますか？</flux:heading>
                 <flux:subheading class="mt-2">
                     この操作は取り消せません。本当に削除してもよろしいですか？
                 </flux:subheading>

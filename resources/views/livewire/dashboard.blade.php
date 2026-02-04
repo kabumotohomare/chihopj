@@ -36,9 +36,9 @@ title('ダッシュボード');
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                     </svg>
                 </div>
-                <flux:heading size="md" class="mb-2">新規募集投稿</flux:heading>
+                <flux:heading size="md" class="mb-2">新規お手伝い投稿</flux:heading>
                 <flux:text>
-                    プロボノ人材を募集する投稿を作成します
+                    お手伝い参加者を募集する投稿を作成します
                 </flux:text>
             </a>
 
@@ -49,9 +49,9 @@ title('ダッシュボード');
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
                     </svg>
                 </div>
-                <flux:heading size="md" class="mb-2">募集管理</flux:heading>
+                <flux:heading size="md" class="mb-2">お手伝い管理</flux:heading>
                 <flux:text>
-                    投稿した募集を確認・編集します
+                    投稿したお手伝いを確認・編集します
                 </flux:text>
             </a>
 
@@ -75,9 +75,9 @@ title('ダッシュボード');
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
                 </div>
-                <flux:heading size="md" class="mb-2">応募管理</flux:heading>
+                <flux:heading size="md" class="mb-2">参加者管理</flux:heading>
                 <flux:text>
-                    募集への応募を確認・管理します
+                    お手伝いへの参加を確認・管理します
                 </flux:text>
             </a>
         @elseif (auth()->user()->isWorker())
@@ -89,9 +89,9 @@ title('ダッシュボード');
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
                 </div>
-                <flux:heading size="md" class="mb-2">募集を探す</flux:heading>
+                <flux:heading size="md" class="mb-2">お手伝いを探す</flux:heading>
                 <flux:text>
-                    興味のある募集を検索します
+                    興味のあるお手伝いを検索します
                 </flux:text>
             </a>
 
@@ -115,9 +115,9 @@ title('ダッシュボード');
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
                 </div>
-                <flux:heading size="md" class="mb-2">応募履歴</flux:heading>
+                <flux:heading size="md" class="mb-2">参加履歴</flux:heading>
                 <flux:text>
-                    応募した募集を確認します
+                    参加したお手伝いを確認します
                 </flux:text>
             </a>
         @endif

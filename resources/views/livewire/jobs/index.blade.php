@@ -12,7 +12,7 @@ use function Livewire\Volt\title;
 use function Livewire\Volt\with;
 
 layout('components.layouts.app.header');
-title('募集一覧');
+title('お手伝い一覧');
 
 /**
  * 検索・フィルタの状態
@@ -134,16 +134,16 @@ with(fn () => [
         <!-- ヘッダー -->
         <div class="mb-8 flex items-center justify-between">
             <div>
-                <flux:heading size="xl" class="mb-2">募集一覧</flux:heading>
+                <flux:heading size="xl" class="mb-2">お手伝い一覧</flux:heading>
                 <flux:text variant="subtle">
-                    地方の中小企業や自治体からの募集を探せます
+                    平泉町内の事業者や地域の方からのお手伝いを探せます
                 </flux:text>
             </div>
 
             <!-- 企業ユーザー: 新規投稿ボタン -->
             @if ($this->isCompany())
                 <flux:button href="{{ route('jobs.create') }}" wire:navigate variant="primary" icon="plus">
-                    新規募集投稿
+                    新規お手伝い投稿
                 </flux:button>
             @endif
         </div>
@@ -216,11 +216,11 @@ with(fn () => [
         <!-- 検索結果数 -->
         <div class="mb-6">
             <flux:text variant="subtle">
-                {{ $this->jobPosts->count() }}件の募集が見つかりました
+                {{ $this->jobPosts->count() }}件のお手伝いが見つかりました
             </flux:text>
         </div>
 
-        <!-- 募集カード一覧 -->
+        <!-- お手伝いカード一覧 -->
         @if ($this->jobPosts->isEmpty())
             <div class="rounded-xl border border-gray-200 bg-white p-12 text-center dark:border-gray-700 dark:bg-gray-800">
                 <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700">
@@ -228,7 +228,7 @@ with(fn () => [
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
                 </div>
-                <flux:heading size="lg" class="mb-2">募集が見つかりませんでした</flux:heading>
+                <flux:heading size="lg" class="mb-2">お手伝いが見つかりませんでした</flux:heading>
                 <flux:text variant="subtle" class="mb-4">
                     検索条件を変更してお試しください
                 </flux:text>
@@ -242,11 +242,11 @@ with(fn () => [
                     <a href="{{ route('jobs.show', $jobPost) }}" wire:navigate
                         class="group relative overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition hover:border-blue-500 hover:shadow-lg dark:border-gray-700 dark:bg-gray-800">
                         
-                        <!-- 応募済みバッジ（カード右上） -->
+                        <!-- 参加済みバッジ（カード右上） -->
                         @if ($this->hasApplied($jobPost))
                             <div class="absolute right-3 top-3 z-10">
                                 <flux:badge color="green" size="sm" class="rounded-full font-bold shadow-md">
-                                    ✓ 応募済み
+                                    ✓ 参加済み
                                 </flux:badge>
                             </div>
                         @endif

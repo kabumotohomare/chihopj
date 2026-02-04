@@ -40,9 +40,18 @@ class extends Component
     {
         $this->validate();
 
-        // 企業プロフィール作成
+        // 平泉町のlocation_idを取得（岩手県平泉町: code 034029）
+        $hiraizumiLocationId = \App\Models\Location::where('code', '034029')->value('id');
+
+        if (!$hiraizumiLocationId) {
+            session()->flash('error', '平泉町の地域情報が見つかりません。管理者にお問い合わせください。');
+            return;
+        }
+
+        // 企業プロフィール作成（平泉町に固定）
         CompanyProfile::create([
             'user_id' => auth()->id(),
+            'location_id' => $hiraizumiLocationId,
             'icon' => $this->icon ? $this->icon->store('icons', 'public') : null,
             'address' => $this->address,
             'representative' => $this->representative,
@@ -95,12 +104,23 @@ class extends Component
                 <flux:error name="icon" />
             </flux:field>
 
+            <!-- 所在地（固定表示） -->
+            <flux:field>
+                <flux:label>所在地</flux:label>
+                <div class="rounded-lg border border-zinc-300 bg-zinc-50 px-4 py-3 text-sm text-zinc-700 dark:border-zinc-600 dark:bg-zinc-700 dark:text-zinc-300">
+                    岩手県西磐井郡平泉町
+                </div>
+                <flux:description>
+                    このサービスは平泉町内の事業者専用です
+                </flux:description>
+            </flux:field>
+
             <!-- 所在地住所 -->
             <flux:field>
                 <flux:label>所在地住所 <span class="text-red-500">*</span></flux:label>
-                <flux:input wire:model="address" placeholder="例：◯◯町1-2-3 ◯◯ビル4F" />
+                <flux:input wire:model="address" placeholder="例：平泉字泉屋1-1" />
                 <flux:description>
-                    市区町村以降の住所を入力してください（200文字以内）
+                    町名以降の住所を入力してください（200文字以内）
                 </flux:description>
                 <flux:error name="address" />
             </flux:field>
