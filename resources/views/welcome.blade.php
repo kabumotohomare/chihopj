@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>みんなの平泉 - 平泉のお手伝い案内所</title>
+    <title>ふるぼの - みんなの平泉｜平泉のお手伝い案内所</title>
     <meta name="description" content="平泉町でのお手伝いを通じて、地域と繋がる体験ができます">
 
     <link rel="icon" href="{{ asset('favicon.ico') }}" sizes="any">
@@ -35,8 +35,8 @@
             <nav class="flex items-center justify-between h-16">
                 <!-- ロゴ -->
                 <div class="flex items-center gap-3">
-                    <img src="{{ asset('images/presets/logo.png') }}" alt="みんなの平泉ロゴ" class="h-10 w-auto">
-                    <span class="text-2xl font-bold text-[#FF6B35]">みんなの平泉</span>
+                    <img src="{{ asset('images/presets/logo.png') }}" alt="ふるぼの - みんなの平泉ロゴ" class="h-10 w-auto">
+                    <span class="text-2xl font-bold text-[#FF6B35]">ふるぼの - みんなの平泉</span>
                 </div>
 
                 <!-- デスクトップメニュー -->
@@ -200,7 +200,7 @@
                 <div class="text-center">
                     <a href="{{ route('jobs.index') }}"
                         class="inline-flex items-center gap-2 bg-[#4CAF50] hover:bg-[#45A049] text-white px-8 py-4 rounded-full transition-all transform hover:scale-105 font-bold text-lg shadow-lg">
-                        <span>もっとお手伝いを見る</span>
+                        <span>募集中のお手伝いを見る</span>
                         <i class="fas fa-arrow-right"></i>
                     </a>
                 </div>
@@ -214,10 +214,10 @@
             <div class="grid md:grid-cols-2 gap-8 items-center">
                 <div class="text-center md:text-left">
                     <div class="flex items-center gap-3 justify-center md:justify-start mb-4">
-                        <img src="{{ asset('images/presets/logo.png') }}" alt="みんなの平泉ロゴ" class="h-8 w-auto">
-                        <span class="text-xl font-bold">みんなの平泉</span>
+                        <img src="{{ asset('images/presets/logo.png') }}" alt="ふるぼの - みんなの平泉ロゴ" class="h-8 w-auto">
+                        <span class="text-xl font-bold">ふるぼの - みんなの平泉</span>
                     </div>
-                    <p class="text-sm text-gray-300">お手伝いで地域とつながる</p>
+                    <p class="text-sm text-gray-300">お手伝いでみんなの地域とつながる</p>
                 </div>
 
                 <div class="text-center md:text-right">

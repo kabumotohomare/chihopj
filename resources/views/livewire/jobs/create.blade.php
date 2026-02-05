@@ -57,6 +57,15 @@ $offers = computed(function () {
     return Code::getOffers();
 });
 
+// purposeの変更を監視（日時フィールドをリセット）
+$updatedPurpose = function ($value) {
+    // いつでも募集に変更した場合、日時フィールドをクリア
+    if ($value === 'want_to_do') {
+        $this->start_datetime = '';
+        $this->end_datetime = '';
+    }
+};
+
 // job_detailの変更を監視（入力補助機能）
 $updatedJobDetail = function ($value) {
     // 2文字以上で候補を検索
@@ -96,6 +105,21 @@ $create = function () {
     // 認可チェック
     $this->authorize('create', JobPost::class);
 
+    // バリデーション前にデータをクリーンアップ
+    // purposeがwant_to_doの場合、日時フィールドをnullに設定
+    if ($this->purpose === 'want_to_do') {
+        $this->start_datetime = null;
+        $this->end_datetime = null;
+    }
+    
+    // 空文字列をnullに変換
+    if ($this->start_datetime === '') {
+        $this->start_datetime = null;
+    }
+    if ($this->end_datetime === '') {
+        $this->end_datetime = null;
+    }
+
     // バリデーション
     $validated = $this->validate((new StoreJobPostRequest)->rules());
 
@@ -107,13 +131,25 @@ $create = function () {
         $eyecatchPath = $this->preset_image;
     }
 
+    // purposeがwant_to_doの場合、日時フィールドを確実にnullに設定
+    $startDatetime = ($validated['purpose'] === 'want_to_do') ? null : ($validated['start_datetime'] ?? null);
+    $endDatetime = ($validated['purpose'] === 'want_to_do') ? null : ($validated['end_datetime'] ?? null);
+    
+    // 空文字列の場合はnullに変換
+    if ($startDatetime === '') {
+        $startDatetime = null;
+    }
+    if ($endDatetime === '') {
+        $endDatetime = null;
+    }
+
     // 募集投稿を作成
     $jobPost = JobPost::query()->create([
         'company_id' => auth()->id(),
         'eyecatch' => $eyecatchPath,
         'purpose' => $validated['purpose'],
-        'start_datetime' => $validated['start_datetime'] ?? null,
-        'end_datetime' => $validated['end_datetime'] ?? null,
+        'start_datetime' => $startDatetime,
+        'end_datetime' => $endDatetime,
         'job_title' => $validated['job_title'],
         'job_detail' => $validated['job_detail'],
         'want_you_ids' => $validated['want_you_ids'] ?? [],

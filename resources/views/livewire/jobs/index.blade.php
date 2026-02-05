@@ -286,13 +286,37 @@ with(fn () => [
 
                             <!-- 募集見出し -->
                             <div class="mb-3 flex items-start gap-2">
-                                <flux:badge color="red" size="sm" class="flex-shrink-0 font-bold">
-                                    {{ $jobPost->getPurposeLabel() }}
-                                </flux:badge>
+                                @if ($jobPost->purpose === 'want_to_do')
+                                    <!-- いつでも募集：目立つオレンジ色のバッジ -->
+                                    <flux:badge color="orange" size="sm" class="flex-shrink-0 font-bold animate-pulse">
+                                        <span class="flex items-center gap-1">
+                                            <flux:icon.bolt variant="micro" />
+                                            {{ $jobPost->getPurposeLabel() }}
+                                        </span>
+                                    </flux:badge>
+                                @else
+                                    <!-- 決まった日に募集：通常の赤色バッジ -->
+                                    <flux:badge color="red" size="sm" class="flex-shrink-0 font-bold">
+                                        {{ $jobPost->getPurposeLabel() }}
+                                    </flux:badge>
+                                @endif
                                 <flux:heading size="md" class="line-clamp-2 flex-1 text-gray-900 dark:text-white">
                                     {{ $jobPost->job_title }}
                                 </flux:heading>
                             </div>
+
+                            <!-- 決まった日に募集の場合：日時表示 -->
+                            @if ($jobPost->purpose === 'need_help' && $jobPost->start_datetime && $jobPost->end_datetime)
+                                <div class="mb-3 rounded-lg bg-blue-50 p-3 dark:bg-blue-900/20">
+                                    <div class="flex items-center gap-2 text-sm text-blue-700 dark:text-blue-300">
+                                        <flux:icon.calendar variant="micro" />
+                                        <span class="font-medium">
+                                            {{ $jobPost->start_datetime->format('Y年n月j日 H:i') }} 〜 
+                                            {{ $jobPost->end_datetime->format('Y年n月j日 H:i') }}
+                                        </span>
+                                    </div>
+                                </div>
+                            @endif
 
                             <!-- 事業内容（90文字まで） -->
                             <flux:text class="mb-4 line-clamp-3 text-sm text-gray-600 dark:text-gray-400">
