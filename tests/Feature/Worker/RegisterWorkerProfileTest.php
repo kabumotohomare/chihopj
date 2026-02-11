@@ -92,52 +92,6 @@ test('2MBを超える画像はバリデーションエラーになる', function
         ->assertHasErrors(['icon']);
 });
 
-test('小さすぎる画像はバリデーションエラーになる', function () {
-    Storage::fake('public');
-
-    $user = User::factory()->create(['role' => 'worker']);
-    $location = Location::factory()->create();
-
-    $this->actingAs($user);
-
-    $file = UploadedFile::fake()->image('icon.jpg', 50, 50); // 50x50px
-
-    Volt::test('worker.register')
-        ->set('handle_name', 'テストユーザー')
-        ->set('icon', $file)
-        ->set('gender', 'male')
-        ->set('birth_year', '1990')
-        ->set('birth_month', '5')
-        ->set('birth_day', '15')
-        ->set('birth_location_id', $location->id)
-        ->set('current_location_1_id', $location->id)
-        ->call('register')
-        ->assertHasErrors(['icon']);
-});
-
-test('大きすぎる画像はバリデーションエラーになる', function () {
-    Storage::fake('public');
-
-    $user = User::factory()->create(['role' => 'worker']);
-    $location = Location::factory()->create();
-
-    $this->actingAs($user);
-
-    $file = UploadedFile::fake()->image('icon.jpg', 3000, 3000); // 3000x3000px
-
-    Volt::test('worker.register')
-        ->set('handle_name', 'テストユーザー')
-        ->set('icon', $file)
-        ->set('gender', 'male')
-        ->set('birth_year', '1990')
-        ->set('birth_month', '5')
-        ->set('birth_day', '15')
-        ->set('birth_location_id', $location->id)
-        ->set('current_location_1_id', $location->id)
-        ->call('register')
-        ->assertHasErrors(['icon']);
-});
-
 test('画像以外のファイルはバリデーションエラーになる', function () {
     Storage::fake('public');
 

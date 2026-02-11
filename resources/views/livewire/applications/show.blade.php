@@ -23,9 +23,6 @@ mount(function (JobApplication $jobApplication) {
         'worker.workerProfile.birthLocation',
         'worker.workerProfile.currentLocation1',
         'worker.workerProfile.currentLocation2',
-        'worker.workerProfile.favoriteLocation1',
-        'worker.workerProfile.favoriteLocation2',
-        'worker.workerProfile.favoriteLocation3',
         'chatRoom',
     ]);
 });
@@ -278,27 +275,11 @@ $getPurposeLabel = function (string $purpose): string {
                     </flux:text>
                 </div>
 
-                {{-- これまでの経験 --}}
-                @if ($workerProfile->experiences)
+                {{-- ひとことメッセージ --}}
+                @if ($workerProfile->message)
                     <div>
-                        <flux:text class="mb-1 font-semibold">これまでの経験</flux:text>
-                        <flux:text class="whitespace-pre-wrap">{{ $workerProfile->experiences }}</flux:text>
-                    </div>
-                @endif
-
-                {{-- これからやりたいこと --}}
-                @if ($workerProfile->want_to_do)
-                    <div>
-                        <flux:text class="mb-1 font-semibold">これからやりたいこと</flux:text>
-                        <flux:text class="whitespace-pre-wrap">{{ $workerProfile->want_to_do }}</flux:text>
-                    </div>
-                @endif
-
-                {{-- 得意なことや貢献できること --}}
-                @if ($workerProfile->good_contribution)
-                    <div>
-                        <flux:text class="mb-1 font-semibold">得意なことや貢献できること</flux:text>
-                        <flux:text class="whitespace-pre-wrap">{{ $workerProfile->good_contribution }}</flux:text>
+                        <flux:text class="mb-1 font-semibold">ひとことメッセージ</flux:text>
+                        <flux:text class="whitespace-pre-wrap">{{ $workerProfile->message }}</flux:text>
                     </div>
                 @endif
 
@@ -335,52 +316,6 @@ $getPurposeLabel = function (string $purpose): string {
                     </div>
                 @endif
 
-                {{-- 移住に関心のある地域1 --}}
-                @if ($workerProfile->favoriteLocation1)
-                    <div>
-                        <flux:text class="mb-1 font-semibold">移住に関心のある地域1</flux:text>
-                        <flux:text>
-                            {{ $workerProfile->favoriteLocation1->prefecture }}
-                            {{ $workerProfile->favoriteLocation1->city }}
-                        </flux:text>
-                    </div>
-                @endif
-
-                {{-- 移住に関心のある地域2 --}}
-                @if ($workerProfile->favoriteLocation2)
-                    <div>
-                        <flux:text class="mb-1 font-semibold">移住に関心のある地域2</flux:text>
-                        <flux:text>
-                            {{ $workerProfile->favoriteLocation2->prefecture }}
-                            {{ $workerProfile->favoriteLocation2->city }}
-                        </flux:text>
-                    </div>
-                @endif
-
-                {{-- 移住に関心のある地域3 --}}
-                @if ($workerProfile->favoriteLocation3)
-                    <div>
-                        <flux:text class="mb-1 font-semibold">移住に関心のある地域3</flux:text>
-                        <flux:text>
-                            {{ $workerProfile->favoriteLocation3->prefecture }}
-                            {{ $workerProfile->favoriteLocation3->city }}
-                        </flux:text>
-                    </div>
-                @endif
-
-                {{-- 興味のあるお手伝い --}}
-                @if ($workerProfile->available_action_labels)
-                    <div>
-                        <flux:text class="mb-2 font-semibold">興味のあるお手伝い</flux:text>
-                        <div class="flex flex-wrap gap-2">
-                            @foreach ($workerProfile->available_action_labels as $label)
-                                <span class="inline-flex items-center rounded-full bg-purple-100 px-2.5 py-0.5 text-xs font-medium text-purple-800 dark:bg-purple-900 dark:text-purple-200">
-                                    {{ $label }}
-                                </span>
-                            @endforeach
-                        </div>
-                    </div>
-                @endif
             </div>
         </div>
     @endif

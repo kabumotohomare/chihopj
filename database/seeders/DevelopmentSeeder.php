@@ -42,12 +42,9 @@ class DevelopmentSeeder extends Seeder
                 'handle_name' => 'テスト太郎',
                 'gender' => 'male',
                 'birthdate' => '1990-01-01',
-                'experiences' => 'IT企業で10年間、システム開発に携わってきました。',
-                'want_to_do' => '地方企業のDX支援に興味があります。',
-                'good_contribution' => 'Webサイト制作、SNS運用のアドバイスができます。',
+                'message' => 'IT企業で働いていますが、地方での活動に興味があります。よろしくお願いします。',
                 'birth_location_id' => $chiyoda?->id,
                 'current_location_1_id' => $chiyoda?->id,
-                'available_action' => ['mowing', 'diy'],
             ]);
 
             $this->command->info('ワーカープロフィールを作成しました: worker@example.com / password');

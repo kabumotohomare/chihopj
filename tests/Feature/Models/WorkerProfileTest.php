@@ -53,34 +53,26 @@ test('性別の日本語ラベルを取得できる', function () {
         ->and($other->gender_label)->toBe('その他');
 });
 
-test('興味のあるお手伝いの日本語ラベルを取得できる', function () {
+test('ひとことメッセージを設定できる', function () {
     $profile = WorkerProfile::factory()->create([
-        'available_action' => ['mowing', 'snowplow', 'diy'],
+        'message' => 'よろしくお願いします',
     ]);
 
-    $labels = $profile->available_action_labels;
-
-    expect($labels)->toBeArray()
-        ->and($labels)->toContain('草刈り')
-        ->and($labels)->toContain('雪かき')
-        ->and($labels)->toContain('DIY');
+    expect($profile->message)->toBe('よろしくお願いします');
 });
 
 test('ワーカープロフィールは複数の地域とリレーションを持つ', function () {
     $birthLocation = Location::factory()->create();
     $currentLocation1 = Location::factory()->create();
     $currentLocation2 = Location::factory()->create();
-    $favoriteLocation1 = Location::factory()->create();
 
     $profile = WorkerProfile::factory()->create([
         'birth_location_id' => $birthLocation->id,
         'current_location_1_id' => $currentLocation1->id,
         'current_location_2_id' => $currentLocation2->id,
-        'favorite_location_1_id' => $favoriteLocation1->id,
     ]);
 
     expect($profile->birthLocation)->toBeInstanceOf(Location::class)
         ->and($profile->currentLocation1)->toBeInstanceOf(Location::class)
-        ->and($profile->currentLocation2)->toBeInstanceOf(Location::class)
-        ->and($profile->favoriteLocation1)->toBeInstanceOf(Location::class);
+        ->and($profile->currentLocation2)->toBeInstanceOf(Location::class);
 });

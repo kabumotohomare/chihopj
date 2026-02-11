@@ -58,12 +58,9 @@ test('ワーカープロフィールを更新できる', function () {
         ->set('birthYear', 1990)
         ->set('birthMonth', 5)
         ->set('birthDay', 15)
-        ->set('experiences', '更新後の経験')
-        ->set('want_to_do', '更新後のやりたいこと')
-        ->set('good_contribution', '更新後の貢献できること')
+        ->set('message', 'よろしくお願いします')
         ->set('birth_location_id', $newCity->id)
         ->set('current_location_1_id', $newCity->id)
-        ->set('available_action', ['mowing', 'diy'])
         ->call('update')
         ->assertHasNoErrors()
         ->assertRedirect(route('worker.profile'));
@@ -74,9 +71,7 @@ test('ワーカープロフィールを更新できる', function () {
         'handle_name' => '更新後のハンドルネーム',
         'gender' => 'female',
         'birthdate' => '1990-05-15',
-        'experiences' => '更新後の経験',
-        'want_to_do' => '更新後のやりたいこと',
-        'good_contribution' => '更新後の貢献できること',
+        'message' => 'よろしくお願いします',
         'birth_location_id' => $newCity->id,
         'current_location_1_id' => $newCity->id,
     ]);
@@ -120,32 +115,12 @@ test('性別が不正な値の場合はバリデーションエラーが発生�
         ->assertHasErrors(['gender']);
 });
 
-test('テキストエリアが200文字を超える場合はバリデーションエラーが発生する', function () {
+test('ひとことメッセージが200文字を超える場合はバリデーションエラーが発生する', function () {
     Volt::actingAs($this->user)
         ->test('worker.edit')
-        ->set('experiences', str_repeat('あ', 201))
+        ->set('message', str_repeat('あ', 201))
         ->call('update')
-        ->assertHasErrors(['experiences']);
-
-    Volt::actingAs($this->user)
-        ->test('worker.edit')
-        ->set('want_to_do', str_repeat('あ', 201))
-        ->call('update')
-        ->assertHasErrors(['want_to_do']);
-
-    Volt::actingAs($this->user)
-        ->test('worker.edit')
-        ->set('good_contribution', str_repeat('あ', 201))
-        ->call('update')
-        ->assertHasErrors(['good_contribution']);
-});
-
-test('興味のあるお手伝いに不正な値が含まれる場合はバリデーションエラーが発生する', function () {
-    Volt::actingAs($this->user)
-        ->test('worker.edit')
-        ->set('available_action', ['invalid'])
-        ->call('update')
-        ->assertHasErrors(['available_action.0']);
+        ->assertHasErrors(['message']);
 });
 
 test('任意項目を空にして更新できる', function () {
@@ -158,28 +133,16 @@ test('任意項目を空にして更新できる', function () {
         ->set('birthDay', 1)
         ->set('birth_location_id', $this->city->id)
         ->set('current_location_1_id', $this->city->id)
-        ->set('experiences', '')
-        ->set('want_to_do', '')
-        ->set('good_contribution', '')
+        ->set('message', '')
         ->set('current_location_2_id', null)
-        ->set('favorite_location_1_id', null)
-        ->set('favorite_location_2_id', null)
-        ->set('favorite_location_3_id', null)
-        ->set('available_action', [])
         ->call('update')
         ->assertHasNoErrors();
 
     // データベースに反映されたことを確認
     $this->assertDatabaseHas('worker_profiles', [
         'user_id' => $this->user->id,
-        'experiences' => null,
-        'want_to_do' => null,
-        'good_contribution' => null,
+        'message' => null,
         'current_location_2_id' => null,
-        'favorite_location_1_id' => null,
-        'favorite_location_2_id' => null,
-        'favorite_location_3_id' => null,
-        'available_action' => null,
     ]);
 });
 

@@ -34,15 +34,9 @@ class extends Component
     #[Validate('required|integer|min:1|max:31')]
     public string $birth_day = '';
 
-    // テキストエリア
+    // ひとことメッセージ
     #[Validate('nullable|string|max:200')]
-    public string $experiences = '';
-
-    #[Validate('nullable|string|max:200')]
-    public string $want_to_do = '';
-
-    #[Validate('nullable|string|max:200')]
-    public string $good_contribution = '';
+    public string $message = '';
 
     // 出身地
     public ?string $birth_prefecture = null;
@@ -61,27 +55,6 @@ class extends Component
 
     #[Validate('nullable|exists:locations,id')]
     public ?int $current_location_2_id = null;
-
-    // 移住に関心のある地域1
-    public ?string $favorite_1_prefecture = null;
-
-    #[Validate('nullable|exists:locations,id')]
-    public ?int $favorite_location_1_id = null;
-
-    // 移住に関心のある地域2
-    public ?string $favorite_2_prefecture = null;
-
-    #[Validate('nullable|exists:locations,id')]
-    public ?int $favorite_location_2_id = null;
-
-    // 移住に関心のある地域3
-    public ?string $favorite_3_prefecture = null;
-
-    #[Validate('nullable|exists:locations,id')]
-    public ?int $favorite_location_3_id = null;
-
-    // 興味のあるお手伝い
-    public array $available_action = [];
 
     // 年月日リスト
     public $years = [];
@@ -153,41 +126,6 @@ class extends Component
             ->get();
     }
 
-    public function getFavorite1CitiesProperty()
-    {
-        if (empty($this->favorite_1_prefecture)) {
-            return collect();
-        }
-
-        return Location::where('prefecture', $this->favorite_1_prefecture)
-            ->whereNotNull('city')
-            ->orderBy('code')
-            ->get();
-    }
-
-    public function getFavorite2CitiesProperty()
-    {
-        if (empty($this->favorite_2_prefecture)) {
-            return collect();
-        }
-
-        return Location::where('prefecture', $this->favorite_2_prefecture)
-            ->whereNotNull('city')
-            ->orderBy('code')
-            ->get();
-    }
-
-    public function getFavorite3CitiesProperty()
-    {
-        if (empty($this->favorite_3_prefecture)) {
-            return collect();
-        }
-
-        return Location::where('prefecture', $this->favorite_3_prefecture)
-            ->whereNotNull('city')
-            ->orderBy('code')
-            ->get();
-    }
 
     public function updatedBirthPrefecture($value): void
     {
@@ -204,20 +142,6 @@ class extends Component
         $this->current_location_2_id = null;
     }
 
-    public function updatedFavorite1Prefecture($value): void
-    {
-        $this->favorite_location_1_id = null;
-    }
-
-    public function updatedFavorite2Prefecture($value): void
-    {
-        $this->favorite_location_2_id = null;
-    }
-
-    public function updatedFavorite3Prefecture($value): void
-    {
-        $this->favorite_location_3_id = null;
-    }
 
     public function updatedBirthYear(): void
     {
@@ -269,16 +193,10 @@ class extends Component
             'icon' => $this->icon ? $this->icon->store('icons', 'public') : null,
             'gender' => $this->gender,
             'birthdate' => $birthdate,
-            'experiences' => $this->experiences ?: null,
-            'want_to_do' => $this->want_to_do ?: null,
-            'good_contribution' => $this->good_contribution ?: null,
+            'message' => $this->message ?: null,
             'birth_location_id' => $this->birth_location_id,
             'current_location_1_id' => $this->current_location_1_id,
             'current_location_2_id' => $this->current_location_2_id ?: null,
-            'favorite_location_1_id' => $this->favorite_location_1_id ?: null,
-            'favorite_location_2_id' => $this->favorite_location_2_id ?: null,
-            'favorite_location_3_id' => $this->favorite_location_3_id ?: null,
-            'available_action' => ! empty($this->available_action) ? $this->available_action : null,
         ]);
 
         session()->flash('status', 'ワーカープロフィールを登録しました。');
@@ -397,25 +315,11 @@ class extends Component
                 <flux:error name="birth_day" />
             </flux:field>
 
-            <!-- これまでの経験 -->
+            <!-- ひとことメッセージ -->
             <flux:field>
-                <flux:label>これまでの経験 <span class="text-zinc-500">(任意)</span></flux:label>
-                <flux:textarea wire:model="experiences" rows="3" placeholder="これまでの経験を入力してください（200文字以内）" />
-                <flux:error name="experiences" />
-            </flux:field>
-
-            <!-- これからやりたいこと -->
-            <flux:field>
-                <flux:label>これからやりたいこと <span class="text-zinc-500">(任意)</span></flux:label>
-                <flux:textarea wire:model="want_to_do" rows="3" placeholder="これからやりたいことを入力してください（200文字以内）" />
-                <flux:error name="want_to_do" />
-            </flux:field>
-
-            <!-- 得意なことや貢献できること -->
-            <flux:field>
-                <flux:label>得意なことや貢献できること <span class="text-zinc-500">(任意)</span></flux:label>
-                <flux:textarea wire:model="good_contribution" rows="3" placeholder="得意なことや貢献できることを入力してください（200文字以内）" />
-                <flux:error name="good_contribution" />
+                <flux:label>ひとことメッセージ <span class="text-zinc-500">(任意)</span></flux:label>
+                <flux:textarea wire:model="message" rows="3" placeholder="自己紹介やアピールポイントなど、自由に入力してください（200文字以内）" />
+                <flux:error name="message" />
             </flux:field>
 
             <!-- 出身地 -->
@@ -491,94 +395,6 @@ class extends Component
                     </select>
                 </div>
                 <flux:error name="current_location_2_id" />
-            </flux:field>
-
-            <!-- 移住に関心のある地域1 -->
-            <flux:field>
-                <flux:label>移住に関心のある地域1 <span class="text-zinc-500">(任意)</span></flux:label>
-                <div class="flex gap-2">
-                    <select wire:model.live="favorite_1_prefecture"
-                        class="w-full rounded-lg border border-gray-200 px-3 py-2 dark:border-gray-700 dark:bg-gray-800">
-                        <option value="">都道府県を選択</option>
-                        @foreach($this->prefectures as $prefecture)
-                            <option value="{{ $prefecture->prefecture }}">{{ $prefecture->prefecture }}</option>
-                        @endforeach
-                    </select>
-                    <select wire:model="favorite_location_1_id"
-                        class="w-full rounded-lg border border-gray-200 px-3 py-2 dark:border-gray-700 dark:bg-gray-800"
-                        @disabled(empty($this->favorite_1_cities))>
-                        <option value="">市区町村を選択</option>
-                        @if(!empty($this->favorite_1_cities))
-                            @foreach($this->favorite_1_cities as $city)
-                                <option value="{{ $city->id }}">{{ $city->city }}</option>
-                            @endforeach
-                        @endif
-                    </select>
-                </div>
-                <flux:error name="favorite_location_1_id" />
-            </flux:field>
-
-            <!-- 移住に関心のある地域2 -->
-            <flux:field>
-                <flux:label>移住に関心のある地域2 <span class="text-zinc-500">(任意)</span></flux:label>
-                <div class="flex gap-2">
-                    <select wire:model.live="favorite_2_prefecture"
-                        class="w-full rounded-lg border border-gray-200 px-3 py-2 dark:border-gray-700 dark:bg-gray-800">
-                        <option value="">都道府県を選択</option>
-                        @foreach($this->prefectures as $prefecture)
-                            <option value="{{ $prefecture->prefecture }}">{{ $prefecture->prefecture }}</option>
-                        @endforeach
-                    </select>
-                    <select wire:model="favorite_location_2_id"
-                        class="w-full rounded-lg border border-gray-200 px-3 py-2 dark:border-gray-700 dark:bg-gray-800"
-                        @disabled(empty($this->favorite_2_cities))>
-                        <option value="">市区町村を選択</option>
-                        @if(!empty($this->favorite_2_cities))
-                            @foreach($this->favorite_2_cities as $city)
-                                <option value="{{ $city->id }}">{{ $city->city }}</option>
-                            @endforeach
-                        @endif
-                    </select>
-                </div>
-                <flux:error name="favorite_location_2_id" />
-            </flux:field>
-
-            <!-- 移住に関心のある地域3 -->
-            <flux:field>
-                <flux:label>移住に関心のある地域3 <span class="text-zinc-500">(任意)</span></flux:label>
-                <div class="flex gap-2">
-                    <select wire:model.live="favorite_3_prefecture"
-                        class="w-full rounded-lg border border-gray-200 px-3 py-2 dark:border-gray-700 dark:bg-gray-800">
-                        <option value="">都道府県を選択</option>
-                        @foreach($this->prefectures as $prefecture)
-                            <option value="{{ $prefecture->prefecture }}">{{ $prefecture->prefecture }}</option>
-                        @endforeach
-                    </select>
-                    <select wire:model="favorite_location_3_id"
-                        class="w-full rounded-lg border border-gray-200 px-3 py-2 dark:border-gray-700 dark:bg-gray-800"
-                        @disabled(empty($this->favorite_3_cities))>
-                        <option value="">市区町村を選択</option>
-                        @if(!empty($this->favorite_3_cities))
-                            @foreach($this->favorite_3_cities as $city)
-                                <option value="{{ $city->id }}">{{ $city->city }}</option>
-                            @endforeach
-                        @endif
-                    </select>
-                </div>
-                <flux:error name="favorite_location_3_id" />
-            </flux:field>
-
-            <!-- 興味のあるお手伝い -->
-            <flux:field>
-                <flux:label>興味のあるお手伝い <span class="text-zinc-500">(任意)</span></flux:label>
-                <div class="flex flex-col gap-2">
-                    <flux:checkbox wire:model="available_action" value="mowing" label="草刈り" />
-                    <flux:checkbox wire:model="available_action" value="snowplow" label="雪かき" />
-                    <flux:checkbox wire:model="available_action" value="diy" label="DIY" />
-                    <flux:checkbox wire:model="available_action" value="localcleaning" label="地域清掃" />
-                    <flux:checkbox wire:model="available_action" value="volunteer" label="災害ボランティア" />
-                </div>
-                <flux:error name="available_action" />
             </flux:field>
 
             <!-- 送信ボタン -->

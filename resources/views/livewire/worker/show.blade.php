@@ -22,9 +22,6 @@ mount(function () {
         'birthLocation',
         'currentLocation1',
         'currentLocation2',
-        'favoriteLocation1',
-        'favoriteLocation2',
-        'favoriteLocation3',
     ])
         ->where('user_id', $user->id)
         ->first();
@@ -120,23 +117,10 @@ $getIconUrl = function (): ?string {
             <flux:text>{{ $this->getLocationDisplay($profile->birthLocation) }}</flux:text>
         </div>
 
-        {{-- プロフィール詳細 --}}
+        {{-- ひとことメッセージ --}}
         <div class="rounded-lg border border-zinc-200 bg-white p-6 dark:border-zinc-700 dark:bg-zinc-800">
-            <flux:heading size="lg" class="mb-4">プロフィール</flux:heading>
-            <div class="space-y-4">
-                <div>
-                    <flux:text class="font-semibold text-zinc-700 dark:text-zinc-300">これまでの経験</flux:text>
-                    <flux:text class="mt-1 whitespace-pre-wrap">{{ $profile->experiences ?: '未設定' }}</flux:text>
-                </div>
-                <div>
-                    <flux:text class="font-semibold text-zinc-700 dark:text-zinc-300">これからやりたいこと</flux:text>
-                    <flux:text class="mt-1 whitespace-pre-wrap">{{ $profile->want_to_do ?: '未設定' }}</flux:text>
-                </div>
-                <div>
-                    <flux:text class="font-semibold text-zinc-700 dark:text-zinc-300">得意なことや貢献できること</flux:text>
-                    <flux:text class="mt-1 whitespace-pre-wrap">{{ $profile->good_contribution ?: '未設定' }}</flux:text>
-                </div>
-            </div>
+            <flux:heading size="lg" class="mb-4">ひとことメッセージ</flux:heading>
+            <flux:text class="whitespace-pre-wrap">{{ $profile->message ?: '未設定' }}</flux:text>
         </div>
 
         {{-- 現在のお住まい --}}
@@ -152,39 +136,6 @@ $getIconUrl = function (): ?string {
                     <flux:text class="mt-1">{{ $this->getLocationDisplay($profile->currentLocation2) }}</flux:text>
                 </div>
             </div>
-        </div>
-
-        {{-- 移住に関心のある地域 --}}
-        <div class="rounded-lg border border-zinc-200 bg-white p-6 dark:border-zinc-700 dark:bg-zinc-800">
-            <flux:heading size="lg" class="mb-4">移住に関心のある地域</flux:heading>
-            <div class="space-y-4">
-                <div>
-                    <flux:text class="font-semibold text-zinc-700 dark:text-zinc-300">移住に関心のある地域1</flux:text>
-                    <flux:text class="mt-1">{{ $this->getLocationDisplay($profile->favoriteLocation1) }}</flux:text>
-                </div>
-                <div>
-                    <flux:text class="font-semibold text-zinc-700 dark:text-zinc-300">移住に関心のある地域2</flux:text>
-                    <flux:text class="mt-1">{{ $this->getLocationDisplay($profile->favoriteLocation2) }}</flux:text>
-                </div>
-                <div>
-                    <flux:text class="font-semibold text-zinc-700 dark:text-zinc-300">移住に関心のある地域3</flux:text>
-                    <flux:text class="mt-1">{{ $this->getLocationDisplay($profile->favoriteLocation3) }}</flux:text>
-                </div>
-            </div>
-        </div>
-
-        {{-- 興味のあるお手伝い --}}
-        <div class="rounded-lg border border-zinc-200 bg-white p-6 dark:border-zinc-700 dark:bg-zinc-800">
-            <flux:heading size="lg" class="mb-4">興味のあるお手伝い</flux:heading>
-            @if (count($profile->available_action_labels) > 0)
-                <div class="flex flex-wrap gap-2">
-                    @foreach ($profile->available_action_labels as $label)
-                        <flux:badge>{{ $label }}</flux:badge>
-                    @endforeach
-                </div>
-            @else
-                <flux:text>未設定</flux:text>
-            @endif
         </div>
 
         {{-- 登録・更新日時 --}}

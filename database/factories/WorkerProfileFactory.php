@@ -26,19 +26,10 @@ class WorkerProfileFactory extends Factory
             'icon' => null,
             'gender' => fake()->randomElement(['male', 'female', 'other']),
             'birthdate' => fake()->dateTimeBetween('-80 years', '-18 years')->format('Y-m-d'),
-            'experiences' => fake()->optional()->realText(200),
-            'want_to_do' => fake()->optional()->realText(200),
-            'good_contribution' => fake()->optional()->realText(200),
+            'message' => fake()->optional()->realText(200),
             'birth_location_id' => Location::factory(),
             'current_location_1_id' => Location::factory(),
             'current_location_2_id' => fake()->optional()->randomElement([Location::factory()]),
-            'favorite_location_1_id' => fake()->optional()->randomElement([Location::factory()]),
-            'favorite_location_2_id' => fake()->optional()->randomElement([Location::factory()]),
-            'favorite_location_3_id' => fake()->optional()->randomElement([Location::factory()]),
-            'available_action' => fake()->optional()->randomElements(
-                ['mowing', 'snowplow', 'diy', 'localcleaning', 'volunteer'],
-                fake()->numberBetween(1, 3)
-            ),
         ];
     }
 }

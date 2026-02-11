@@ -202,4 +202,76 @@ alwaysApply: true
 - is_readは受信者が既読にした時にtrueに更新
 - created_atを送信日時として使用
 
+---
+
+### worker_profilesテーブル
+
+**目的**: ワーカーのプロフィール情報
+
+**カラム定義**:
+- id: bigint unsigned, primary key
+- user_id: bigint unsigned, 外部キー（users.id）、ユーザーID
+- handle_name: string(50), ハンドルネーム
+- icon: string(255), nullable, アイコン画像パス
+- gender: enum('male', 'female', 'other'), 性別
+- birthdate: date, 生年月日
+- message: text, nullable, ひとことメッセージ（200文字以内）
+- birth_location_id: bigint unsigned, 外部キー（locations.id）、出身地ID（市区町村）
+- current_location_1_id: bigint unsigned, 外部キー（locations.id）、現在のお住まい1ID（市区町村）
+- current_location_2_id: bigint unsigned, nullable, 外部キー（locations.id）、現在のお住まい2ID（市区町村）
+- created_at, updated_at: timestamps
+
+**インデックス**:
+- PRIMARY: id
+- UNIQUE: user_id - 1ユーザーに1プロフィール
+- UNIQUE: handle_name - ハンドルネームの重複防止
+- INDEX: birth_location_id
+- INDEX: current_location_1_id
+- INDEX: current_location_2_id
+- FOREIGN KEY: user_id (users.id) ON DELETE CASCADE
+- FOREIGN KEY: birth_location_id (locations.id)
+- FOREIGN KEY: current_location_1_id (locations.id)
+- FOREIGN KEY: current_location_2_id (locations.id)
+
+**リレーション**:
+- users: 1対1（CASCADE削除）
+- birthLocation: 多対1（locations） - 出身地
+- currentLocation1: 多対1（locations） - 現在のお住まい1
+- currentLocation2: 多対1（locations） - 現在のお住まい2
+
+**備考**:
+- user_idにユニーク制約を設定し、1ユーザーに1つのプロフィールを保証
+- handle_nameにユニーク制約を設定し、重複を防止
+- messageは200文字以内の任意項目
+
+---
+
+### company_profilesテーブル
+
+**目的**: 企業のプロフィール情報
+
+**カラム定義**:
+- id: bigint unsigned, primary key
+- user_id: bigint unsigned, 外部キー（users.id）、ユーザーID
+- icon: string(255), nullable, アイコン画像パス
+- location_id: bigint unsigned, 外部キー（locations.id）、所在地ID（市区町村）
+- address: string(200), 所在地住所
+- representative: string(50), 担当者名
+- phone_number: string(30), 電話番号
+- created_at, updated_at: timestamps
+
+**インデックス**:
+- PRIMARY: id
+- UNIQUE: user_id - 1ユーザーに1プロフィール
+- INDEX: location_id
+- FOREIGN KEY: user_id (users.id) ON DELETE CASCADE
+- FOREIGN KEY: location_id (locations.id)
+
+**リレーション**:
+- users: 1対1（CASCADE削除）
+- location: 多対1（locations） - 所在地
+
+**備考**:
+- user_idにユニーク制約を設定し、1ユーザーに1つのプロフィールを保証
+
 <!-- ここから段階的に追加 -->

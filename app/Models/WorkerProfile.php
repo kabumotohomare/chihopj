@@ -28,16 +28,10 @@ class WorkerProfile extends Model
         'icon',
         'gender',
         'birthdate',
-        'experiences',
-        'want_to_do',
-        'good_contribution',
+        'message',
         'birth_location_id',
         'current_location_1_id',
         'current_location_2_id',
-        'favorite_location_1_id',
-        'favorite_location_2_id',
-        'favorite_location_3_id',
-        'available_action',
     ];
 
     /**
@@ -47,7 +41,6 @@ class WorkerProfile extends Model
     {
         return [
             'birthdate' => 'date',
-            'available_action' => 'array',
         ];
     }
 
@@ -84,30 +77,6 @@ class WorkerProfile extends Model
     }
 
     /**
-     * 移住に関心のある地域1とのリレーション
-     */
-    public function favoriteLocation1(): BelongsTo
-    {
-        return $this->belongsTo(Location::class, 'favorite_location_1_id');
-    }
-
-    /**
-     * 移住に関心のある地域2とのリレーション
-     */
-    public function favoriteLocation2(): BelongsTo
-    {
-        return $this->belongsTo(Location::class, 'favorite_location_2_id');
-    }
-
-    /**
-     * 移住に関心のある地域3とのリレーション
-     */
-    public function favoriteLocation3(): BelongsTo
-    {
-        return $this->belongsTo(Location::class, 'favorite_location_3_id');
-    }
-
-    /**
      * 年齢を取得
      */
     public function age(): Attribute
@@ -129,31 +98,6 @@ class WorkerProfile extends Model
                 'other' => 'その他',
                 default => '未設定',
             },
-        );
-    }
-
-    /**
-     * 興味のあるお手伝いの日本語ラベルを取得
-     *
-     * @return array<string>
-     */
-    public function getAvailableActionLabelsAttribute(): array
-    {
-        if (! $this->available_action) {
-            return [];
-        }
-
-        $labels = [
-            'mowing' => '草刈り',
-            'snowplow' => '雪かき',
-            'diy' => 'DIY',
-            'localcleaning' => '地域清掃',
-            'volunteer' => '災害ボランティア',
-        ];
-
-        return array_map(
-            fn ($action) => $labels[$action] ?? $action,
-            $this->available_action
         );
     }
 }

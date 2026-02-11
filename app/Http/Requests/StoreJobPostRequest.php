@@ -62,6 +62,7 @@ class StoreJobPostRequest extends FormRequest
                     // 日時形式のバリデーション
                     if (! preg_match('/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/', $value)) {
                         $fail('開始日時は正しい日時形式で入力してください。');
+
                         return;
                     }
                     // 今日以降の日時チェック
@@ -81,6 +82,7 @@ class StoreJobPostRequest extends FormRequest
                     // 日時形式のバリデーション
                     if (! preg_match('/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/', $value)) {
                         $fail('終了日時は正しい日時形式で入力してください。');
+
                         return;
                     }
                     // 開始日時より後の日時チェック

@@ -93,43 +93,17 @@ test('ワーカープロフィール画面に出身地が表示される', funct
         ->assertSee('東京都 千代田区');
 });
 
-test('ワーカープロフィール画面にこれまでの経験が表示される', function () {
+test('ワーカープロフィール画面にひとことメッセージが表示される', function () {
     $user = User::factory()->create(['role' => 'worker']);
     $profile = WorkerProfile::factory()->create([
         'user_id' => $user->id,
-        'experiences' => 'これまでの経験テキスト',
+        'message' => 'よろしくお願いします',
     ]);
 
     $this->actingAs($user);
 
     Volt::test('worker.show')
-        ->assertSee('これまでの経験テキスト');
-});
-
-test('ワーカープロフィール画面にこれからやりたいことが表示される', function () {
-    $user = User::factory()->create(['role' => 'worker']);
-    $profile = WorkerProfile::factory()->create([
-        'user_id' => $user->id,
-        'want_to_do' => 'これからやりたいことテキスト',
-    ]);
-
-    $this->actingAs($user);
-
-    Volt::test('worker.show')
-        ->assertSee('これからやりたいことテキスト');
-});
-
-test('ワーカープロフィール画面に得意なことや貢献できることが表示される', function () {
-    $user = User::factory()->create(['role' => 'worker']);
-    $profile = WorkerProfile::factory()->create([
-        'user_id' => $user->id,
-        'good_contribution' => '得意なことや貢献できることテキスト',
-    ]);
-
-    $this->actingAs($user);
-
-    Volt::test('worker.show')
-        ->assertSee('得意なことや貢献できることテキスト');
+        ->assertSee('よろしくお願いします');
 });
 
 test('ワーカープロフィール画面に現在のお住まいが表示される', function () {
@@ -155,50 +129,6 @@ test('ワーカープロフィール画面に現在のお住まいが表示さ�
         ->assertSee('神奈川県 横浜市');
 });
 
-test('ワーカープロフィール画面に移住に関心のある地域が表示される', function () {
-    $user = User::factory()->create(['role' => 'worker']);
-    $location1 = Location::factory()->create([
-        'prefecture' => '北海道',
-        'city' => '札幌市',
-    ]);
-    $location2 = Location::factory()->create([
-        'prefecture' => '沖縄県',
-        'city' => '那覇市',
-    ]);
-    $location3 = Location::factory()->create([
-        'prefecture' => '京都府',
-        'city' => '京都市',
-    ]);
-    $profile = WorkerProfile::factory()->create([
-        'user_id' => $user->id,
-        'favorite_location_1_id' => $location1->id,
-        'favorite_location_2_id' => $location2->id,
-        'favorite_location_3_id' => $location3->id,
-    ]);
-
-    $this->actingAs($user);
-
-    Volt::test('worker.show')
-        ->assertSee('北海道 札幌市')
-        ->assertSee('沖縄県 那覇市')
-        ->assertSee('京都府 京都市');
-});
-
-test('ワーカープロフィール画面に興味のあるお手伝いが日本語で表示される', function () {
-    $user = User::factory()->create(['role' => 'worker']);
-    $profile = WorkerProfile::factory()->create([
-        'user_id' => $user->id,
-        'available_action' => ['mowing', 'snowplow', 'diy'],
-    ]);
-
-    $this->actingAs($user);
-
-    Volt::test('worker.show')
-        ->assertSee('草刈り')
-        ->assertSee('雪かき')
-        ->assertSee('DIY');
-});
-
 test('ワーカープロフィール画面に登録日時と更新日時が表示される', function () {
     $user = User::factory()->create(['role' => 'worker']);
     $profile = WorkerProfile::factory()->create([
@@ -218,9 +148,6 @@ test('地域が未設定の場合は「未設定」と表示される', function
     $profile = WorkerProfile::factory()->create([
         'user_id' => $user->id,
         'current_location_2_id' => null,
-        'favorite_location_1_id' => null,
-        'favorite_location_2_id' => null,
-        'favorite_location_3_id' => null,
     ]);
 
     $this->actingAs($user);
@@ -229,26 +156,11 @@ test('地域が未設定の場合は「未設定」と表示される', function
         ->assertSee('未設定');
 });
 
-test('プロフィール項目が未設定の場合は「未設定」と表示される', function () {
+test('ひとことメッセージが未設定の場合は「未設定」と表示される', function () {
     $user = User::factory()->create(['role' => 'worker']);
     $profile = WorkerProfile::factory()->create([
         'user_id' => $user->id,
-        'experiences' => null,
-        'want_to_do' => null,
-        'good_contribution' => null,
-    ]);
-
-    $this->actingAs($user);
-
-    Volt::test('worker.show')
-        ->assertSee('未設定');
-});
-
-test('興味のあるお手伝いが未設定の場合は「未設定」と表示される', function () {
-    $user = User::factory()->create(['role' => 'worker']);
-    $profile = WorkerProfile::factory()->create([
-        'user_id' => $user->id,
-        'available_action' => null,
+        'message' => null,
     ]);
 
     $this->actingAs($user);
