@@ -97,7 +97,11 @@ class JobPost extends Model
             return collect();
         }
 
-        return Code::query()->whereIn('id', $this->want_you_ids)->get();
+        return Code::query()
+            ->where('type', 2)
+            ->whereIn('type_id', $this->want_you_ids)
+            ->orderBy('sort_order')
+            ->get();
     }
 
     /**
@@ -111,6 +115,10 @@ class JobPost extends Model
             return collect();
         }
 
-        return Code::query()->whereIn('id', $this->can_do_ids)->get();
+        return Code::query()
+            ->where('type', 3)
+            ->whereIn('type_id', $this->can_do_ids)
+            ->orderBy('sort_order')
+            ->get();
     }
 }

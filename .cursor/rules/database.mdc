@@ -127,15 +127,13 @@ alwaysApply: true
 - declined_at: datetime, nullable, 辞退日時
 - created_at, updated_at: timestamps
 
-**応募理由の選択肢（reasons）**:
-- near_hometown: 地元の近く
-- lived_before: 昔住んでいた地域
-- wanted_to_visit: 行きたかった地域
-- empathize_with_goal: やることに共感
-- travel_opportunity: 旅のついで
-- can_use_experience: 経験が活かせそう
-- wanted_to_try: 自分もやってみたかった
-- gain_new_experience: 新しい経験を積みたい
+**気になる点の選択肢（reasons）**:
+- where_to_meet: 集合はどこ？
+- what_time_ends: 何時に終わる？
+- will_pick_up: 迎えに来てくれる？
+- what_to_bring: 持ち物は何が必要？
+- late_join_ok: 遅れて参加でも良い？
+- children_ok: 子どもと一緒でも大丈夫？
 
 **インデックス**:
 - PRIMARY: id
@@ -150,7 +148,7 @@ alwaysApply: true
 **備考**:
 - (job_id, worker_id)に複合ユニーク制約を設定し、重複応募防止
 - statusのデフォルト値は'applied'
-- reasonsはJSON形式で複数の理由を配列として保存
+- reasonsはJSON形式で複数の気になる点を配列として保存
 
 ### chat_roomsテーブル
 

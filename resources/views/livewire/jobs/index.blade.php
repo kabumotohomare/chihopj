@@ -43,7 +43,7 @@ $jobPosts = computed(function () {
     if (! empty($this->want_you_types)) {
         $query->where(function ($q) {
             foreach ($this->want_you_types as $typeId) {
-                $q->orWhereJsonContains('want_you_id', (int) $typeId);
+                $q->orWhereJsonContains('want_you_ids', (int) $typeId);
             }
         });
     }
@@ -52,7 +52,7 @@ $jobPosts = computed(function () {
     if (! empty($this->can_do_types)) {
         $query->where(function ($q) {
             foreach ($this->can_do_types as $typeId) {
-                $q->orWhereJsonContains('i_can_id', (int) $typeId);
+                $q->orWhereJsonContains('can_do_ids', (int) $typeId);
             }
         });
     }

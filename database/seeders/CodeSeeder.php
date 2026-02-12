@@ -47,7 +47,13 @@ class CodeSeeder extends Seeder
         ];
 
         foreach ($codes as $code) {
-            Code::query()->create($code);
+            Code::query()->updateOrCreate(
+                [
+                    'type' => $code['type'],
+                    'type_id' => $code['type_id'],
+                ],
+                $code
+            );
         }
     }
 }

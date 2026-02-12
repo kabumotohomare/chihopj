@@ -37,12 +37,12 @@ $submit = function () {
     $validated = $this->validate(
         [
             'reasons' => 'nullable|array',
-            'reasons.*' => 'string|in:near_hometown,lived_before,wanted_to_visit,empathize_with_goal,travel_opportunity,can_use_experience,wanted_to_try,gain_new_experience',
+            'reasons.*' => 'string|in:where_to_meet,what_time_ends,will_pick_up,what_to_bring,late_join_ok,children_ok',
             'motive' => 'nullable|string|max:1000',
         ],
         [
-            'reasons.array' => '応募理由の形式が正しくありません。',
-            'reasons.*.in' => '選択された応募理由が無効です。',
+            'reasons.array' => '気になる点の形式が正しくありません。',
+            'reasons.*.in' => '選択された気になる点が無効です。',
             'motive.max' => 'メッセージは1000文字以内で入力してください。',
         ],
     );
@@ -70,7 +70,7 @@ $submit = function () {
                 'application_id' => $jobApplication->id,
                 'created_at' => now(),
                 'updated_at' => now(),
-            ]
+            ],
         );
     });
 
@@ -182,10 +182,10 @@ $getPurposeLabel = function (): string {
         <div class="overflow-hidden rounded-xl bg-white shadow dark:bg-gray-800">
             <div class="p-6 sm:p-8">
                 <form wire:submit.prevent="submit">
-                    <!-- 応募理由 -->
+                    <!-- この募集で気になる点 -->
                     <div class="mb-8">
                         <flux:heading size="lg" class="mb-4 text-gray-900 dark:text-white">
-                            この募集が気になった理由は？
+                            この募集で気になる点は？
                         </flux:heading>
 
                         <flux:text variant="subtle" class="mb-4">
@@ -195,58 +195,44 @@ $getPurposeLabel = function (): string {
                         <div class="space-y-3">
                             <label
                                 class="flex items-center gap-3 rounded-lg border border-gray-200 p-3 transition hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700/50">
-                                <input type="checkbox" wire:model="reasons" value="near_hometown"
+                                <input type="checkbox" wire:model="reasons" value="where_to_meet"
                                     class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:focus:ring-blue-600">
-                                <span class="text-gray-700 dark:text-gray-300">地元の近く</span>
+                                <span class="text-gray-700 dark:text-gray-300">集合はどこ？</span>
                             </label>
 
                             <label
                                 class="flex items-center gap-3 rounded-lg border border-gray-200 p-3 transition hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700/50">
-                                <input type="checkbox" wire:model="reasons" value="lived_before"
+                                <input type="checkbox" wire:model="reasons" value="what_time_ends"
                                     class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:focus:ring-blue-600">
-                                <span class="text-gray-700 dark:text-gray-300">昔住んでいた地域</span>
+                                <span class="text-gray-700 dark:text-gray-300">何時に終わる？</span>
                             </label>
 
                             <label
                                 class="flex items-center gap-3 rounded-lg border border-gray-200 p-3 transition hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700/50">
-                                <input type="checkbox" wire:model="reasons" value="wanted_to_visit"
+                                <input type="checkbox" wire:model="reasons" value="will_pick_up"
                                     class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:focus:ring-blue-600">
-                                <span class="text-gray-700 dark:text-gray-300">行きたかった地域</span>
+                                <span class="text-gray-700 dark:text-gray-300">迎えに来てくれる？</span>
                             </label>
 
                             <label
                                 class="flex items-center gap-3 rounded-lg border border-gray-200 p-3 transition hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700/50">
-                                <input type="checkbox" wire:model="reasons" value="empathize_with_goal"
+                                <input type="checkbox" wire:model="reasons" value="what_to_bring"
                                     class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:focus:ring-blue-600">
-                                <span class="text-gray-700 dark:text-gray-300">やることに共感</span>
+                                <span class="text-gray-700 dark:text-gray-300">持ち物は何が必要？</span>
                             </label>
 
                             <label
                                 class="flex items-center gap-3 rounded-lg border border-gray-200 p-3 transition hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700/50">
-                                <input type="checkbox" wire:model="reasons" value="travel_opportunity"
+                                <input type="checkbox" wire:model="reasons" value="late_join_ok"
                                     class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:focus:ring-blue-600">
-                                <span class="text-gray-700 dark:text-gray-300">旅のついで</span>
+                                <span class="text-gray-700 dark:text-gray-300">遅れて参加でも良い？</span>
                             </label>
 
                             <label
                                 class="flex items-center gap-3 rounded-lg border border-gray-200 p-3 transition hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700/50">
-                                <input type="checkbox" wire:model="reasons" value="can_use_experience"
+                                <input type="checkbox" wire:model="reasons" value="children_ok"
                                     class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:focus:ring-blue-600">
-                                <span class="text-gray-700 dark:text-gray-300">経験が活かせそう</span>
-                            </label>
-
-                            <label
-                                class="flex items-center gap-3 rounded-lg border border-gray-200 p-3 transition hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700/50">
-                                <input type="checkbox" wire:model="reasons" value="wanted_to_try"
-                                    class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:focus:ring-blue-600">
-                                <span class="text-gray-700 dark:text-gray-300">自分もやってみたかった</span>
-                            </label>
-
-                            <label
-                                class="flex items-center gap-3 rounded-lg border border-gray-200 p-3 transition hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700/50">
-                                <input type="checkbox" wire:model="reasons" value="gain_new_experience"
-                                    class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:focus:ring-blue-600">
-                                <span class="text-gray-700 dark:text-gray-300">新しい経験を積みたい</span>
+                                <span class="text-gray-700 dark:text-gray-300">子どもと一緒でも大丈夫？</span>
                             </label>
                         </div>
 
@@ -255,18 +241,10 @@ $getPurposeLabel = function (): string {
 
                     <!-- 応募メッセージ -->
                     <div class="mb-8">
-                        <flux:heading size="lg" class="mb-4 text-gray-900 dark:text-white">
-                            応募メッセージ
-                        </flux:heading>
-
-                        <flux:text variant="subtle" class="mb-4">
-                            応募動機や意気込み、質問などがあれば自由に記入してください。
-                        </flux:text>
-
                         <flux:field>
-                            <flux:label>メッセージ（任意）</flux:label>
+                            <flux:label>応募メッセージ（任意）</flux:label>
                             <flux:textarea wire:model="motive" rows="6"
-                                placeholder="例：&#10;・これまでの経験やスキル&#10;・応募の動機&#10;・どのようなサポートができるか&#10;・質問や確認したいこと">
+                                placeholder="意気込み、質問や確認したいことなど、自由にどうぞ">
                                 {{ $motive }}</flux:textarea>
                             <flux:error name="motive" />
                             <flux:description>

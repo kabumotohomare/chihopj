@@ -28,7 +28,7 @@ class StoreJobApplicationRequest extends FormRequest
     {
         return [
             'reasons' => ['nullable', 'array'],
-            'reasons.*' => ['string', 'in:near_hometown,lived_before,wanted_to_visit,empathize_with_goal,travel_opportunity,can_use_experience,wanted_to_try,gain_new_experience'],
+            'reasons.*' => ['string', 'in:where_to_meet,what_time_ends,will_pick_up,what_to_bring,late_join_ok,children_ok'],
             'motive' => ['nullable', 'string', 'max:1000'],
         ];
     }
@@ -41,8 +41,8 @@ class StoreJobApplicationRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'reasons.array' => '応募理由の形式が正しくありません。',
-            'reasons.*.in' => '選択された応募理由が無効です。',
+            'reasons.array' => '気になる点の形式が正しくありません。',
+            'reasons.*.in' => '選択された気になる点が無効です。',
             'motive.max' => 'メッセージは1000文字以内で入力してください。',
         ];
     }
@@ -55,7 +55,7 @@ class StoreJobApplicationRequest extends FormRequest
     public function attributes(): array
     {
         return [
-            'reasons' => '応募理由',
+            'reasons' => '気になる点',
             'motive' => 'メッセージ',
         ];
     }

@@ -314,11 +314,11 @@ $create = function () {
                     <div class="mt-3 min-h-[2.5rem] rounded-lg border border-gray-200 bg-gray-50 p-2 dark:border-gray-700 dark:bg-gray-900">
                         <div class="flex flex-wrap gap-2">
                             @foreach ($this->requests as $request)
-                                @if (in_array($request->id, $want_you_ids))
+                                @if (in_array($request->type_id, $want_you_ids))
                                     <span class="inline-flex items-center gap-1.5 rounded-md bg-blue-500 px-2.5 py-1 text-sm font-medium text-white shadow-sm transition-all hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700">
                                         {{ $request->name }}
                                         <button type="button" 
-                                            wire:click="$set('want_you_ids', {{ json_encode(array_values(array_diff($want_you_ids, [$request->id]))) }})"
+                                            wire:click="$set('want_you_ids', {{ json_encode(array_values(array_diff($want_you_ids, [$request->type_id]))) }})"
                                             class="inline-flex h-4 w-4 items-center justify-center rounded-full transition-colors hover:bg-blue-600 dark:hover:bg-blue-800"
                                             aria-label="削除">
                                             <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
@@ -336,7 +336,7 @@ $create = function () {
                     class="mt-3 w-full rounded-lg border border-gray-200 px-3 py-2 transition-colors focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 dark:border-gray-700 dark:bg-gray-800 dark:focus:border-blue-500"
                     size="6">
                     @foreach ($this->requests as $request)
-                        <option value="{{ $request->id }}">{{ $request->name }}</option>
+                        <option value="{{ $request->type_id }}">{{ $request->name }}</option>
                     @endforeach
                 </select>
                 <flux:description class="mt-2 text-xs">
@@ -353,7 +353,7 @@ $create = function () {
                 <div class="mt-2 space-y-2">
                     @foreach ($this->offers as $offer)
                         <label class="flex items-center gap-2">
-                            <input type="checkbox" wire:model="can_do_ids" value="{{ $offer->id }}"
+                            <input type="checkbox" wire:model="can_do_ids" value="{{ $offer->type_id }}"
                                 class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
                             <span>{{ $offer->name }}</span>
                         </label>

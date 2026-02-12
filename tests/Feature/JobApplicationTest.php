@@ -75,7 +75,7 @@ test('worker can apply to job post', function () {
     actingAs($worker);
 
     Volt::test('jobs.apply', ['jobPost' => $jobPost])
-        ->set('reasons', ['near_hometown', 'empathize_with_goal'])
+        ->set('reasons', ['where_to_meet', 'will_pick_up'])
         ->set('motive', 'よろしくお願いします。')
         ->call('submit')
         ->assertRedirect(route('jobs.show', $jobPost));
@@ -92,7 +92,7 @@ test('worker can apply to job post', function () {
         ->where('worker_id', $worker->id)
         ->first();
 
-    expect($application->reasons)->toBe(['near_hometown', 'empathize_with_goal']);
+    expect($application->reasons)->toBe(['where_to_meet', 'will_pick_up']);
     expect(session('status'))->toBe('応募が完了しました。');
 });
 
@@ -215,7 +215,7 @@ test('worker can select multiple reasons', function () {
     actingAs($worker);
 
     Volt::test('jobs.apply', ['jobPost' => $jobPost])
-        ->set('reasons', ['near_hometown', 'lived_before', 'wanted_to_visit'])
+        ->set('reasons', ['where_to_meet', 'what_time_ends', 'children_ok'])
         ->set('motive', 'テストメッセージ')
         ->call('submit')
         ->assertRedirect(route('jobs.show', $jobPost));
@@ -225,7 +225,7 @@ test('worker can select multiple reasons', function () {
         ->where('worker_id', $worker->id)
         ->first();
 
-    expect($application->reasons)->toBe(['near_hometown', 'lived_before', 'wanted_to_visit']);
+    expect($application->reasons)->toBe(['where_to_meet', 'what_time_ends', 'children_ok']);
 });
 
 /**
