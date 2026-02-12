@@ -47,13 +47,17 @@
                     @auth
                         <a href="{{ url('/dashboard') }}"
                             class="bg-[#FF6B35] hover:bg-[#E55A28] text-white px-6 py-2 rounded-full transition-colors font-medium">
-                            ダッシュボード
+                            @if (auth()->user()->role === 'worker')
+                                {{ auth()->user()->workerProfile?->handle_name ?? auth()->user()->name }}さんの部屋
+                            @else
+                                {{ auth()->user()->name }}さんの部屋
+                            @endif
                         </a>
                     @else
                         @if (Route::has('login'))
                             <a href="{{ route('login') }}"
                                 class="bg-[#FF6B35] hover:bg-[#E55A28] text-white px-6 py-2 rounded-full transition-colors font-medium">
-                                ログイン
+                                ただいま
                             </a>
                         @endif
                     @endauth
@@ -75,12 +79,16 @@
                 x-transition:leave-end="opacity-0 transform -translate-y-2" class="md:hidden py-4 space-y-3">
                 <a href="#jobs" @click="mobileMenuOpen = false"
                     class="block text-[#3E3A35] hover:text-[#FF6B35] transition-colors font-medium py-2">
-                    地域のお手伝い
+                    地域の お手伝い
                 </a>
                 @auth
                     <a href="{{ url('/dashboard') }}"
                         class="block bg-[#FF6B35] hover:bg-[#E55A28] text-white text-center px-6 py-2 rounded-full transition-colors font-medium">
-                        ダッシュボード
+                        @if (auth()->user()->role === 'worker')
+                            {{ auth()->user()->workerProfile?->handle_name ?? auth()->user()->name }}さんの部屋
+                        @else
+                            {{ auth()->user()->name }}さんの部屋
+                        @endif
                     </a>
                 @else
                     @if (Route::has('login'))
@@ -108,7 +116,7 @@
                 <div class="max-w-3xl">
                     <h1
                         class="text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight drop-shadow-2xl">
-                        平泉を、<br>手伝いませんか？
+                        平泉に、<br>まざりませんか？
                     </h1>
                     <p class="text-xl md:text-2xl text-white/90 mb-10 drop-shadow-lg">
                         お手伝いで"ひらいずみ暮らし"を味わおう。
