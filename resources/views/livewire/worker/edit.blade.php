@@ -51,7 +51,7 @@ state([
 mount(function () {
     $user = Auth::user();
 
-    // ワーカープロフィールを取得（存在しない場合はnull）
+    // ひらいず民プロフィールを取得（存在しない場合はnull）
     $this->profile = WorkerProfile::with([
         'birthLocation',
         'currentLocation1',
@@ -297,12 +297,12 @@ $update = function () {
     if ($this->profile) {
         // 既存プロフィールを更新
         $this->profile->update($data);
-        session()->flash('status', 'ワーカープロフィールを更新しました。');
+        session()->flash('status', 'ひらいず民プロフィールを更新しました。');
     } else {
         // 新規プロフィールを作成
         $data['user_id'] = Auth::id();
         $this->profile = WorkerProfile::create($data);
-        session()->flash('status', 'ワーカープロフィールを登録しました。');
+        session()->flash('status', 'ひらいず民プロフィールを登録しました。');
     }
 
     return $this->redirect(route('worker.profile'), navigate: true);
@@ -313,7 +313,7 @@ $update = function () {
 <div class="mx-auto max-w-4xl px-4 py-8">
     <div class="mb-6 flex items-center justify-between">
         <flux:heading size="xl">
-            {{ $profile ? 'ワーカープロフィール編集' : 'ワーカープロフィール登録' }}
+            {{ $profile ? 'ひらいず民プロフィール編集' : 'ひらいず民プロフィール登録' }}
         </flux:heading>
     </div>
 

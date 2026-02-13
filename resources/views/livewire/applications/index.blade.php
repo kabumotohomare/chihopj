@@ -24,7 +24,7 @@ $applications = computed(function () {
             'jobPost.company.companyProfile',
         ]);
 
-    // キーワード検索（求人タイトル、企業名）
+    // キーワード検索（ひらいず民募集タイトル、ホスト名）
     if ($this->keyword) {
         $query->where(function ($q) {
             $q->whereHas('jobPost', function ($jobQuery) {
@@ -95,7 +95,7 @@ $getPurposeLabel = function (string $purpose): string {
             <flux:label>キーワード検索</flux:label>
             <flux:input
                 wire:model.live.debounce.300ms="keyword"
-                placeholder="求人タイトルまたは企業名で検索..."
+                placeholder="ひらいず民募集タイトルまたはホスト名で検索..."
             />
         </flux:field>
 
@@ -252,7 +252,7 @@ $getPurposeLabel = function (string $purpose): string {
                             </div>
                         @endif
 
-                        {{-- 企業名 --}}
+                        {{-- ホスト名 --}}
                         <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
                             <flux:icon.building-office class="h-4 w-4" />
                             <span>{{ $company->name }}</span>

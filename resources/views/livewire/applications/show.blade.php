@@ -14,7 +14,7 @@ state(['application']);
 
 // 初期化
 mount(function (JobApplication $jobApplication) {
-    // ワーカー本人または募集企業であれば閲覧可能（認可チェック）
+    // ひらいず民本人または募集ホストであれば閲覧可能（認可チェック）
     $this->authorize('view', $jobApplication);
 
     // リレーションを先読み込み
@@ -203,7 +203,7 @@ $getPurposeLabel = function (string $purpose): string {
             @endif
 
             @if ($application->status === 'applied')
-                {{-- ワーカー向け: 辞退ボタン --}}
+                {{-- ひらいず民向け: 辞退ボタン --}}
                 @if (auth()->user()->isWorker())
                     <flux:modal.trigger name="decline-modal">
                         <flux:button variant="danger">
@@ -212,7 +212,7 @@ $getPurposeLabel = function (string $purpose): string {
                     </flux:modal.trigger>
                 @endif
 
-                {{-- 企業向け: 承認・不承認ボタン --}}
+                {{-- ホスト向け: 承認・不承認ボタン --}}
                 @if (auth()->user()->isCompany())
                     <flux:modal.trigger name="accept-modal">
                         <flux:button variant="primary">
@@ -229,10 +229,10 @@ $getPurposeLabel = function (string $purpose): string {
         </div>
     </div>
 
-    {{-- ワーカー情報カード（企業向けのみ表示） --}}
+    {{-- ひらいず民情報カード（ホスト向けのみ表示） --}}
     @if (auth()->user()->isCompany() && $workerProfile)
         <div class="rounded-xl border border-zinc-200 bg-white p-6 dark:border-zinc-700 dark:bg-zinc-800">
-            <flux:heading size="lg" class="mb-4">ワーカー情報</flux:heading>
+            <flux:heading size="lg" class="mb-4">ひらいず民情報</flux:heading>
 
             <div class="space-y-6">
                 {{-- アイコンとハンドルネーム --}}
@@ -385,7 +385,7 @@ $getPurposeLabel = function (string $purpose): string {
                 </div>
             @endif
 
-            {{-- 企業名 --}}
+            {{-- ホスト名 --}}
             <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
                 <flux:icon.building-office class="h-4 w-4" />
                 <span>{{ $company->name }}</span>
@@ -433,7 +433,7 @@ $getPurposeLabel = function (string $purpose): string {
         <div>
             <flux:heading size="lg">応募を承認しますか？</flux:heading>
             <flux:text class="mt-2">
-                この応募を承認してもよろしいですか？承認後、ワーカーに通知されます。
+                この応募を承認してもよろしいですか？承認後、ひらいず民に通知されます。
             </flux:text>
         </div>
 

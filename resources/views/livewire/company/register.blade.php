@@ -16,7 +16,7 @@ class extends Component
     #[Validate('nullable|image|max:2048|mimes:jpeg,jpg,png,gif')]
     public $icon;
 
-    // 企業プロフィール情報
+    // ホストプロフィール情報
     #[Validate('required|string|max:200')]
     public string $address = '';
 
@@ -48,7 +48,7 @@ class extends Component
             return;
         }
 
-        // 企業プロフィール作成（平泉町に固定）
+        // ホストプロフィール作成（平泉町に固定）
         CompanyProfile::create([
             'user_id' => auth()->id(),
             'location_id' => $hiraizumiLocationId,
@@ -58,7 +58,7 @@ class extends Component
             'phone_number' => $this->phone_number,
         ]);
 
-        session()->flash('status', '企業プロフィールを登録しました。');
+        session()->flash('status', 'ホストプロフィールを登録しました。');
 
         $this->redirect(route('company.profile'), navigate: true);
     }
@@ -67,9 +67,9 @@ class extends Component
 <div class="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
     <div class="flex flex-col gap-6">
         <div>
-            <h1 class="text-2xl font-bold">企業プロフィール登録</h1>
+            <h1 class="text-2xl font-bold">ホストプロフィール登録</h1>
             <p class="text-sm text-zinc-600 dark:text-zinc-400 mt-2">
-                事業者としてのプロフィールを登録してください
+                ホストとしてのプロフィールを登録してください
             </p>
         </div>
 

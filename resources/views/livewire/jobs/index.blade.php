@@ -57,7 +57,7 @@ $jobPosts = computed(function () {
         });
     }
 
-    // ワーカーユーザーの場合、自分の応募状況を先読み込み（N+1問題回避）
+    // ひらいず民の場合、自分の応募状況を先読み込み（N+1問題回避）
     if (auth()->check() && auth()->user()->isWorker()) {
         $query->with(['applications' => fn ($q) => $q->where('worker_id', auth()->id())]);
     }
@@ -66,14 +66,14 @@ $jobPosts = computed(function () {
 });
 
 /**
- * 企業ユーザーかどうかチェック
+ * ホストユーザーかどうかチェック
  */
 $isCompany = function (): bool {
     return auth()->check() && auth()->user()?->isCompany();
 };
 
 /**
- * ワーカーかどうかチェック
+ * ひらいず民かどうかチェック
  */
 $isWorker = function (): bool {
     return auth()->check() && auth()->user()?->isWorker();
@@ -90,7 +90,7 @@ $isGuest = function (): bool {
  * 応募済みかどうかチェック
  */
 $hasApplied = function (JobPost $jobPost): bool {
-    // ワーカーでない場合はfalse
+    // ひらいず民でない場合はfalse
     if (! auth()->check() || ! auth()->user()?->isWorker()) {
         return false;
     }
@@ -100,7 +100,7 @@ $hasApplied = function (JobPost $jobPost): bool {
 };
 
 /**
- * フィルタラベルを取得（企業ユーザー以外は文言変更）
+ * フィルタラベルを取得（ホストユーザー以外は文言変更）
  */
 $getWantYouLabel = function (): string {
     return $this->isCompany() ? '希望' : 'あなたへの期待';
@@ -140,7 +140,7 @@ with(fn () => [
                 </flux:text>
             </div>
 
-            <!-- 企業ユーザー: 新規投稿ボタン -->
+            <!-- ホストユーザー: 新規投稿ボタン -->
             @if ($this->isCompany())
                 <flux:button href="{{ route('jobs.create') }}" wire:navigate variant="primary" icon="plus">
                     新規お手伝い投稿
@@ -334,10 +334,10 @@ with(fn () => [
                                 </div>
                             @endif
 
-                            <!-- 企業情報 -->
+                            <!-- ホスト情報 -->
                             <div class="border-t border-gray-200 pt-4 dark:border-gray-700">
                                 <div class="flex flex-wrap items-center gap-2 text-xs">
-                                    <!-- 企業名 -->
+                                    <!-- ホスト名 -->
                                     <flux:badge color="zinc" size="sm">
                                         <span class="flex items-center gap-1">
                                             <flux:icon.building-office-2 variant="micro" />

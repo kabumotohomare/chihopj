@@ -24,7 +24,7 @@ mount(function (JobPost $jobPost) {
     // リレーションを先読み込み
     $this->jobPost = $jobPost->load(['company.companyProfile.location', 'jobType']);
 
-    // ワーカーユーザーの場合、応募済みかチェック
+    // ひらいず民の場合、応募済みかチェック
     if (auth()->check() && auth()->user()->isWorker()) {
         $this->hasApplied = \App\Models\JobApplication::query()
             ->where('job_id', $this->jobPost->id)
@@ -88,7 +88,7 @@ $canDelete = function (): bool {
 };
 
 /**
- * ワーカーかどうかチェック
+ * ひらいず民かどうかチェック
  */
 $isWorker = function (): bool {
     return auth()->check() && auth()->user()->isWorker();
@@ -198,10 +198,10 @@ $isWorker = function (): bool {
                     </div>
                 @endif
 
-                <!-- 企業情報 -->
+                <!-- ホスト情報 -->
                 <div class="border-t border-gray-200 pt-6 dark:border-gray-700">
                     <div class="flex flex-wrap items-center gap-4">
-                        <!-- 企業名 -->
+                        <!-- ホスト名 -->
                         <div class="flex items-center gap-2">
                             <flux:badge color="zinc" size="sm">
                                 <span class="flex items-center gap-1">
@@ -222,7 +222,7 @@ $isWorker = function (): bool {
 
                 <!-- アクションボタン -->
                 <div class="mt-8 flex flex-wrap gap-3">
-                    <!-- ワーカーユーザー: 参加ボタンまたは参加済みバッジ -->
+                    <!-- ひらいず民: 参加ボタンまたは参加済みバッジ -->
                     @if ($this->isWorker())
                         @if ($hasApplied)
                             <!-- 参加済みの場合 -->
@@ -243,7 +243,7 @@ $isWorker = function (): bool {
                         @endif
                     @endif
 
-                    <!-- 企業ユーザー（自社求人）: 編集・削除ボタン -->
+                    <!-- ホストユーザー（自社ひらいず民募集）: 編集・削除ボタン -->
                     @if ($this->canUpdate())
                         <flux:button href="{{ route('jobs.edit', $jobPost) }}" wire:navigate variant="ghost"
                             icon="pencil" class="flex-1 sm:flex-none">

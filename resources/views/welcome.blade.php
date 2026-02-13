@@ -119,7 +119,7 @@
                         平泉に、<br>まざりませんか？
                     </h1>
                     <p class="text-xl md:text-2xl text-white/90 mb-10 drop-shadow-lg">
-                        お手伝いで"ひらいずみ暮らし"を味わおう。
+                        お手伝いで"ひらいずみ暮らし"に参加。<br>集まれ、ひらいず民！
                     </p>
                     <div class="flex flex-col sm:flex-row gap-4">
                         <a href="#jobs"
@@ -195,7 +195,7 @@
                                     {{ $job->job_title }}
                                 </h3>
 
-                                <!-- 企業名 -->
+                                <!-- ホスト名 -->
                                 <div class="flex items-center gap-2 text-sm text-[#6B6760]">
                                     <i class="fas fa-building text-[#FF6B35]"></i>
                                     <span>{{ $job->company->name }}</span>

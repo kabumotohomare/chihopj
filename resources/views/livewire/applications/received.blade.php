@@ -14,7 +14,7 @@ title('応募一覧');
 
 // 状態定義
 state([
-    'jobPostId' => null, // 求人フィルタ（null = すべて）
+    'jobPostId' => null, // ひらいず民募集フィルタ（null = すべて）
     'statuses' => [], // ステータスフィルタ
     'keyword' => '', // キーワード検索
     'sortOrder' => 'desc', // 並び替え（desc = 新しい順、asc = 古い順）
@@ -34,7 +34,7 @@ $applications = computed(function (): LengthAwarePaginator {
         })
         ->with(['jobPost', 'worker.workerProfile']);
 
-    // 求人フィルタ
+    // ひらいず民募集フィルタ
     if ($this->jobPostId) {
         $query->where('job_id', $this->jobPostId);
     }
@@ -44,7 +44,7 @@ $applications = computed(function (): LengthAwarePaginator {
         $query->whereIn('status', $this->statuses);
     }
 
-    // キーワード検索（ワーカー名）
+    // キーワード検索（ひらいず民名）
     if ($this->keyword) {
         $query->whereHas('worker', function (Builder $q) {
             $q->where('name', 'like', "%{$this->keyword}%");
@@ -86,7 +86,7 @@ $getStatusColor = function (string $status): string {
     };
 };
 
-// 求人フィルタを更新
+// ひらいず民募集フィルタを更新
 $updatedJobPostId = function (): void {
     $this->resetPage();
 };
@@ -116,7 +116,7 @@ $updatedSortOrder = function (): void {
 
     {{-- 検索・フィルタ --}}
     <div class="mb-8 space-y-4 rounded-lg bg-white p-6 shadow dark:bg-zinc-800">
-        {{-- 求人フィルタ --}}
+        {{-- ひらいず民募集フィルタ --}}
         <flux:field>
             <flux:label>募集を絞り込み</flux:label>
             <flux:select wire:model.live="jobPostId" placeholder="すべての募集">
@@ -140,8 +140,8 @@ $updatedSortOrder = function (): void {
 
         {{-- キーワード検索 --}}
         <flux:field>
-            <flux:label>ワーカー名で検索</flux:label>
-            <flux:input wire:model.live.debounce.300ms="keyword" type="text" placeholder="ワーカー名を入力..." />
+            <flux:label>ひらいず民名で検索</flux:label>
+            <flux:input wire:model.live.debounce.300ms="keyword" type="text" placeholder="ひらいず民名を入力..." />
         </flux:field>
 
         {{-- 並び替え --}}
@@ -161,12 +161,12 @@ $updatedSortOrder = function (): void {
                 <div class="p-6">
                     <div class="mb-4 flex flex-wrap items-start justify-between gap-4">
                         <div class="flex-1">
-                            {{-- ワーカー名 --}}
+                            {{-- ひらいず民名 --}}
                             <div class="mb-2 text-lg font-semibold text-zinc-900 dark:text-white">
                                 {{ $application->worker->name }}
                             </div>
 
-                            {{-- 求人タイトル（すべて表示の場合のみ） --}}
+                            {{-- ひらいず民募集タイトル（すべて表示の場合のみ） --}}
                             @if (!$this->jobPostId)
                                 <div class="mb-2 text-sm text-zinc-600 dark:text-zinc-400">
                                     募集: {{ $application->jobPost->job_title }}

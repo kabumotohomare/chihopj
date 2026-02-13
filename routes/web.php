@@ -22,31 +22,31 @@ Volt::route('dashboard', 'dashboard')
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
 
-// ワーカー登録（未認証ユーザー向け）
+// ひらいず民登録（未認証ユーザー向け）
 Volt::route('worker/register', 'worker.register')
     ->name('worker.register');
 
-// ワーカープロフィール
+// ひらいず民プロフィール
 Volt::route('worker/profile', 'worker.show')
     ->middleware(['auth', 'role:worker'])
     ->name('worker.profile');
 
-// ワーカープロフィール編集
+// ひらいず民プロフィール編集
 Volt::route('worker/edit', 'worker.edit')
     ->middleware(['auth', 'role:worker'])
     ->name('worker.edit');
 
-// 企業登録（認証済みユーザー向け）
+// ホスト登録（認証済みユーザー向け）
 Volt::route('company/register', 'company.register')
     ->middleware(['auth'])
     ->name('company.register');
 
-// 企業プロフィール
+// ホストプロフィール
 Volt::route('company/profile', 'company.show')
     ->middleware(['auth', 'role:company'])
     ->name('company.profile');
 
-// 企業プロフィール編集
+// ホストプロフィール編集
 Volt::route('company/edit', 'company.edit')
     ->middleware(['auth', 'role:company'])
     ->name('company.edit');
@@ -55,12 +55,12 @@ Volt::route('company/edit', 'company.edit')
 Volt::route('jobs', 'jobs.index')
     ->name('jobs.index');
 
-// 自社の募集一覧（企業ユーザーのみ）※動的ルートより前に配置
+// 自社の募集一覧（ホストユーザーのみ）※動的ルートより前に配置
 Volt::route('jobs/my-jobs', 'jobs.my-jobs')
     ->middleware(['auth', 'role:company'])
     ->name('jobs.my-jobs');
 
-// 募集登録（企業ユーザーのみ）※動的ルートより前に配置
+// 募集登録（ホストユーザーのみ）※動的ルートより前に配置
 Volt::route('jobs/create', 'jobs.create')
     ->middleware(['auth', 'role:company'])
     ->name('jobs.create');
@@ -69,27 +69,27 @@ Volt::route('jobs/create', 'jobs.create')
 Volt::route('jobs/{jobPost}', 'jobs.show')
     ->name('jobs.show');
 
-// 募集編集（企業ユーザーのみ、自社求人のみ）
+// 募集編集（ホストユーザーのみ、自社ひらいず民募集のみ）
 Volt::route('jobs/{jobPost}/edit', 'jobs.edit')
     ->middleware(['auth', 'role:company'])
     ->name('jobs.edit');
 
-// 応募画面（ワーカーユーザーのみ）
+// 応募画面（ひらいず民のみ）
 Volt::route('jobs/{jobPost}/apply', 'jobs.apply')
     ->middleware(['auth', 'role:worker'])
     ->name('jobs.apply');
 
-// 応募一覧（ワーカーユーザーのみ）
+// 応募一覧（ひらいず民のみ）
 Volt::route('applications', 'applications.index')
     ->middleware(['auth', 'role:worker'])
     ->name('applications.index');
 
-// 応募一覧（企業向け、自社募集への応募）※動的ルートより前に配置
+// 応募一覧（ホスト向け、自社募集への応募）※動的ルートより前に配置
 Volt::route('applications/received', 'applications.received')
     ->middleware(['auth', 'role:company'])
     ->name('applications.received');
 
-// 応募詳細（ワーカーと企業が閲覧可能、認可はポリシーで制御）
+// 応募詳細（ひらいず民とホストが閲覧可能、認可はポリシーで制御）
 Volt::route('applications/{jobApplication}', 'applications.show')
     ->middleware(['auth'])
     ->name('applications.show');

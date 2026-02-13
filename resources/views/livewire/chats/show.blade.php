@@ -127,25 +127,25 @@ $getStatusBadgeClass = function (string $status): string {
             </flux:heading>
 
             <div class="space-y-3">
-                {{-- 求人タイトル --}}
+                {{-- ひらいず民募集タイトル --}}
                 <div>
-                    <flux:text class="text-sm font-medium text-gray-500 dark:text-gray-400">求人タイトル</flux:text>
+                    <flux:text class="text-sm font-medium text-gray-500 dark:text-gray-400">ひらいず民募集タイトル</flux:text>
                     <flux:text class="mt-1 text-gray-900 dark:text-white">
                         {{ $chatRoom->jobApplication->jobPost->job_title }}
                     </flux:text>
                 </div>
 
-                {{-- 企業名 --}}
+                {{-- ホスト名 --}}
                 <div>
-                    <flux:text class="text-sm font-medium text-gray-500 dark:text-gray-400">企業名</flux:text>
+                    <flux:text class="text-sm font-medium text-gray-500 dark:text-gray-400">ホスト名</flux:text>
                     <flux:text class="mt-1 text-gray-900 dark:text-white">
                         {{ $chatRoom->jobApplication->jobPost->company->name }}
                     </flux:text>
                 </div>
 
-                {{-- ワーカー名 --}}
+                {{-- ひらいず民名 --}}
                 <div>
-                    <flux:text class="text-sm font-medium text-gray-500 dark:text-gray-400">ワーカー名</flux:text>
+                    <flux:text class="text-sm font-medium text-gray-500 dark:text-gray-400">ひらいず民名</flux:text>
                     <flux:text class="mt-1 text-gray-900 dark:text-white">
                         {{ $chatRoom->jobApplication->worker->name }}
                     </flux:text>

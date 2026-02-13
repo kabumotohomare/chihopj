@@ -76,7 +76,7 @@ $submit = function () {
 
     session()->flash('status', '応募が完了しました。');
 
-    // 3. 求人詳細画面にリダイレクト
+    // 3. ひらいず民募集詳細画面にリダイレクト
     return $this->redirect(route('jobs.show', $this->jobPost), navigate: true);
 };
 
@@ -161,10 +161,10 @@ $getPurposeLabel = function (): string {
                     </div>
                 @endif
 
-                <!-- 企業情報 -->
+                <!-- ホスト情報 -->
                 <div class="border-t border-gray-200 pt-4 dark:border-gray-700">
                     <div class="flex flex-wrap items-center gap-4">
-                        <!-- 企業名 -->
+                        <!-- ホスト名 -->
                         <div class="flex items-center gap-2">
                             <flux:badge color="zinc" size="sm">
                                 <span class="flex items-center gap-1">

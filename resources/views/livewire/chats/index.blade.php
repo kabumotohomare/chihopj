@@ -18,12 +18,12 @@ $chatRooms = computed(function () {
 
     // ロールに応じてチャットルームを絞り込み
     if ($user->role === 'company') {
-        // 企業：自社求人への応募のチャットルーム（全ステータス）
+        // ホスト：自社ひらいず民募集への応募のチャットルーム（全ステータス）
         $query->whereHas('jobApplication.jobPost', function ($q) use ($user) {
             $q->where('company_id', $user->id);
         });
     } else {
-        // ワーカー：自分が応募した求人のチャットルーム（全ステータス）
+        // ひらいず民：自分が応募したひらいず民募集のチャットルーム（全ステータス）
         $query->whereHas('jobApplication', function ($q) use ($user) {
             $q->where('worker_id', $user->id);
         });
@@ -39,7 +39,7 @@ $chatRooms = computed(function () {
         },
     ]);
 
-    // キーワード検索（企業名、求人タイトル、ワーカー名）
+    // キーワード検索（ホスト名、ひらいず民募集タイトル、ひらいず民名）
     if ($this->keyword) {
         $query->where(function ($q) {
             $q->whereHas('jobApplication.jobPost.company', function ($companyQuery) {
@@ -66,16 +66,16 @@ $chatRooms = computed(function () {
     return $query->paginate(20);
 });
 
-// 相手の名前を取得（企業：ワーカー名、ワーカー：企業名）
+// 相手の名前を取得（ホスト：ひらいず民名、ひらいず民：ホスト名）
 $getOpponentName = function (ChatRoom $chatRoom): string {
     $user = auth()->user();
     $application = $chatRoom->jobApplication;
 
     if ($user->role === 'company') {
-        // 企業ユーザーの場合、ワーカー名を返す
+        // ホストユーザーの場合、ひらいず民名を返す
         return $application->worker->name;
     } else {
-        // ワーカーユーザーの場合、企業名を返す
+        // ひらいず民の場合、ホスト名を返す
         return $application->jobPost->company->name;
     }
 };
@@ -147,7 +147,7 @@ $getUnreadCount = function (ChatRoom $chatRoom): int {
             <flux:label>キーワード検索</flux:label>
             <flux:input
                 wire:model.live.debounce.300ms="keyword"
-                placeholder="企業名、求人タイトル、ワーカー名で検索..."
+                placeholder="ホスト名、ひらいず民募集タイトル、ひらいず民名で検索..."
             />
         </flux:field>
     </div>
@@ -179,7 +179,7 @@ $getUnreadCount = function (ChatRoom $chatRoom): int {
                                     </span>
                                 </div>
 
-                                {{-- 求人タイトル --}}
+                                {{-- ひらいず民募集タイトル --}}
                                 <flux:text class="font-medium text-gray-900 dark:text-white">
                                     {{ $chatRoom->jobApplication->jobPost->job_title }}
                                 </flux:text>

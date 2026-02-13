@@ -108,7 +108,7 @@ $jobs = computed(function () {
                                 </div>
                             @endif
 
-                            {{-- フッター：企業名・所在地・ボタン --}}
+                            {{-- フッター：ホスト名・所在地・ボタン --}}
                             <div class="mt-auto flex items-center justify-between">
                                 <div class="flex items-center gap-2 text-sm text-zinc-600 dark:text-zinc-400">
                                     <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

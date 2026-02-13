@@ -186,7 +186,7 @@ class extends Component
             $this->birth_day
         );
 
-        // ワーカープロフィールを作成
+        // ひらいず民プロフィールを作成
         WorkerProfile::create([
             'user_id' => auth()->id(),
             'handle_name' => $this->handle_name,
@@ -199,7 +199,7 @@ class extends Component
             'current_location_2_id' => $this->current_location_2_id ?: null,
         ]);
 
-        session()->flash('status', 'ワーカープロフィールを登録しました。');
+        session()->flash('status', 'ひらいず民プロフィールを登録しました。');
 
         $this->redirect(route('worker.profile'), navigate: true);
     }
@@ -208,9 +208,9 @@ class extends Component
 <div class="max-w-4xl mx-auto py-8 px-4">
     <div class="flex flex-col gap-6">
         <div>
-            <h1 class="text-2xl font-bold">ワーカープロフィール登録</h1>
+            <h1 class="text-2xl font-bold">ひらいず民プロフィール登録</h1>
             <p class="text-sm text-zinc-600 dark:text-zinc-400 mt-2">
-                プロボノワーカーとしてのプロフィールを登録してください
+                ひらいず民としてのプロフィールを登録してください
             </p>
         </div>
 

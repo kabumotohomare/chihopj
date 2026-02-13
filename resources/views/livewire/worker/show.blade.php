@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use function Livewire\Volt\{layout, mount, state, title};
 
 layout('components.layouts.app');
-title('ワーカープロフィール');
+title('ひらいず民プロフィール');
 
 state(['profile' => null]);
 
@@ -17,7 +17,7 @@ state(['profile' => null]);
 mount(function () {
     $user = Auth::user();
 
-    // ワーカープロフィールを取得（リレーションをEager Loading）
+    // ひらいず民プロフィールを取得（リレーションをEager Loading）
     $this->profile = WorkerProfile::with([
         'birthLocation',
         'currentLocation1',
@@ -73,7 +73,7 @@ $getIconUrl = function (): ?string {
 
 <div class="mx-auto max-w-4xl px-4 py-8">
     <div class="mb-6 flex items-center justify-between">
-        <flux:heading size="xl">ワーカープロフィール</flux:heading>
+        <flux:heading size="xl">ひらいず民プロフィール</flux:heading>
         <flux:button href="{{ route('worker.edit') }}" wire:navigate>
             編集
         </flux:button>

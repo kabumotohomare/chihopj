@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Storage;
 use function Livewire\Volt\{layout, title, state, mount};
 
 layout('components.layouts.app');
-title('企業プロフィール');
+title('ホストプロフィール');
 
 // 状態定義
 state(['profile' => null]);
@@ -18,7 +18,7 @@ mount(function () {
         ->where('user_id', auth()->id())
         ->first();
     
-    // プロフィールが存在しない場合は企業登録画面にリダイレクト
+    // プロフィールが存在しない場合はホスト登録画面にリダイレクト
     if (!$this->profile) {
         return $this->redirect(route('company.register'), navigate: true);
     }
@@ -28,16 +28,16 @@ mount(function () {
 
 <div class="mx-auto max-w-4xl px-4 py-8">
     <div class="mb-6 flex items-center justify-between">
-        <flux:heading size="xl">企業プロフィール</flux:heading>
+        <flux:heading size="xl">ホストプロフィール</flux:heading>
         <flux:button href="{{ route('company.edit') }}" wire:navigate>
             編集
         </flux:button>
     </div>
 
     <div class="space-y-6">
-        {{-- 企業基本情報 --}}
+        {{-- ホスト基本情報 --}}
         <div class="rounded-lg border border-zinc-200 bg-white p-6 dark:border-zinc-700 dark:bg-zinc-800">
-            <flux:heading size="lg" class="mb-4">企業情報</flux:heading>
+            <flux:heading size="lg" class="mb-4">ホスト情報</flux:heading>
             <div class="space-y-4">
                 {{-- アイコン画像 --}}
                 @if($profile->icon)
@@ -53,7 +53,7 @@ mount(function () {
                 @endif
                 
                 <div>
-                    <flux:text class="font-semibold text-zinc-700 dark:text-zinc-300">企業名</flux:text>
+                    <flux:text class="font-semibold text-zinc-700 dark:text-zinc-300">ホスト名</flux:text>
                     <flux:text class="mt-1">{{ $profile->user->name }}</flux:text>
                 </div>
             </div>

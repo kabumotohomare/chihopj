@@ -36,7 +36,7 @@ state([
 
 // 初期化
 mount(function (JobPost $jobPost) {
-    // 認可チェック（自社求人のみ編集可能）
+    // 認可チェック（自社ひらいず民募集のみ編集可能）
     $this->authorize('update', $jobPost);
 
     // リレーションを先読み込み
