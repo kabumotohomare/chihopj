@@ -25,28 +25,100 @@
         body {
             font-family: 'Noto Sans JP', sans-serif;
         }
+
+        /* Alpine.js x-cloak */
+        [x-cloak] {
+            display: none !important;
+        }
+
+        /* どうぶつの森風のアニメーション */
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-20px);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes scaleIn {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .animate-float {
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .animate-fade-in-up {
+            animation: fadeInUp 0.8s ease-out forwards;
+        }
+
+        .animate-scale-in {
+            animation: scaleIn 0.6s ease-out forwards;
+        }
+
+        /* 手書き風の影 */
+        .text-shadow-soft {
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        /* ポップなボタンスタイル */
+        .btn-pop {
+            box-shadow: 0 6px 0 rgba(0, 0, 0, 0.2);
+            transition: all 0.1s;
+        }
+
+        .btn-pop:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 rgba(0, 0, 0, 0.2);
+        }
     </style>
 </head>
 
 <body class="antialiased bg-[#F5F3F0] text-[#3E3A35]">
     <!-- ヘッダー -->
-    <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-sm border-b border-gray-200" x-data="{ mobileMenuOpen: false }">
+    <header class="sticky top-0 z-50 bg-[#FFF8E7]/95 backdrop-blur-sm border-b-4 border-[#FF6B35]"
+        x-data="{ mobileMenuOpen: false }">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8">
             <nav class="flex items-center justify-between h-16">
                 <!-- ロゴ -->
                 <div class="flex items-center gap-3">
                     <img src="{{ asset('images/presets/logo.png') }}" alt="ふるぼの - みんなの平泉ロゴ" class="h-10 w-auto">
-                    <span class="text-2xl font-bold text-[#FF6B35]">ふるぼの - みんなの平泉</span>
+                    <span class="text-xl md:text-2xl font-bold text-[#FF6B35]">ふるぼの - みんなの平泉</span>
                 </div>
 
                 <!-- デスクトップメニュー -->
                 <div class="hidden md:flex items-center gap-6">
-                    <a href="#jobs" class="text-[#3E3A35] hover:text-[#FF6B35] transition-colors font-medium">
+                    <a href="#jobs"
+                        class="text-[#3E3A35] hover:text-[#FF6B35] transition-colors font-bold text-lg hover:scale-110 transform">
                         お手伝い
                     </a>
                     @auth
                         <a href="{{ url('/dashboard') }}"
-                            class="bg-[#FF6B35] hover:bg-[#E55A28] text-white px-6 py-2 rounded-full transition-colors font-medium">
+                            class="bg-[#FF6B35] hover:bg-[#E55A28] text-white px-6 py-2.5 rounded-full transition-all font-bold shadow-lg hover:shadow-xl transform hover:scale-105">
                             @if (auth()->user()->role === 'worker')
                                 {{ auth()->user()->workerProfile?->handle_name ?? auth()->user()->name }}さんの部屋
                             @else
@@ -56,7 +128,7 @@
                     @else
                         @if (Route::has('login'))
                             <a href="{{ route('login') }}"
-                                class="bg-[#FF6B35] hover:bg-[#E55A28] text-white px-6 py-2 rounded-full transition-colors font-medium">
+                                class="bg-[#4CAF50] hover:bg-[#45A049] text-white px-6 py-2.5 rounded-full transition-all font-bold shadow-lg hover:shadow-xl transform hover:scale-105">
                                 ただいま
                             </a>
                         @endif
@@ -64,7 +136,7 @@
                 </div>
 
                 <!-- モバイルメニューボタン -->
-                <button @click="mobileMenuOpen = !mobileMenuOpen" class="md:hidden text-[#3E3A35] p-2">
+                <button @click="mobileMenuOpen = !mobileMenuOpen" class="md:hidden text-[#FF6B35] p-2">
                     <i class="fas fa-bars text-2xl"></i>
                 </button>
             </nav>
@@ -78,12 +150,12 @@
                 x-transition:leave-start="opacity-100 transform translate-y-0"
                 x-transition:leave-end="opacity-0 transform -translate-y-2" class="md:hidden py-4 space-y-3">
                 <a href="#jobs" @click="mobileMenuOpen = false"
-                    class="block text-[#3E3A35] hover:text-[#FF6B35] transition-colors font-medium py-2">
-                    地域の お手伝い
+                    class="block text-[#3E3A35] hover:text-[#FF6B35] transition-colors font-bold py-2 text-center">
+                    お手伝い
                 </a>
                 @auth
-                    <a href="{{ url('/dashboard') }}"
-                        class="block bg-[#FF6B35] hover:bg-[#E55A28] text-white text-center px-6 py-2 rounded-full transition-colors font-medium">
+                    <a href="{{ url('/dashboard') }}" @click="mobileMenuOpen = false"
+                        class="block text-[#3E3A35] hover:text-[#FF6B35] transition-colors font-bold py-2 text-center">
                         @if (auth()->user()->role === 'worker')
                             {{ auth()->user()->workerProfile?->handle_name ?? auth()->user()->name }}さんの部屋
                         @else
@@ -91,49 +163,105 @@
                         @endif
                     </a>
                 @else
-                    @if (Route::has('login'))
-                        <a href="{{ route('login') }}"
-                            class="block bg-[#FF6B35] hover:bg-[#E55A28] text-white text-center px-6 py-2 rounded-full transition-colors font-medium">
-                            ログイン
-                        </a>
-                    @endif
+                    <a href="{{ route('login') }}" @click="mobileMenuOpen = false"
+                        class="block text-[#3E3A35] hover:text-[#FF6B35] transition-colors font-bold py-2 text-center">
+                        ただいま
+                    </a>
                 @endauth
             </div>
         </div>
     </header>
 
-    <!-- ヒーローセクション -->
-    <section class="relative h-screen min-h-[600px] overflow-hidden">
-        <!-- 背景画像 -->
+    <!-- ヒーローセクション（どうぶつの森風） -->
+    <section class="relative min-h-screen overflow-hidden">
+        <!-- 平泉の農村風景背景 -->
         <div class="absolute inset-0">
-            <img src="{{ asset('images/presets/fv.jpg') }}" alt="地方の風景" class="w-full h-full object-cover">
-            <div class="absolute inset-0 bg-gradient-to-r from-black/60 via-black/40 to-transparent"></div>
+            <img src="{{ asset('images/presets/fv.jpg') }}" alt="平泉の農村風景" class="w-full h-full object-cover">
+            <!-- 明るく柔らかいオーバーレイ -->
+            <div class="absolute inset-0 bg-gradient-to-b from-[#87CEEB]/40 via-[#B0E0E6]/30 to-[#FFF8E7]/50"></div>
         </div>
 
-        <!-- コンテンツ -->
-        <div class="relative h-full flex items-center">
-            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="max-w-3xl">
-                    <h1
-                        class="text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight drop-shadow-2xl">
-                        平泉に、<br>まざりませんか？
+        <!-- 雲のイラスト風装飾 -->
+        <div class="absolute inset-0 overflow-hidden pointer-events-none">
+            <!-- 雲1 -->
+            <div class="absolute top-10 left-10 w-32 h-16 bg-white/40 rounded-full blur-xl animate-float"></div>
+            <div class="absolute top-20 right-20 w-40 h-20 bg-white/30 rounded-full blur-xl animate-float"
+                style="animation-delay: 1s;"></div>
+            <div class="absolute top-40 left-1/3 w-36 h-18 bg-white/30 rounded-full blur-xl animate-float"
+                style="animation-delay: 2s;"></div>
+        </div>
+
+        <!-- メインコンテンツ -->
+        <div class="relative h-full flex items-center justify-center py-16 sm:py-20 px-4">
+            <div class="text-center max-w-4xl mx-auto w-full">
+                <!-- メインキャッチコピー -->
+                <div class="mb-6 sm:mb-8 animate-scale-in">
+                    <h1 class="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-black text-[#FF6B35] mb-4 leading-tight"
+                        style="text-shadow: 4px 4px 8px rgba(255, 255, 255, 0.9), 2px 2px 4px rgba(0, 0, 0, 0.3);">
+                        あつまれ<br>
+                        <span class="text-[#4CAF50]">ひらいず民</span>！
                     </h1>
-                    <p class="text-xl md:text-2xl text-white/90 mb-10 drop-shadow-lg">
-                        お手伝いで"ひらいずみ暮らし"に参加。<br>集まれ、ひらいず民！
-                    </p>
-                    <div class="flex flex-col sm:flex-row gap-4">
-                        <a href="#jobs"
-                            class="bg-[#FF6B35] hover:bg-[#E55A28] text-white px-8 py-4 rounded-full transition-all transform hover:scale-105 font-bold text-lg shadow-2xl text-center">
-                            お手伝いを見る
-                        </a>
-                        @guest
-                            @if (Route::has('login'))
-                                <a href="{{ route('login') }}"
-                                    class="bg-white hover:bg-gray-50 text-[#FF6B35] border-2 border-white px-8 py-4 rounded-full transition-all transform hover:scale-105 font-bold text-lg shadow-2xl text-center">
-                                    はじめる
-                                </a>
-                            @endif
-                        @endguest
+                </div>
+
+                <!-- サブキャッチ -->
+                <div class="mb-8 sm:mb-12 animate-fade-in-up px-2" style="animation-delay: 0.2s;">
+                    <div
+                        class="inline-block bg-white/95 backdrop-blur-md px-4 sm:px-8 py-3 sm:py-4 rounded-full shadow-2xl border-2 sm:border-4 border-[#FF6B35] max-w-full">
+                        <p class="text-lg sm:text-2xl md:text-3xl font-bold text-[#3E3A35]">
+                            住んでいる人も、<br class="xs:inline sm:hidden">外から来た人も
+                        </p>
+                    </div>
+                </div>
+
+                <!-- 説明文 -->
+                <div class="mb-8 sm:mb-12 animate-fade-in-up px-2" style="animation-delay: 0.4s;">
+                    <div
+                        class="bg-white/90 backdrop-blur-md px-4 sm:px-6 py-3 sm:py-4 rounded-2xl shadow-xl inline-block max-w-full">
+                        <p class="text-base sm:text-xl md:text-2xl text-[#3E3A35] font-medium leading-relaxed">
+                            お手伝いを通じて、<br class="xs:inline sm:hidden"><span
+                                class="text-[#4CAF50] font-bold">平泉の暮らし</span>に参加しよう！<br>
+                            <span class="text-[#FF6B35] font-bold">あなた</span>を待っている人がいます。
+                        </p>
+                    </div>
+                </div>
+
+                <!-- CTAボタン -->
+                <div class="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center items-center animate-fade-in-up px-4"
+                    style="animation-delay: 0.6s;">
+                    <a href="#jobs"
+                        class="btn-pop bg-[#FF6B35] hover:bg-[#E55A28] text-white px-8 sm:px-10 py-4 sm:py-5 rounded-full font-black text-lg sm:text-xl md:text-2xl transition-all transform hover:scale-110 shadow-2xl w-full sm:w-auto">
+                        <i class="fas fa-hand-holding-heart mr-2"></i>
+                        お手伝いを見る
+                    </a>
+                    @guest
+                        @if (Route::has('login'))
+                            <a href="{{ route('login') }}"
+                                class="btn-pop bg-[#4CAF50] hover:bg-[#45A049] text-white px-8 sm:px-10 py-4 sm:py-5 rounded-full font-black text-lg sm:text-xl md:text-2xl transition-all transform hover:scale-110 shadow-2xl w-full sm:w-auto">
+                                <i class="fas fa-door-open mr-2"></i>
+                                はじめる
+                            </a>
+                        @endif
+                    @endguest
+                </div>
+
+                <!-- 装飾的なアイコン -->
+                <div class="mt-12 sm:mt-16 flex justify-center gap-4 sm:gap-6 md:gap-8 text-3xl sm:text-4xl md:text-5xl animate-fade-in-up"
+                    style="animation-delay: 0.8s;">
+                    <div class="animate-float bg-white/80 backdrop-blur-sm rounded-full p-3 sm:p-4 shadow-lg"
+                        style="animation-delay: 0s;">
+                        <i class="fas fa-seedling text-[#4CAF50]"></i>
+                    </div>
+                    <div class="animate-float bg-white/80 backdrop-blur-sm rounded-full p-3 sm:p-4 shadow-lg"
+                        style="animation-delay: 0.5s;">
+                        <i class="fas fa-heart text-[#FF6B35]"></i>
+                    </div>
+                    <div class="animate-float bg-white/80 backdrop-blur-sm rounded-full p-3 sm:p-4 shadow-lg"
+                        style="animation-delay: 1s;">
+                        <i class="fas fa-home text-[#FFD700]"></i>
+                    </div>
+                    <div class="animate-float bg-white/80 backdrop-blur-sm rounded-full p-3 sm:p-4 shadow-lg"
+                        style="animation-delay: 1.5s;">
+                        <i class="fas fa-users text-[#87CEEB]"></i>
                     </div>
                 </div>
             </div>
@@ -141,8 +269,9 @@
 
         <!-- スクロールインジケーター -->
         <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
-            <a href="#jobs" class="text-white/80 hover:text-white transition-colors">
-                <i class="fas fa-chevron-down text-3xl"></i>
+            <a href="#jobs"
+                class="bg-white/80 backdrop-blur-sm rounded-full p-3 shadow-lg hover:bg-white transition-all">
+                <i class="fas fa-chevron-down text-3xl text-[#FF6B35]"></i>
             </a>
         </div>
     </section>

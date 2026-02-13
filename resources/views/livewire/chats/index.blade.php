@@ -84,8 +84,8 @@ $getOpponentName = function (ChatRoom $chatRoom): string {
 $getStatusLabel = function (string $status): string {
     return match ($status) {
         'applied' => '応募中',
-        'accepted' => '承認済み',
-        'rejected' => '不承認',
+        'accepted' => 'ぜひ来てね',
+        'rejected' => '今回ごめんね',
         'declined' => '辞退済み',
         default => '不明',
     };

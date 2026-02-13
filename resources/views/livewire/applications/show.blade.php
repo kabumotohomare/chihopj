@@ -43,7 +43,7 @@ $decline = function () {
     return $this->redirect(route('applications.index'), navigate: true);
 };
 
-// 承認処理
+// ぜひ来てね処理
 $accept = function () {
     // 認可チェック
     $this->authorize('accept', $this->application);
@@ -54,12 +54,12 @@ $accept = function () {
         'judged_at' => now(),
     ]);
 
-    session()->flash('message', '応募を承認しました。');
+    session()->flash('message', '「ぜひ来てね」を送信しました。');
 
     return $this->redirect(route('applications.received'), navigate: true);
 };
 
-// 不承認処理
+// 今回ごめんね処理
 $reject = function () {
     // 認可チェック
     $this->authorize('reject', $this->application);
@@ -70,7 +70,7 @@ $reject = function () {
         'judged_at' => now(),
     ]);
 
-    session()->flash('message', '応募を不承認にしました。');
+    session()->flash('message', '「今回ごめんね」を送信しました。');
 
     return $this->redirect(route('applications.received'), navigate: true);
 };
@@ -79,8 +79,8 @@ $reject = function () {
 $getStatusLabel = function (string $status): string {
     return match ($status) {
         'applied' => '応募中',
-        'accepted' => '承認済み',
-        'rejected' => '不承認',
+        'accepted' => 'ぜひ来てね',
+        'rejected' => '今回ごめんね',
         'declined' => '辞退済み',
         default => '不明',
     };
@@ -168,7 +168,7 @@ $getPurposeLabel = function (string $purpose): string {
                 <flux:text>{{ $application->applied_at->format('Y年n月j日 H:i') }}</flux:text>
             </div>
 
-            {{-- 判定日（承認/不承認の場合のみ） --}}
+            {{-- 判定日（ぜひ来てね/今回ごめんねの場合のみ） --}}
             @if (in_array($application->status, ['accepted', 'rejected']) && $application->judged_at)
                 <div>
                     <flux:text class="mb-1 font-semibold">判定日</flux:text>
@@ -212,16 +212,16 @@ $getPurposeLabel = function (string $purpose): string {
                     </flux:modal.trigger>
                 @endif
 
-                {{-- ホスト向け: 承認・不承認ボタン --}}
+                {{-- ホスト向け: ぜひ来てね・今回ごめんねボタン --}}
                 @if (auth()->user()->isCompany())
                     <flux:modal.trigger name="accept-modal">
                         <flux:button variant="primary">
-                            承認する
+                            ぜひ来てね
                         </flux:button>
                     </flux:modal.trigger>
                     <flux:modal.trigger name="reject-modal">
                         <flux:button variant="danger">
-                            不承認にする
+                            今回ごめんね
                         </flux:button>
                     </flux:modal.trigger>
                 @endif
@@ -428,12 +428,12 @@ $getPurposeLabel = function (string $purpose): string {
         </div>
     </flux:modal>
 
-    {{-- 承認確認モーダル --}}
+    {{-- ぜひ来てね確認モーダル --}}
     <flux:modal name="accept-modal" class="space-y-6">
         <div>
-            <flux:heading size="lg">応募を承認しますか？</flux:heading>
+            <flux:heading size="lg">「ぜひ来てね」を送信しますか？</flux:heading>
             <flux:text class="mt-2">
-                この応募を承認してもよろしいですか？承認後、ひらいず民に通知されます。
+                この応募に「ぜひ来てね」を送信してもよろしいですか？送信後、ひらいず民に通知されます。
             </flux:text>
         </div>
 
@@ -445,18 +445,18 @@ $getPurposeLabel = function (string $purpose): string {
             </flux:modal.close>
             <flux:modal.close>
                 <flux:button variant="primary" wire:click="accept">
-                    承認する
+                    ぜひ来てね
                 </flux:button>
             </flux:modal.close>
         </div>
     </flux:modal>
 
-    {{-- 不承認確認モーダル --}}
+    {{-- 今回ごめんね確認モーダル --}}
     <flux:modal name="reject-modal" class="space-y-6">
         <div>
-            <flux:heading size="lg">応募を不承認にしますか？</flux:heading>
+            <flux:heading size="lg">「今回ごめんね」を送信しますか？</flux:heading>
             <flux:text class="mt-2">
-                この操作は取り消せません。本当に不承認にしてもよろしいですか？
+                この操作は取り消せません。本当に「今回ごめんね」を送信してもよろしいですか？
             </flux:text>
         </div>
 
@@ -468,7 +468,7 @@ $getPurposeLabel = function (string $purpose): string {
             </flux:modal.close>
             <flux:modal.close>
                 <flux:button variant="danger" wire:click="reject">
-                    不承認にする
+                    今回ごめんね
                 </flux:button>
             </flux:modal.close>
         </div>

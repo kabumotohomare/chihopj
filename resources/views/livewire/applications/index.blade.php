@@ -51,8 +51,8 @@ $applications = computed(function () {
 $getStatusLabel = function (string $status): string {
     return match ($status) {
         'applied' => '応募中',
-        'accepted' => '承認済み',
-        'rejected' => '不承認',
+        'accepted' => 'ぜひ来てね',
+        'rejected' => '今回ごめんね',
         'declined' => '辞退済み',
         default => '不明',
     };
@@ -119,7 +119,7 @@ $getPurposeLabel = function (string $purpose): string {
                         value="accepted"
                         class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800"
                     />
-                    <span class="text-sm">承認済み</span>
+                    <span class="text-sm">ぜひ来てね</span>
                 </label>
                 <label class="flex items-center gap-2">
                     <input
@@ -128,7 +128,7 @@ $getPurposeLabel = function (string $purpose): string {
                         value="rejected"
                         class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800"
                     />
-                    <span class="text-sm">不承認</span>
+                    <span class="text-sm">今回ごめんね</span>
                 </label>
                 <label class="flex items-center gap-2">
                     <input
@@ -263,7 +263,7 @@ $getPurposeLabel = function (string $purpose): string {
                             応募日: {{ $application->applied_at->format('Y年n月j日') }}
                         </div>
 
-                        {{-- 判定日（承認/不承認の場合のみ） --}}
+                        {{-- 判定日（ぜひ来てね/今回ごめんねの場合のみ） --}}
                         @if (in_array($application->status, ['accepted', 'rejected']) && $application->judged_at)
                             <div class="text-xs text-gray-500 dark:text-gray-400">
                                 判定日: {{ $application->judged_at->format('Y年n月j日') }}

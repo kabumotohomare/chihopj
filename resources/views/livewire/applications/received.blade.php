@@ -68,8 +68,8 @@ $jobPosts = computed(function () {
 $getStatusLabel = function (string $status): string {
     return match ($status) {
         'applied' => '応募中',
-        'accepted' => '承認',
-        'rejected' => '不承認',
+        'accepted' => 'ぜひ来てね',
+        'rejected' => '今回ごめんね',
         'declined' => '辞退',
         default => '不明',
     };
@@ -132,8 +132,8 @@ $updatedSortOrder = function (): void {
             <flux:label>ステータスで絞り込み</flux:label>
             <div class="flex flex-wrap gap-4">
                 <flux:checkbox wire:model.live="statuses" value="applied" label="応募中" />
-                <flux:checkbox wire:model.live="statuses" value="accepted" label="承認" />
-                <flux:checkbox wire:model.live="statuses" value="rejected" label="不承認" />
+                <flux:checkbox wire:model.live="statuses" value="accepted" label="ぜひ来てね" />
+                <flux:checkbox wire:model.live="statuses" value="rejected" label="今回ごめんね" />
                 <flux:checkbox wire:model.live="statuses" value="declined" label="辞退" />
             </div>
         </flux:field>
@@ -178,7 +178,7 @@ $updatedSortOrder = function (): void {
                                 応募日: {{ $application->applied_at->format('Y年n月j日') }}
                             </div>
 
-                            {{-- 判定日（承認/不承認の場合のみ） --}}
+                            {{-- 判定日（ぜひ来てね/今回ごめんねの場合のみ） --}}
                             @if ($application->judged_at)
                                 <div class="text-sm text-zinc-600 dark:text-zinc-400">
                                     判定日: {{ $application->judged_at->format('Y年n月j日') }}
