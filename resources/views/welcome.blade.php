@@ -106,7 +106,7 @@
             <nav class="flex items-center justify-between h-16">
                 <!-- ロゴ -->
                 <div class="flex items-center gap-3">
-                    <img src="{{ asset('images/presets/logo.png') }}" alt="ふるぼの - みんなの平泉ロゴ" class="h-10 w-auto">
+                    <img src="{{ asset('images/presets/logo.png') }}" alt="ふるぼの - みんなの平泉ロゴ" class="h-12 w-auto">
                     <span class="text-xl md:text-2xl font-bold text-[#FF6B35]">ふるぼの - みんなの平泉</span>
                 </div>
 
@@ -205,12 +205,9 @@
 
                 <!-- サブキャッチ -->
                 <div class="mb-8 sm:mb-12 animate-fade-in-up px-2" style="animation-delay: 0.2s;">
-                    <div
-                        class="inline-block bg-white/95 backdrop-blur-md px-4 sm:px-8 py-3 sm:py-4 rounded-full shadow-2xl border-2 sm:border-4 border-[#FF6B35] max-w-full">
-                        <p class="text-lg sm:text-2xl md:text-3xl font-bold text-[#3E3A35]">
-                            住んでいる人も、<br class="xs:inline sm:hidden">外から来た人も
-                        </p>
-                    </div>
+                    <p class="text-lg sm:text-2xl md:text-3xl font-bold text-[#3E3A35]">
+                        ~ 住んでいる人も、<br class="xs:inline sm:hidden">外から来た人も ~
+                    </p>
                 </div>
 
                 <!-- 説明文 -->
@@ -351,7 +348,7 @@
             <div class="grid md:grid-cols-2 gap-8 items-center">
                 <div class="text-center md:text-left">
                     <div class="flex items-center gap-3 justify-center md:justify-start mb-4">
-                        <img src="{{ asset('images/presets/logo.png') }}" alt="ふるぼの - みんなの平泉ロゴ" class="h-8 w-auto">
+                        <img src="{{ asset('images/presets/logo.png') }}" alt="ふるぼの - みんなの平泉ロゴ" class="h-10 w-auto">
                         <span class="text-xl font-bold">ふるぼの - みんなの平泉</span>
                     </div>
                     <p class="text-sm text-gray-300">お手伝いでみんなの地域とつながる</p>
@@ -367,7 +364,7 @@
             </div>
 
             <div class="mt-8 pt-8 border-t border-gray-600 text-center text-sm text-gray-400">
-                <p>© 2025 MEKABU.co. All rights reserved.</p>
+                <p>© 2026 MEKABU.co. All rights reserved.</p>
             </div>
         </div>
     </footer>
