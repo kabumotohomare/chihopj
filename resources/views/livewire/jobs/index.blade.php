@@ -12,7 +12,7 @@ use function Livewire\Volt\title;
 use function Livewire\Volt\with;
 
 layout('components.layouts.app.header');
-title('お手伝い一覧');
+title('募集一覧');
 
 /**
  * 検索・フィルタの状態
@@ -134,16 +134,16 @@ with(fn () => [
         <!-- ヘッダー -->
         <div class="mb-8 flex items-center justify-between">
             <div>
-                <flux:heading size="xl" class="mb-2">お手伝い一覧</flux:heading>
+                <flux:heading size="xl" class="mb-2">募集一覧</flux:heading>
                 <flux:text variant="subtle">
-                    平泉町内の事業者や地域の方からのお手伝いを探せます
+                    平泉町内の事業者や地域の方からの募集を探せます
                 </flux:text>
             </div>
 
             <!-- ホストユーザー: 新規投稿ボタン -->
             @if ($this->isCompany())
                 <flux:button href="{{ route('jobs.create') }}" wire:navigate variant="primary" icon="plus">
-                    新規お手伝い投稿
+                    新規募集投稿
                 </flux:button>
             @endif
         </div>
@@ -216,11 +216,11 @@ with(fn () => [
         <!-- 検索結果数 -->
         <div class="mb-6">
             <flux:text variant="subtle">
-                {{ $this->jobPosts->count() }}件のお手伝いが見つかりました
+                {{ $this->jobPosts->count() }}件の募集が見つかりました
             </flux:text>
         </div>
 
-        <!-- お手伝いカード一覧 -->
+        <!-- 募集カード一覧 -->
         @if ($this->jobPosts->isEmpty())
             <div class="rounded-xl border border-gray-200 bg-white p-12 text-center dark:border-gray-700 dark:bg-gray-800">
                 <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700">
@@ -228,7 +228,7 @@ with(fn () => [
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
                 </div>
-                <flux:heading size="lg" class="mb-2">お手伝いが見つかりませんでした</flux:heading>
+                <flux:heading size="lg" class="mb-2">募集が見つかりませんでした</flux:heading>
                 <flux:text variant="subtle" class="mb-4">
                     検索条件を変更してお試しください
                 </flux:text>
@@ -322,6 +322,16 @@ with(fn () => [
                             <flux:text class="mb-4 line-clamp-3 text-sm text-gray-600 dark:text-gray-400">
                                 {{ Str::limit($jobPost->job_detail, 90) }}
                             </flux:text>
+
+                            <!-- どこで -->
+                            @if ($jobPost->location)
+                                <div class="mb-4 flex items-start gap-2">
+                                    <flux:icon.map-pin variant="micro" class="mt-0.5 flex-shrink-0 text-gray-500 dark:text-gray-400" />
+                                    <flux:text class="text-xs text-gray-600 dark:text-gray-400">
+                                        {{ Str::limit($jobPost->location, 50) }}
+                                    </flux:text>
+                                </div>
+                            @endif
 
                             <!-- できますタグ -->
                             @if ($jobPost->getCanDoCodes()->isNotEmpty())

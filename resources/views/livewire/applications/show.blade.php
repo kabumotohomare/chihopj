@@ -20,6 +20,7 @@ mount(function (JobApplication $jobApplication) {
     // リレーションを先読み込み
     $this->application = $jobApplication->load([
         'jobPost.company.companyProfile',
+        'jobPost.jobType',
         'worker.workerProfile.birthLocation',
         'worker.workerProfile.currentLocation1',
         'worker.workerProfile.currentLocation2',
@@ -100,8 +101,8 @@ $getStatusBadgeClass = function (string $status): string {
 // 募集目的ラベル取得
 $getPurposeLabel = function (string $purpose): string {
     return match ($purpose) {
-        'want_to_do' => 'いつかやりたい',
-        'need_help' => '人手が足りない',
+        'want_to_do' => 'いつでも募集',
+        'need_help' => '決まった日に募集',
         default => '不明',
     };
 };
@@ -147,87 +148,17 @@ $getPurposeLabel = function (string $purpose): string {
         $location = $companyProfile?->location;
         $worker = $application->worker;
         $workerProfile = $worker->workerProfile;
+        
+        // 気になる点のラベルマッピング
+        $reasonLabels = [
+            'where_to_meet' => '集合はどこ？',
+            'what_time_ends' => '何時に終わる？',
+            'will_pick_up' => '迎えに来てくれる？',
+            'what_to_bring' => '持ち物は何が必要？',
+            'late_join_ok' => '遅れて参加でも良い？',
+            'children_ok' => '子どもと一緒でも大丈夫？',
+        ];
     @endphp
-
-    {{-- 応募情報カード --}}
-    <div class="rounded-xl border border-zinc-200 bg-white p-6 dark:border-zinc-700 dark:bg-zinc-800">
-        <flux:heading size="lg" class="mb-4">応募情報</flux:heading>
-
-        <div class="space-y-4">
-            {{-- ステータス --}}
-            <div>
-                <flux:text class="mb-1 font-semibold">ステータス</flux:text>
-                <span class="inline-flex items-center rounded-full px-3 py-1 text-sm font-medium {{ $this->getStatusBadgeClass($application->status) }}">
-                    {{ $this->getStatusLabel($application->status) }}
-                </span>
-            </div>
-
-            {{-- 応募日 --}}
-            <div>
-                <flux:text class="mb-1 font-semibold">応募日</flux:text>
-                <flux:text>{{ $application->applied_at->format('Y年n月j日 H:i') }}</flux:text>
-            </div>
-
-            {{-- 判定日（ぜひ来てね/今回ごめんねの場合のみ） --}}
-            @if (in_array($application->status, ['accepted', 'rejected']) && $application->judged_at)
-                <div>
-                    <flux:text class="mb-1 font-semibold">判定日</flux:text>
-                    <flux:text>{{ $application->judged_at->format('Y年n月j日 H:i') }}</flux:text>
-                </div>
-            @endif
-
-            {{-- 辞退日（辞退済みの場合のみ） --}}
-            @if ($application->status === 'declined' && $application->declined_at)
-                <div>
-                    <flux:text class="mb-1 font-semibold">辞退日</flux:text>
-                    <flux:text>{{ $application->declined_at->format('Y年n月j日 H:i') }}</flux:text>
-                </div>
-            @endif
-
-            {{-- メッセージ --}}
-            @if ($application->motive)
-                <div>
-                    <flux:text class="mb-1 font-semibold">応募メッセージ</flux:text>
-                    <flux:text class="whitespace-pre-wrap">{{ $application->motive }}</flux:text>
-                </div>
-            @endif
-        </div>
-
-        {{-- アクションボタン --}}
-        <div class="mt-6 flex flex-wrap gap-2">
-            {{-- チャットボタン（チャットルームが存在する場合） --}}
-            @if ($application->chatRoom)
-                <flux:button variant="primary" href="{{ route('chats.show', $application->chatRoom) }}" wire:navigate icon="chat-bubble-left-right">
-                    チャットで返信
-                </flux:button>
-            @endif
-
-            @if ($application->status === 'applied')
-                {{-- ひらいず民向け: 辞退ボタン --}}
-                @if (auth()->user()->isWorker())
-                    <flux:modal.trigger name="decline-modal">
-                        <flux:button variant="danger">
-                            辞退する
-                        </flux:button>
-                    </flux:modal.trigger>
-                @endif
-
-                {{-- ホスト向け: ぜひ来てね・今回ごめんねボタン --}}
-                @if (auth()->user()->isCompany())
-                    <flux:modal.trigger name="accept-modal">
-                        <flux:button variant="primary">
-                            ぜひ来てね
-                        </flux:button>
-                    </flux:modal.trigger>
-                    <flux:modal.trigger name="reject-modal">
-                        <flux:button variant="danger">
-                            今回ごめんね
-                        </flux:button>
-                    </flux:modal.trigger>
-                @endif
-            @endif
-        </div>
-    </div>
 
     {{-- ひらいず民情報カード（ホスト向けのみ表示） --}}
     @if (auth()->user()->isCompany() && $workerProfile)
@@ -235,7 +166,7 @@ $getPurposeLabel = function (string $purpose): string {
             <flux:heading size="lg" class="mb-4">ひらいず民情報</flux:heading>
 
             <div class="space-y-6">
-                {{-- アイコンとハンドルネーム --}}
+                {{-- アイコンとニックネーム --}}
                 <div class="flex items-center gap-4">
                     @if ($workerProfile->icon)
                         <img
@@ -249,15 +180,9 @@ $getPurposeLabel = function (string $purpose): string {
                         </div>
                     @endif
                     <div>
-                        <flux:text class="font-semibold">ハンドルネーム</flux:text>
+                        <flux:text class="font-semibold">ニックネーム</flux:text>
                         <flux:heading size="md">{{ $workerProfile->handle_name }}</flux:heading>
                     </div>
-                </div>
-
-                {{-- 氏名 --}}
-                <div>
-                    <flux:text class="mb-1 font-semibold">氏名</flux:text>
-                    <flux:text>{{ $worker->name }}</flux:text>
                 </div>
 
                 {{-- 性別 --}}
@@ -266,13 +191,10 @@ $getPurposeLabel = function (string $purpose): string {
                     <flux:text>{{ $workerProfile->gender_label }}</flux:text>
                 </div>
 
-                {{-- 生年月日と年齢 --}}
+                {{-- 年齢 --}}
                 <div>
-                    <flux:text class="mb-1 font-semibold">生年月日</flux:text>
-                    <flux:text>
-                        {{ $workerProfile->birthdate->format('Y年n月j日') }}
-                        （{{ $workerProfile->age }}歳）
-                    </flux:text>
+                    <flux:text class="mb-1 font-semibold">年齢</flux:text>
+                    <flux:text>{{ $workerProfile->age }}歳</flux:text>
                 </div>
 
                 {{-- ひとことメッセージ --}}
@@ -320,6 +242,102 @@ $getPurposeLabel = function (string $purpose): string {
         </div>
     @endif
 
+    {{-- 応募情報カード --}}
+    <div class="rounded-xl border border-zinc-200 bg-white p-6 dark:border-zinc-700 dark:bg-zinc-800">
+        <flux:heading size="lg" class="mb-4">応募情報</flux:heading>
+
+        <div class="space-y-4">
+            {{-- ステータス --}}
+            <div>
+                <flux:text class="mb-1 font-semibold">ステータス</flux:text>
+                <span class="inline-flex items-center rounded-full px-3 py-1 text-sm font-medium {{ $this->getStatusBadgeClass($application->status) }}">
+                    {{ $this->getStatusLabel($application->status) }}
+                </span>
+            </div>
+
+            {{-- 応募日 --}}
+            <div>
+                <flux:text class="mb-1 font-semibold">応募日</flux:text>
+                <flux:text>{{ $application->applied_at->format('Y年n月j日 H:i') }}</flux:text>
+            </div>
+
+            {{-- 判定日（ぜひ来てね/今回ごめんねの場合のみ） --}}
+            @if (in_array($application->status, ['accepted', 'rejected']) && $application->judged_at)
+                <div>
+                    <flux:text class="mb-1 font-semibold">判定日</flux:text>
+                    <flux:text>{{ $application->judged_at->format('Y年n月j日 H:i') }}</flux:text>
+                </div>
+            @endif
+
+            {{-- 辞退日（辞退済みの場合のみ） --}}
+            @if ($application->status === 'declined' && $application->declined_at)
+                <div>
+                    <flux:text class="mb-1 font-semibold">辞退日</flux:text>
+                    <flux:text>{{ $application->declined_at->format('Y年n月j日 H:i') }}</flux:text>
+                </div>
+            @endif
+
+            {{-- 募集で気になる点は？ --}}
+            @if (!empty($application->reasons) && is_array($application->reasons))
+                <div>
+                    <flux:text class="mb-2 font-semibold">募集で気になる点は？</flux:text>
+                    <div class="flex flex-wrap gap-2">
+                        @foreach ($application->reasons as $reason)
+                            @if (isset($reasonLabels[$reason]))
+                                <span class="inline-flex items-center rounded-full bg-blue-100 px-3 py-1 text-sm font-medium text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                                    {{ $reasonLabels[$reason] }}
+                                </span>
+                            @endif
+                        @endforeach
+                    </div>
+                </div>
+            @endif
+
+            {{-- 応募メッセージ --}}
+            @if ($application->motive)
+                <div>
+                    <flux:text class="mb-1 font-semibold">応募メッセージ</flux:text>
+                    <flux:text class="whitespace-pre-wrap">{{ $application->motive }}</flux:text>
+                </div>
+            @endif
+        </div>
+
+        {{-- アクションボタン --}}
+        <div class="mt-6 flex flex-wrap gap-2">
+            {{-- チャットボタン（チャットルームが存在する場合） --}}
+            @if ($application->chatRoom)
+                <flux:button variant="primary" href="{{ route('chats.show', $application->chatRoom) }}" wire:navigate icon="chat-bubble-left-right">
+                    チャットで返信
+                </flux:button>
+            @endif
+
+            @if ($application->status === 'applied')
+                {{-- ひらいず民向け: 辞退ボタン --}}
+                @if (auth()->user()->isWorker())
+                    <flux:modal.trigger name="decline-modal">
+                        <flux:button variant="danger">
+                            辞退する
+                        </flux:button>
+                    </flux:modal.trigger>
+                @endif
+
+                {{-- ホスト向け: ぜひ来てね・今回ごめんねボタン --}}
+                @if (auth()->user()->isCompany())
+                    <flux:modal.trigger name="accept-modal">
+                        <flux:button variant="primary">
+                            ぜひ来てね
+                        </flux:button>
+                    </flux:modal.trigger>
+                    <flux:modal.trigger name="reject-modal">
+                        <flux:button variant="danger">
+                            今回ごめんね
+                        </flux:button>
+                    </flux:modal.trigger>
+                @endif
+            @endif
+        </div>
+    </div>
+
     {{-- 募集情報カード --}}
     <div class="rounded-xl border border-zinc-200 bg-white p-6 dark:border-zinc-700 dark:bg-zinc-800">
         <flux:heading size="lg" class="mb-4">募集情報</flux:heading>
@@ -346,6 +364,13 @@ $getPurposeLabel = function (string $purpose): string {
         <div class="space-y-6">
             {{-- タグエリア --}}
             <div class="flex flex-wrap gap-2">
+                {{-- 募集形態タグ --}}
+                @if ($job->jobType)
+                    <span class="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                        {{ $job->jobType->name }}
+                    </span>
+                @endif
+
                 {{-- 希望タグ --}}
                 @foreach ($job->getWantYouCodes() as $wantYou)
                     <span class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800 dark:bg-gray-700 dark:text-gray-200">

@@ -27,16 +27,12 @@ state([
 // ひとことメッセージ
 state(['message' => '']);
 
-// 出身地
-state([
-    'birth_prefecture' => null,
-    'birth_location_id' => null,
-]);
-
 // 現在のお住まい1
 state([
     'current_1_prefecture' => null,
     'current_location_1_id' => null,
+    'current_address' => '',
+    'phone_number' => '',
 ]);
 
 // 現在のお住まい2
@@ -76,17 +72,13 @@ mount(function () {
         // ひとことメッセージの初期値
         $this->message = $this->profile->message ?? '';
 
-        // 出身地の初期値
-        if ($this->profile->birthLocation) {
-            $this->birth_prefecture = $this->profile->birthLocation->prefecture;
-            $this->birth_location_id = $this->profile->birth_location_id;
-        }
-
         // 現在のお住まい1の初期値
         if ($this->profile->currentLocation1) {
             $this->current_1_prefecture = $this->profile->currentLocation1->prefecture;
             $this->current_location_1_id = $this->profile->current_location_1_id;
         }
+        $this->current_address = $this->profile->current_address ?? '';
+        $this->phone_number = $this->profile->phone_number ?? '';
 
         // 現在のお住まい2の初期値
         if ($this->profile->currentLocation2) {
@@ -102,20 +94,6 @@ mount(function () {
  */
 $prefectures = computed(function () {
     return Location::whereNull('city')->orderBy('code')->get();
-});
-
-/**
- * 出身地の市区町村リスト
- */
-$birthCities = computed(function () {
-    if (!$this->birth_prefecture) {
-        return collect();
-    }
-
-    return Location::where('prefecture', $this->birth_prefecture)
-        ->whereNotNull('city')
-        ->orderBy('code')
-        ->get();
 });
 
 /**
@@ -185,10 +163,6 @@ $days = computed(function () {
 /**
  * 都道府県変更時の処理
  */
-$updatedBirthPrefecture = function (): void {
-    $this->birth_location_id = null;
-};
-
 $updatedCurrent1Prefecture = function (): void {
     $this->current_location_1_id = null;
 };
@@ -245,8 +219,9 @@ $update = function () {
         'birthMonth' => ['required', 'integer', 'min:1', 'max:12'],
         'birthDay' => ['required', 'integer', 'min:1', 'max:31'],
         'message' => ['nullable', 'string', 'max:200'],
-        'birth_location_id' => ['required', 'exists:locations,id'],
         'current_location_1_id' => ['required', 'exists:locations,id'],
+        'current_address' => ['required', 'string', 'max:200'],
+        'phone_number' => ['required', 'string', 'max:30'],
         'current_location_2_id' => ['nullable', 'exists:locations,id'],
     ], [
         'handle_name.required' => 'ハンドルネームは必須です。',
@@ -259,10 +234,12 @@ $update = function () {
         'birthMonth.required' => '生年月日（月）は必須です。',
         'birthDay.required' => '生年月日（日）は必須です。',
         'message.max' => 'ひとことメッセージは200文字以内で入力してください。',
-        'birth_location_id.required' => '出身地は必須です。',
-        'birth_location_id.exists' => '出身地が不正です。',
         'current_location_1_id.required' => '現在のお住まい1は必須です。',
         'current_location_1_id.exists' => '現在のお住まい1が不正です。',
+        'current_address.required' => '町名番地建物名は必須です。',
+        'current_address.max' => '町名番地建物名は200文字以内で入力してください。',
+        'phone_number.required' => '電話番号は必須です。',
+        'phone_number.max' => '電話番号は30文字以内で入力してください。',
     ]);
 
     // 生年月日を結合
@@ -279,8 +256,10 @@ $update = function () {
         'gender' => $this->gender,
         'birthdate' => $birthdate,
         'message' => $this->message ?: null,
-        'birth_location_id' => $this->birth_location_id,
+        'birth_location_id' => null,
         'current_location_1_id' => $this->current_location_1_id,
+        'current_address' => $this->current_address,
+        'phone_number' => $this->phone_number,
         'current_location_2_id' => $this->current_location_2_id ?: null,
     ];
 
@@ -324,15 +303,6 @@ $update = function () {
     @endif
 
     <form wire:submit="update" class="space-y-6">
-        {{-- ハンドルネーム --}}
-        <div class="rounded-lg border border-zinc-200 bg-white p-6 dark:border-zinc-700 dark:bg-zinc-800">
-            <flux:field>
-                <flux:label>ハンドルネーム <span class="text-red-500">*</span></flux:label>
-                <flux:input wire:model="handle_name" placeholder="例：山田太郎" />
-                <flux:error name="handle_name" />
-            </flux:field>
-        </div>
-
         {{-- アイコン画像 --}}
         <div class="rounded-lg border border-zinc-200 bg-white p-6 dark:border-zinc-700 dark:bg-zinc-800">
             <flux:field>
@@ -370,6 +340,15 @@ $update = function () {
                 </flux:description>
 
                 <flux:error name="icon" />
+            </flux:field>
+        </div>
+
+        {{-- ニックネーム --}}
+        <div class="rounded-lg border border-zinc-200 bg-white p-6 dark:border-zinc-700 dark:bg-zinc-800">
+            <flux:field>
+                <flux:label>ニックネーム <span class="text-red-500">*</span></flux:label>
+                <flux:input wire:model="handle_name" placeholder="例：山田太郎" />
+                <flux:error name="handle_name" />
             </flux:field>
         </div>
 
@@ -431,47 +410,6 @@ $update = function () {
             </flux:field>
         </div>
 
-        {{-- ひとことメッセージ --}}
-        <div class="rounded-lg border border-zinc-200 bg-white p-6 dark:border-zinc-700 dark:bg-zinc-800">
-            <flux:field>
-                <flux:label>ひとことメッセージ <span class="text-zinc-500">(任意、200文字以内)</span></flux:label>
-                <flux:textarea wire:model="message" rows="4"
-                    placeholder="自己紹介やアピールポイントなど、自由に入力してください">{{ $message }}</flux:textarea>
-                <flux:error name="message" />
-            </flux:field>
-        </div>
-
-        {{-- 出身地 --}}
-        <div class="rounded-lg border border-zinc-200 bg-white p-6 dark:border-zinc-700 dark:bg-zinc-800">
-            <flux:heading size="lg" class="mb-4">出身地 <span class="text-red-500">*</span></flux:heading>
-            <div class="space-y-4">
-                <flux:field>
-                    <flux:label>都道府県</flux:label>
-                    <select wire:model.live="birth_prefecture"
-                        class="w-full rounded-lg border border-gray-200 px-3 py-2 dark:border-gray-700 dark:bg-gray-800">
-                        <option value="">都道府県を選択</option>
-                        @foreach ($this->prefectures as $prefecture)
-                            <option value="{{ $prefecture->prefecture }}">{{ $prefecture->prefecture }}</option>
-                        @endforeach
-                    </select>
-                </flux:field>
-                <flux:field>
-                    <flux:label>市区町村</flux:label>
-                    <select wire:model="birth_location_id"
-                        class="w-full rounded-lg border border-gray-200 px-3 py-2 dark:border-gray-700 dark:bg-gray-800"
-                        @disabled($this->birthCities->isEmpty())>
-                        <option value="">市区町村を選択</option>
-                        @if ($this->birthCities->isNotEmpty())
-                            @foreach ($this->birthCities as $city)
-                                <option value="{{ $city->id }}">{{ $city->city }}</option>
-                            @endforeach
-                        @endif
-                    </select>
-                    <flux:error name="birth_location_id" />
-                </flux:field>
-            </div>
-        </div>
-
         {{-- 現在のお住まい1 --}}
         <div class="rounded-lg border border-zinc-200 bg-white p-6 dark:border-zinc-700 dark:bg-zinc-800">
             <flux:heading size="lg" class="mb-4">現在のお住まい1 <span class="text-red-500">*</span></flux:heading>
@@ -499,6 +437,22 @@ $update = function () {
                         @endif
                     </select>
                     <flux:error name="current_location_1_id" />
+                </flux:field>
+                <flux:field>
+                    <flux:label>町名番地建物名</flux:label>
+                    <flux:input wire:model="current_address" placeholder="例：中央1-2-3 ○○マンション101号室" />
+                    <flux:description>
+                        現在のお住まい1の町名・番地・建物名を入力してください
+                    </flux:description>
+                    <flux:error name="current_address" />
+                </flux:field>
+                <flux:field>
+                    <flux:label>電話番号</flux:label>
+                    <flux:input wire:model="phone_number" type="tel" placeholder="例：090-1234-5678" />
+                    <flux:description>
+                        ハイフン付きで入力してください
+                    </flux:description>
+                    <flux:error name="phone_number" />
                 </flux:field>
             </div>
         </div>

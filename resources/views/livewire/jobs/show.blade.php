@@ -175,12 +175,47 @@ $isWorker = function (): bool {
                     </flux:heading>
                 </div>
 
+                <!-- 開始日時・終了日時（決まった日に募集の場合のみ） -->
+                @if ($jobPost->purpose === 'need_help' && $jobPost->start_datetime && $jobPost->end_datetime)
+                    <div class="mb-6 rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-900/20">
+                        <div class="flex items-center gap-2">
+                            <flux:icon.calendar variant="micro" class="text-blue-600 dark:text-blue-400" />
+                            <flux:text class="font-semibold text-blue-800 dark:text-blue-200">
+                                開催日時
+                            </flux:text>
+                        </div>
+                        <div class="mt-2 space-y-1">
+                            <flux:text class="text-blue-700 dark:text-blue-300">
+                                開始: {{ $jobPost->start_datetime->format('Y年n月j日 H:i') }}
+                            </flux:text>
+                            <flux:text class="text-blue-700 dark:text-blue-300">
+                                終了: {{ $jobPost->end_datetime->format('Y年n月j日 H:i') }}
+                            </flux:text>
+                        </div>
+                    </div>
+                @endif
+
                 <!-- 具体的にはこんなことを手伝ってほしい -->
                 <div class="mb-6">
                     <flux:text class="whitespace-pre-wrap text-gray-600 dark:text-gray-400">
                         {{ $jobPost->job_detail }}
                     </flux:text>
                 </div>
+
+                <!-- どこで -->
+                @if ($jobPost->location)
+                    <div class="mb-6">
+                        <flux:subheading class="mb-2 text-gray-700 dark:text-gray-300">
+                            どこで
+                        </flux:subheading>
+                        <div class="flex items-start gap-2 rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-900">
+                            <flux:icon.map-pin variant="micro" class="mt-1 flex-shrink-0 text-gray-500 dark:text-gray-400" />
+                            <flux:text class="text-gray-700 dark:text-gray-300">
+                                {{ $jobPost->location }}
+                            </flux:text>
+                        </div>
+                    </div>
+                @endif
 
                 <!-- 御礼にタグ -->
                 @if ($jobPost->getCanDoCodes()->isNotEmpty())

@@ -111,18 +111,6 @@ $getIconUrl = function (): ?string {
             </div>
         </div>
 
-        {{-- 出身地 --}}
-        <div class="rounded-lg border border-zinc-200 bg-white p-6 dark:border-zinc-700 dark:bg-zinc-800">
-            <flux:heading size="lg" class="mb-4">出身地</flux:heading>
-            <flux:text>{{ $this->getLocationDisplay($profile->birthLocation) }}</flux:text>
-        </div>
-
-        {{-- ひとことメッセージ --}}
-        <div class="rounded-lg border border-zinc-200 bg-white p-6 dark:border-zinc-700 dark:bg-zinc-800">
-            <flux:heading size="lg" class="mb-4">ひとことメッセージ</flux:heading>
-            <flux:text class="whitespace-pre-wrap">{{ $profile->message ?: '未設定' }}</flux:text>
-        </div>
-
         {{-- 現在のお住まい --}}
         <div class="rounded-lg border border-zinc-200 bg-white p-6 dark:border-zinc-700 dark:bg-zinc-800">
             <flux:heading size="lg" class="mb-4">現在のお住まい</flux:heading>
@@ -130,6 +118,14 @@ $getIconUrl = function (): ?string {
                 <div>
                     <flux:text class="font-semibold text-zinc-700 dark:text-zinc-300">現在のお住まい1</flux:text>
                     <flux:text class="mt-1">{{ $this->getLocationDisplay($profile->currentLocation1) }}</flux:text>
+                </div>
+                <div>
+                    <flux:text class="font-semibold text-zinc-700 dark:text-zinc-300">町名番地建物名</flux:text>
+                    <flux:text class="mt-1">{{ $profile->current_address ?: '未設定' }}</flux:text>
+                </div>
+                <div>
+                    <flux:text class="font-semibold text-zinc-700 dark:text-zinc-300">電話番号</flux:text>
+                    <flux:text class="mt-1">{{ $profile->phone_number ?: '未設定' }}</flux:text>
                 </div>
                 <div>
                     <flux:text class="font-semibold text-zinc-700 dark:text-zinc-300">現在のお住まい2</flux:text>

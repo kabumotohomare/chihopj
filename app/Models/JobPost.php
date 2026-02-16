@@ -29,6 +29,7 @@ class JobPost extends Model
         'end_datetime',
         'job_title',
         'job_detail',
+        'location',
         'want_you_ids',
         'can_do_ids',
         'posted_at',

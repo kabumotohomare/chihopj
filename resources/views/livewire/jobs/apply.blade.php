@@ -148,6 +148,17 @@ $getPurposeLabel = function (): string {
                     </flux:text>
                 </div>
 
+                <!-- どこで -->
+                @if ($jobPost->location)
+                    <div class="mb-4 flex items-start gap-2">
+                        <flux:icon.map-pin variant="micro"
+                            class="mt-0.5 flex-shrink-0 text-gray-500 dark:text-gray-400" />
+                        <flux:text class="text-sm text-gray-600 dark:text-gray-400">
+                            {{ $jobPost->location }}
+                        </flux:text>
+                    </div>
+                @endif
+
                 <!-- できますタグ -->
                 @if ($jobPost->getCanDoCodes()->isNotEmpty())
                     <div class="mb-4">
@@ -243,8 +254,7 @@ $getPurposeLabel = function (): string {
                     <div class="mb-8">
                         <flux:field>
                             <flux:label>応募メッセージ（任意）</flux:label>
-                            <flux:textarea wire:model="motive" rows="6"
-                                placeholder="意気込み、質問や確認したいことなど、自由にどうぞ">
+                            <flux:textarea wire:model="motive" rows="6" placeholder="意気込み、質問や確認したいことなど、自由にどうぞ">
                                 {{ $motive }}</flux:textarea>
                             <flux:error name="motive" />
                             <flux:description>

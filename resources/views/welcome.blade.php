@@ -106,7 +106,7 @@
             <nav class="flex items-center justify-between h-16">
                 <!-- ロゴ -->
                 <div class="flex items-center gap-3">
-                    <img src="{{ asset('images/presets/logo.png') }}" alt="ふるぼの - みんなの平泉ロゴ" class="h-12 w-auto">
+                    <img src="{{ asset('images/presets/logo.png') }}" alt="ふるぼの - みんなの平泉ロゴ" class="h-10 w-auto">
                     <span class="text-xl md:text-2xl font-bold text-[#FF6B35]">ふるぼの - みんなの平泉</span>
                 </div>
 
@@ -114,7 +114,7 @@
                 <div class="hidden md:flex items-center gap-6">
                     <a href="#jobs"
                         class="text-[#3E3A35] hover:text-[#FF6B35] transition-colors font-bold text-lg hover:scale-110 transform">
-                        お手伝い
+                        募集を見る
                     </a>
                     @auth
                         <a href="{{ url('/dashboard') }}"
@@ -228,7 +228,7 @@
                     <a href="#jobs"
                         class="btn-pop bg-[#FF6B35] hover:bg-[#E55A28] text-white px-8 sm:px-10 py-4 sm:py-5 rounded-full font-black text-lg sm:text-xl md:text-2xl transition-all transform hover:scale-110 shadow-2xl w-full sm:w-auto">
                         <i class="fas fa-hand-holding-heart mr-2"></i>
-                        お手伝いを見る
+                        募集を見る
                     </a>
                     @guest
                         @if (Route::has('login'))
@@ -281,14 +281,14 @@
                     あなたが来るのを待っています
                 </h2>
                 <p class="text-lg text-[#6B6760]">
-                    新着のお手伝いをチェックしましょう
+                    新着の募集をチェックしましょう
                 </p>
             </div>
 
             @if ($latestJobs->isEmpty())
                 <div class="text-center py-16">
                     <i class="fas fa-inbox text-6xl text-gray-300 mb-4"></i>
-                    <p class="text-xl text-[#6B6760]">現在、お手伝いはありません</p>
+                    <p class="text-xl text-[#6B6760]">現在、募集はありません</p>
                 </div>
             @else
                 <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
@@ -334,7 +334,7 @@
                 <div class="text-center">
                     <a href="{{ route('jobs.index') }}"
                         class="inline-flex items-center gap-2 bg-[#4CAF50] hover:bg-[#45A049] text-white px-8 py-4 rounded-full transition-all transform hover:scale-105 font-bold text-lg shadow-lg">
-                        <span>募集中のお手伝いを見る</span>
+                        <span>ひらいず民募集を見る</span>
                         <i class="fas fa-arrow-right"></i>
                     </a>
                 </div>
@@ -348,7 +348,7 @@
             <div class="grid md:grid-cols-2 gap-8 items-center">
                 <div class="text-center md:text-left">
                     <div class="flex items-center gap-3 justify-center md:justify-start mb-4">
-                        <img src="{{ asset('images/presets/logo.png') }}" alt="ふるぼの - みんなの平泉ロゴ" class="h-10 w-auto">
+                        <img src="{{ asset('images/presets/logo.png') }}" alt="ふるぼの - みんなの平泉ロゴ" class="h-8 w-auto">
                         <span class="text-xl font-bold">ふるぼの - みんなの平泉</span>
                     </div>
                     <p class="text-sm text-gray-300">お手伝いでみんなの地域とつながる</p>
@@ -364,7 +364,7 @@
             </div>
 
             <div class="mt-8 pt-8 border-t border-gray-600 text-center text-sm text-gray-400">
-                <p>© 2026 MEKABU.co. All rights reserved.</p>
+                <p>© 2025 MEKABU.co. All rights reserved.</p>
             </div>
         </div>
     </footer>

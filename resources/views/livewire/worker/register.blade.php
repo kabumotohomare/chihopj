@@ -38,17 +38,17 @@ class extends Component
     #[Validate('nullable|string|max:200')]
     public string $message = '';
 
-    // 出身地
-    public ?string $birth_prefecture = null;
-
-    #[Validate('required|exists:locations,id')]
-    public ?int $birth_location_id = null;
-
     // 現在のお住まい1
     public ?string $current_1_prefecture = null;
 
     #[Validate('required|exists:locations,id')]
     public ?int $current_location_1_id = null;
+
+    #[Validate('required|string|max:200')]
+    public string $current_address = '';
+
+    #[Validate('required|string|max:30')]
+    public string $phone_number = '';
 
     // 現在のお住まい2
     public ?string $current_2_prefecture = null;
@@ -90,18 +90,6 @@ class extends Component
             ->get();
     }
 
-    public function getBirthCitiesProperty()
-    {
-        if (empty($this->birth_prefecture)) {
-            return collect();
-        }
-
-        return Location::where('prefecture', $this->birth_prefecture)
-            ->whereNotNull('city')
-            ->orderBy('code')
-            ->get();
-    }
-
     public function getCurrent1CitiesProperty()
     {
         if (empty($this->current_1_prefecture)) {
@@ -126,11 +114,6 @@ class extends Component
             ->get();
     }
 
-
-    public function updatedBirthPrefecture($value): void
-    {
-        $this->birth_location_id = null;
-    }
 
     public function updatedCurrent1Prefecture($value): void
     {
@@ -194,8 +177,10 @@ class extends Component
             'gender' => $this->gender,
             'birthdate' => $birthdate,
             'message' => $this->message ?: null,
-            'birth_location_id' => $this->birth_location_id,
+            'birth_location_id' => null,
             'current_location_1_id' => $this->current_location_1_id,
+            'current_address' => $this->current_address,
+            'phone_number' => $this->phone_number,
             'current_location_2_id' => $this->current_location_2_id ?: null,
         ]);
 
@@ -215,13 +200,6 @@ class extends Component
         </div>
 
         <form wire:submit="register" class="flex flex-col gap-6">
-            <!-- ハンドルネーム -->
-            <flux:field>
-                <flux:label>ハンドルネーム <span class="text-red-500">*</span></flux:label>
-                <flux:input wire:model="handle_name" placeholder="例：山田太郎" />
-                <flux:error name="handle_name" />
-            </flux:field>
-
             <!-- アイコン画像 -->
             <flux:field>
                 <flux:label>アイコン画像 <span class="text-zinc-500">(任意)</span></flux:label>
@@ -250,6 +228,13 @@ class extends Component
                 </flux:description>
 
                 <flux:error name="icon" />
+            </flux:field>
+
+            <!-- ニックネーム -->
+            <flux:field>
+                <flux:label>ニックネーム <span class="text-red-500">*</span></flux:label>
+                <flux:input wire:model="handle_name" placeholder="例：べんけい君" />
+                <flux:error name="handle_name" />
             </flux:field>
 
             <!-- 性別 -->
@@ -315,38 +300,6 @@ class extends Component
                 <flux:error name="birth_day" />
             </flux:field>
 
-            <!-- ひとことメッセージ -->
-            <flux:field>
-                <flux:label>ひとことメッセージ <span class="text-zinc-500">(任意)</span></flux:label>
-                <flux:textarea wire:model="message" rows="3" placeholder="自己紹介やアピールポイントなど、自由に入力してください（200文字以内）" />
-                <flux:error name="message" />
-            </flux:field>
-
-            <!-- 出身地 -->
-            <flux:field>
-                <flux:label>出身地 <span class="text-red-500">*</span></flux:label>
-                <div class="flex gap-2">
-                    <select wire:model.live="birth_prefecture"
-                        class="w-full rounded-lg border border-gray-200 px-3 py-2 dark:border-gray-700 dark:bg-gray-800">
-                        <option value="">都道府県を選択</option>
-                        @foreach($this->prefectures as $prefecture)
-                            <option value="{{ $prefecture->prefecture }}">{{ $prefecture->prefecture }}</option>
-                        @endforeach
-                    </select>
-                    <select wire:model="birth_location_id"
-                        class="w-full rounded-lg border border-gray-200 px-3 py-2 dark:border-gray-700 dark:bg-gray-800"
-                        @disabled(empty($this->birth_cities))>
-                        <option value="">市区町村を選択</option>
-                        @if(!empty($this->birth_cities))
-                            @foreach($this->birth_cities as $city)
-                                <option value="{{ $city->id }}">{{ $city->city }}</option>
-                            @endforeach
-                        @endif
-                    </select>
-                </div>
-                <flux:error name="birth_location_id" />
-            </flux:field>
-
             <!-- 現在のお住まい1 -->
             <flux:field>
                 <flux:label>現在のお住まい1 <span class="text-red-500">*</span></flux:label>
@@ -370,6 +323,26 @@ class extends Component
                     </select>
                 </div>
                 <flux:error name="current_location_1_id" />
+            </flux:field>
+
+            <!-- 町名番地建物名 -->
+            <flux:field>
+                <flux:label>町名番地建物名 <span class="text-red-500">*</span></flux:label>
+                <flux:input wire:model="current_address" placeholder="例：中央1-2-3 ○○マンション101号室" />
+                <flux:description>
+                    現在のお住まい1の町名・番地・建物名を入力してください
+                </flux:description>
+                <flux:error name="current_address" />
+            </flux:field>
+
+            <!-- 電話番号 -->
+            <flux:field>
+                <flux:label>電話番号 <span class="text-red-500">*</span></flux:label>
+                <flux:input wire:model="phone_number" type="tel" placeholder="例：090-1234-5678" />
+                <flux:description>
+                    ハイフン付きで入力してください
+                </flux:description>
+                <flux:error name="phone_number" />
             </flux:field>
 
             <!-- 現在のお住まい2 -->
@@ -400,7 +373,7 @@ class extends Component
             <!-- 送信ボタン -->
             <div class="flex justify-end">
                 <flux:button type="submit" variant="primary">
-                    登録する
+                    ひらいず民として登録
                 </flux:button>
             </div>
         </form>

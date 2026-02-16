@@ -30,6 +30,7 @@ state([
     'end_datetime' => '',
     'job_title' => '',
     'job_detail' => '',
+    'location' => '',
     'want_you_ids' => [],
     'can_do_ids' => [],
 ]);
@@ -49,6 +50,7 @@ mount(function (JobPost $jobPost) {
     $this->end_datetime = $jobPost->end_datetime ? $jobPost->end_datetime->format('Y-m-d\TH:i') : '';
     $this->job_title = $jobPost->job_title;
     $this->job_detail = $jobPost->job_detail;
+    $this->location = $jobPost->location ?? '';
     $this->want_you_ids = $jobPost->want_you_ids ?? [];
     $this->can_do_ids = $jobPost->can_do_ids ?? [];
 
@@ -120,6 +122,7 @@ $update = function () {
         'end_datetime' => $validated['end_datetime'] ?? null,
         'job_title' => $validated['job_title'],
         'job_detail' => $validated['job_detail'],
+        'location' => $validated['location'],
         'want_you_ids' => $validated['want_you_ids'] ?? [],
         'can_do_ids' => $validated['can_do_ids'] ?? [],
         // posted_atは更新しない
@@ -257,6 +260,14 @@ $update = function () {
                 <flux:textarea wire:model="job_detail" rows="5" 
                     placeholder="〇〇をしています。✕✕をやりたいが、△△なのでできていません">{{ $job_detail }}</flux:textarea>
                 <flux:error name="job_detail" />
+            </flux:field>
+
+            <!-- どこで -->
+            <flux:field>
+                <flux:label>どこで <span class="text-red-500">*</span></flux:label>
+                <flux:description>活動場所を入力してください（200文字以内）</flux:description>
+                <flux:input wire:model="location" type="text" placeholder="例：平泉町平泉字大沢1-1 平泉文化センター"></flux:input>
+                <flux:error name="location" />
             </flux:field>
 
             <!-- こんな人に来てほしい -->

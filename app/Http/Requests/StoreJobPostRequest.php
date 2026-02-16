@@ -93,6 +93,7 @@ class StoreJobPostRequest extends FormRequest
             ],
             'job_title' => ['required', 'string', 'max:50'],
             'job_detail' => ['required', 'string', 'max:200'],
+            'location' => ['required', 'string', 'max:200'],
             'want_you_ids' => ['nullable', 'array'],
             'want_you_ids.*' => ['integer', 'exists:codes,id'],
             'can_do_ids' => ['nullable', 'array'],
@@ -118,6 +119,8 @@ class StoreJobPostRequest extends FormRequest
             'job_title.max' => 'やることは50文字以内で入力してください。',
             'job_detail.required' => '具体的にはこんなことを手伝ってほしいを入力してください。',
             'job_detail.max' => '具体的にはこんなことを手伝ってほしいは200文字以内で入力してください。',
+            'location.required' => 'どこでを入力してください。',
+            'location.max' => 'どこでは200文字以内で入力してください。',
             'want_you_ids.*.exists' => '選択された希望が存在しません。',
             'can_do_ids.*.exists' => '選択されたできますが存在しません。',
         ];
