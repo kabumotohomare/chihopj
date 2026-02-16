@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Models\ChatRoom;
 use App\Models\Message;
+
 use function Livewire\Volt\layout;
 use function Livewire\Volt\mount;
 use function Livewire\Volt\state;
@@ -54,9 +55,10 @@ $sendMessage = function () {
         ],
     );
 
-    // 応募ステータスが'applied'でない場合は送信不可
-    if ($this->chatRoom->jobApplication->status !== 'applied') {
-        session()->flash('error', 'この応募は' . $this->getStatusLabel($this->chatRoom->jobApplication->status) . 'のため、メッセージを送信できません。');
+    // 応募ステータスが'applied'または'accepted'でない場合は送信不可
+    if (! in_array($this->chatRoom->jobApplication->status, ['applied', 'accepted'])) {
+        session()->flash('error', 'この応募は'.$this->getStatusLabel($this->chatRoom->jobApplication->status).'のため、メッセージを送信できません。');
+
         return;
     }
 
@@ -109,6 +111,69 @@ $getStatusBadgeClass = function (string $status): string {
     };
 };
 
+/**
+ * ステータスを「ぜひ来てね」（accepted）に変更
+ */
+$acceptApplication = function () {
+    // 認可チェック（企業ユーザーのみ、自社求人のみ）
+    $this->authorize('update', $this->chatRoom->jobApplication);
+
+    // 応募中の場合のみ変更可能
+    if ($this->chatRoom->jobApplication->status !== 'applied') {
+        session()->flash('error', '応募中の応募のみステータスを変更できます。');
+
+        return;
+    }
+
+    // ステータスを更新
+    $this->chatRoom->jobApplication->update([
+        'status' => 'accepted',
+        'judged_at' => now(),
+    ]);
+
+    // データを再読み込み
+    $this->chatRoom->refresh();
+    $this->chatRoom->load([
+        'jobApplication.jobPost.company.companyProfile',
+        'jobApplication.worker',
+        'messages' => function ($query) {
+            $query->with('sender')->orderBy('created_at', 'asc');
+        },
+    ]);
+
+    session()->flash('success', 'ステータスを「ぜひ来てね」に変更しました。時間や場所を調整してください。');
+};
+
+/**
+ * ステータスを「今回ごめんね」（rejected）に変更
+ */
+$rejectApplication = function () {
+    // 認可チェック（企業ユーザーのみ、自社求人のみ）
+    $this->authorize('update', $this->chatRoom->jobApplication);
+
+    // 応募中の場合のみ変更可能
+    if ($this->chatRoom->jobApplication->status !== 'applied') {
+        session()->flash('error', '応募中の応募のみステータスを変更できます。');
+
+        return;
+    }
+
+    // ステータスを更新
+    $this->chatRoom->jobApplication->update([
+        'status' => 'rejected',
+        'judged_at' => now(),
+    ]);
+
+    // データを再読み込み
+    $this->chatRoom->refresh();
+    $this->chatRoom->load([
+        'jobApplication.jobPost.company.companyProfile',
+        'jobApplication.worker',
+    ]);
+
+    session()->flash('success', 'ステータスを「今回ごめんね」に変更しました。');
+};
+
 ?>
 
 <div class="mx-auto max-w-4xl space-y-6 px-4 py-8 sm:px-6 lg:px-8" wire:poll.5s>
@@ -118,6 +183,19 @@ $getStatusBadgeClass = function (string $status): string {
             チャット一覧に戻る
         </flux:button>
     </div>
+
+    {{-- フラッシュメッセージ --}}
+    @if (session('success'))
+        <flux:callout variant="success" icon="check-circle">
+            {{ session('success') }}
+        </flux:callout>
+    @endif
+
+    @if (session('error'))
+        <flux:callout variant="danger" icon="exclamation-triangle">
+            {{ session('error') }}
+        </flux:callout>
+    @endif
 
     {{-- 応募情報サマリー --}}
     <div class="overflow-hidden rounded-xl border border-zinc-200 bg-white shadow dark:border-zinc-700 dark:bg-zinc-800">
@@ -161,6 +239,27 @@ $getStatusBadgeClass = function (string $status): string {
                         </span>
                     </div>
                 </div>
+
+                {{-- ホスト向けステータス変更ボタン --}}
+                @if (auth()->user()->isCompany() && $chatRoom->jobApplication->jobPost->company_id === auth()->id() && $chatRoom->jobApplication->status === 'applied')
+                    <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
+                        <flux:text class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-3">
+                            ステータスを変更
+                        </flux:text>
+                        <div class="flex gap-3">
+                            <flux:button wire:click="acceptApplication" variant="primary" size="sm" icon="check-circle"
+                                wire:loading.attr="disabled" wire:confirm="ステータスを「ぜひ来てね」に変更しますか？">
+                                <span wire:loading.remove wire:target="acceptApplication">ぜひ来てね</span>
+                                <span wire:loading wire:target="acceptApplication">処理中...</span>
+                            </flux:button>
+                            <flux:button wire:click="rejectApplication" variant="danger" size="sm" icon="x-circle"
+                                wire:loading.attr="disabled" wire:confirm="ステータスを「今回ごめんね」に変更しますか？">
+                                <span wire:loading.remove wire:target="rejectApplication">今回ごめんね</span>
+                                <span wire:loading wire:target="rejectApplication">処理中...</span>
+                            </flux:button>
+                        </div>
+                    </div>
+                @endif
             </div>
         </div>
     </div>
@@ -218,9 +317,18 @@ $getStatusBadgeClass = function (string $status): string {
     </div>
 
     {{-- メッセージ送信フォーム --}}
-    @if ($chatRoom->jobApplication->status === 'applied')
+    @if (in_array($chatRoom->jobApplication->status, ['applied', 'accepted']))
         <div class="overflow-hidden rounded-xl border border-zinc-200 bg-white shadow dark:border-zinc-700 dark:bg-zinc-800">
             <div class="p-6">
+                {{-- ぜひ来てね状態のガイドメッセージ --}}
+                @if ($chatRoom->jobApplication->status === 'accepted')
+                    <div class="mb-4">
+                        <flux:callout variant="success" icon="check-circle">
+                            時間や場所を調整してください。
+                        </flux:callout>
+                    </div>
+                @endif
+
                 <form wire:submit.prevent="sendMessage">
                     <flux:field>
                         <flux:label>メッセージ</flux:label>
