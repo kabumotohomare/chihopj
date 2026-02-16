@@ -1,10 +1,15 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="dark">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>
         @include('partials.head')
+        <style>
+            body {
+                font-family: 'Noto Sans JP', sans-serif;
+            }
+        </style>
     </head>
-    <body class="min-h-screen bg-white dark:bg-zinc-800">
-        <flux:header container class="border-b border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900">
+    <body class="min-h-screen bg-[#F5F3F0]">
+        <flux:header container class="border-b-4 border-[#FF6B35] bg-[#FFF8E7]">
             <flux:sidebar.toggle class="lg:hidden" icon="bars-2" inset="left" />
 
             <a href="{{ route('dashboard') }}" class="ms-2 me-5 flex items-center space-x-2 rtl:space-x-reverse lg:ms-0" wire:navigate>
@@ -12,8 +17,8 @@
             </a>
 
             <flux:navbar class="-mb-px max-lg:hidden">
-                <flux:navbar.item icon="layout-grid" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>
-                    {{ __('Dashboard') }}
+                <flux:navbar.item icon="layout-grid" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate class="text-[#3E3A35] hover:text-[#FF6B35]">
+                    ホーム画面に戻る
                 </flux:navbar.item>
             </flux:navbar>
 
@@ -101,17 +106,18 @@
         </flux:header>
 
         <!-- Mobile Menu -->
-        <flux:sidebar stashable sticky class="lg:hidden border-e border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900">
+        <flux:sidebar stashable sticky class="lg:hidden border-e-4 border-[#FF6B35] bg-[#FFF8E7]">
             <flux:sidebar.toggle class="lg:hidden" icon="x-mark" />
 
-            <a href="{{ route('dashboard') }}" class="ms-1 flex items-center space-x-2 rtl:space-x-reverse" wire:navigate>
-                <x-app-logo />
+            <a href="{{ route('dashboard') }}" class="ms-1 mb-6 flex flex-col items-center gap-2" wire:navigate>
+                <img src="{{ asset('images/presets/logo.png') }}" alt="ふるぼの - みんなの平泉ロゴ" class="h-12 w-auto">
+                <span class="text-lg font-bold text-[#FF6B35]">ふるぼの</span>
             </a>
 
             <flux:navlist variant="outline">
-                <flux:navlist.group :heading="__('Platform')">
-                    <flux:navlist.item icon="layout-grid" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>
-                    {{ __('Dashboard') }}
+                <flux:navlist.group heading="メニュー">
+                    <flux:navlist.item icon="layout-grid" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate class="text-[#3E3A35] hover:bg-[#FF6B35]/10">
+                    ホーム画面に戻る
                     </flux:navlist.item>
                 </flux:navlist.group>
             </flux:navlist>
@@ -119,12 +125,8 @@
             <flux:spacer />
 
             <flux:navlist variant="outline">
-                <flux:navlist.item icon="folder-git-2" href="https://github.com/laravel/livewire-starter-kit" target="_blank">
-                {{ __('Repository') }}
-                </flux:navlist.item>
-
-                <flux:navlist.item icon="book-open-text" href="https://laravel.com/docs/starter-kits#livewire" target="_blank">
-                {{ __('Documentation') }}
+                <flux:navlist.item icon="question-mark-circle" href="https://mekabu.tech/privacy-policy" target="_blank" class="text-[#6B6760] hover:bg-[#4CAF50]/10">
+                ヘルプ
                 </flux:navlist.item>
             </flux:navlist>
         </flux:sidebar>

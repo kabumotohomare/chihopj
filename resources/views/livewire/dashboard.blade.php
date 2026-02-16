@@ -10,19 +10,19 @@ title('ダッシュボード');
 
 ?>
 
-<div class="flex h-full w-full flex-1 flex-col gap-6 rounded-xl p-4">
+<div class="flex h-full w-full flex-1 flex-col gap-6 rounded-xl p-4 md:p-8">
     <!-- ウェルカムメッセージ -->
-    <div class="rounded-xl border border-neutral-200 bg-white p-6 dark:border-neutral-700 dark:bg-gray-800">
-        <flux:heading size="lg" class="mb-2">
+    <div class="rounded-2xl bg-white p-6 md:p-8 shadow-lg animate-fade-in-up">
+        <h1 class="text-2xl md:text-3xl font-bold text-[#3E3A35] mb-2">
             ようこそ、{{ auth()->user()->name }}さん
-        </flux:heading>
-        <flux:text>
+        </h1>
+        <p class="text-[#6B6760]">
             @if (auth()->user()->isCompany())
-                ホストユーザーとしてログインしています
+                ホストとしてログインしています
             @elseif (auth()->user()->isWorker())
                 ひらいず民としてログインしています
             @endif
-        </flux:text>
+        </p>
     </div>
 
     <!-- アクションカード -->
@@ -30,88 +30,61 @@ title('ダッシュボード');
         @if (auth()->user()->isCompany())
             <!-- ホストユーザー向けアクション -->
             <a href="{{ route('jobs.create') }}" wire:navigate
-                class="group relative flex flex-col items-center justify-center overflow-hidden rounded-2xl border-2 border-neutral-200 bg-white p-12 transition hover:border-blue-500 hover:shadow-2xl dark:border-neutral-700 dark:bg-gray-800">
-                <div class="mb-6 flex h-24 w-24 items-center justify-center rounded-2xl bg-blue-100 dark:bg-blue-900">
-                    <svg class="h-12 w-12 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                    </svg>
+                class="group relative flex flex-col items-center justify-center overflow-hidden rounded-2xl bg-white p-12 transition hover:shadow-2xl transform hover:scale-105 shadow-lg">
+                <div class="mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-[#FF6B35]/10">
+                    <i class="fas fa-plus-circle text-5xl text-[#FF6B35]"></i>
                 </div>
-                <flux:heading size="xl" class="text-center">新たに募集する</flux:heading>
+                <h2 class="text-xl font-bold text-[#3E3A35] text-center">新たに募集する</h2>
             </a>
 
             <a href="{{ route('applications.received') }}" wire:navigate
-                class="group relative flex flex-col items-center justify-center overflow-hidden rounded-2xl border-2 border-neutral-200 bg-white p-12 transition hover:border-orange-500 hover:shadow-2xl dark:border-neutral-700 dark:bg-gray-800">
-                <div class="mb-6 flex h-24 w-24 items-center justify-center rounded-2xl bg-orange-100 dark:bg-orange-900">
-                    <svg class="h-12 w-12 text-orange-600 dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                    </svg>
+                class="group relative flex flex-col items-center justify-center overflow-hidden rounded-2xl bg-white p-12 transition hover:shadow-2xl transform hover:scale-105 shadow-lg">
+                <div class="mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-[#4CAF50]/10">
+                    <i class="fas fa-users text-5xl text-[#4CAF50]"></i>
                 </div>
-                <flux:heading size="xl" class="text-center">希望者を確認</flux:heading>
+                <h2 class="text-xl font-bold text-[#3E3A35] text-center">希望者を確認</h2>
             </a>
 
             <a href="{{ route('jobs.my-jobs') }}" wire:navigate
-                class="group relative flex flex-col items-center justify-center overflow-hidden rounded-2xl border-2 border-neutral-200 bg-white p-12 transition hover:border-purple-500 hover:shadow-2xl dark:border-neutral-700 dark:bg-gray-800">
-                <div class="mb-6 flex h-24 w-24 items-center justify-center rounded-2xl bg-purple-100 dark:bg-purple-900">
-                    <svg class="h-12 w-12 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
-                    </svg>
+                class="group relative flex flex-col items-center justify-center overflow-hidden rounded-2xl bg-white p-12 transition hover:shadow-2xl transform hover:scale-105 shadow-lg">
+                <div class="mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-[#87CEEB]/10">
+                    <i class="fas fa-clipboard-list text-5xl text-[#87CEEB]"></i>
                 </div>
-                <flux:heading size="xl" class="text-center">募集内容を確認</flux:heading>
+                <h2 class="text-xl font-bold text-[#3E3A35] text-center">募集内容を確認</h2>
             </a>
 
             <a href="{{ route('company.profile') }}" wire:navigate
-                class="group relative flex flex-col items-center justify-center overflow-hidden rounded-2xl border-2 border-neutral-200 bg-white p-12 transition hover:border-green-500 hover:shadow-2xl dark:border-neutral-700 dark:bg-gray-800">
-                <div class="mb-6 flex h-24 w-24 items-center justify-center rounded-2xl bg-green-100 dark:bg-green-900">
-                    <svg class="h-12 w-12 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                    </svg>
+                class="group relative flex flex-col items-center justify-center overflow-hidden rounded-2xl bg-white p-12 transition hover:shadow-2xl transform hover:scale-105 shadow-lg">
+                <div class="mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-[#FFD700]/10">
+                    <i class="fas fa-user-circle text-5xl text-[#FFD700]"></i>
                 </div>
-                <flux:heading size="xl" class="text-center">ホストのあなたの情報</flux:heading>
+                <h2 class="text-xl font-bold text-[#3E3A35] text-center">あなたの情報</h2>
             </a>
         @elseif (auth()->user()->isWorker())
             <!-- ひらいず民向けアクション -->
             <a href="{{ route('jobs.index') }}" wire:navigate
-                class="group relative flex flex-col items-center justify-center overflow-hidden rounded-2xl border-2 border-neutral-200 bg-white p-12 transition hover:border-blue-500 hover:shadow-2xl dark:border-neutral-700 dark:bg-gray-800">
-                <div class="mb-6 flex h-24 w-24 items-center justify-center rounded-2xl bg-blue-100 dark:bg-blue-900">
-                    <svg class="h-12 w-12 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                    </svg>
+                class="group relative flex flex-col items-center justify-center overflow-hidden rounded-2xl bg-white p-12 transition hover:shadow-2xl transform hover:scale-105 shadow-lg">
+                <div class="mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-[#FF6B35]/10">
+                    <i class="fas fa-search text-5xl text-[#FF6B35]"></i>
                 </div>
-                <flux:heading size="xl" class="text-center">お手伝いを探す</flux:heading>
+                <h2 class="text-xl font-bold text-[#3E3A35] text-center">お手伝いを探す</h2>
             </a>
 
             <a href="{{ route('worker.profile') }}" wire:navigate
-                class="group relative flex flex-col items-center justify-center overflow-hidden rounded-2xl border-2 border-neutral-200 bg-white p-12 transition hover:border-green-500 hover:shadow-2xl dark:border-neutral-700 dark:bg-gray-800">
-                <div class="mb-6 flex h-24 w-24 items-center justify-center rounded-2xl bg-green-100 dark:bg-green-900">
-                    <svg class="h-12 w-12 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                    </svg>
+                class="group relative flex flex-col items-center justify-center overflow-hidden rounded-2xl bg-white p-12 transition hover:shadow-2xl transform hover:scale-105 shadow-lg">
+                <div class="mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-[#4CAF50]/10">
+                    <i class="fas fa-user-circle text-5xl text-[#4CAF50]"></i>
                 </div>
-                <flux:heading size="xl" class="text-center">ひらいず民プロフィール</flux:heading>
+                <h2 class="text-xl font-bold text-[#3E3A35] text-center">ひらいず民プロフィール</h2>
             </a>
 
             <a href="{{ route('applications.index') }}" wire:navigate
-                class="group relative flex flex-col items-center justify-center overflow-hidden rounded-2xl border-2 border-neutral-200 bg-white p-12 transition hover:border-purple-500 hover:shadow-2xl dark:border-neutral-700 dark:bg-gray-800">
-                <div class="mb-6 flex h-24 w-24 items-center justify-center rounded-2xl bg-purple-100 dark:bg-purple-900">
-                    <svg class="h-12 w-12 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
+                class="group relative flex flex-col items-center justify-center overflow-hidden rounded-2xl bg-white p-12 transition hover:shadow-2xl transform hover:scale-105 shadow-lg">
+                <div class="mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-[#87CEEB]/10">
+                    <i class="fas fa-clipboard-check text-5xl text-[#87CEEB]"></i>
                 </div>
-                <flux:heading size="xl" class="text-center">参加履歴</flux:heading>
+                <h2 class="text-xl font-bold text-[#3E3A35] text-center">参加履歴</h2>
             </a>
         @endif
-    </div>
-
-    <!-- 統計情報（プレースホルダー） -->
-    <div class="grid gap-4 md:grid-cols-3">
-        <div class="relative aspect-video overflow-hidden rounded-xl border border-neutral-200 dark:border-neutral-700">
-            <x-placeholder-pattern class="absolute inset-0 size-full stroke-gray-900/20 dark:stroke-neutral-100/20" />
-        </div>
-        <div class="relative aspect-video overflow-hidden rounded-xl border border-neutral-200 dark:border-neutral-700">
-            <x-placeholder-pattern class="absolute inset-0 size-full stroke-gray-900/20 dark:stroke-neutral-100/20" />
-        </div>
-        <div class="relative aspect-video overflow-hidden rounded-xl border border-neutral-200 dark:border-neutral-700">
-            <x-placeholder-pattern class="absolute inset-0 size-full stroke-gray-900/20 dark:stroke-neutral-100/20" />
-        </div>
     </div>
 </div>

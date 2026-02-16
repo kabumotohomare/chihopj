@@ -129,32 +129,33 @@ with(fn () => [
 
 ?>
 
-<div class="min-h-screen bg-gray-50 py-8 dark:bg-gray-900">
+<div class="min-h-screen bg-[#F5F3F0] py-8">
     <div class="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <!-- ヘッダー -->
-        <div class="mb-8 flex items-center justify-between">
+        <div class="mb-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
-                <flux:heading size="xl" class="mb-2">募集一覧</flux:heading>
-                <flux:text variant="subtle">
+                <h1 class="text-3xl font-bold text-[#3E3A35] mb-2">募集一覧</h1>
+                <p class="text-[#6B6760]">
                     平泉町内の事業者や地域の方からの募集を探せます
-                </flux:text>
+                </p>
             </div>
 
             <!-- ホストユーザー: 新規投稿ボタン -->
             @if ($this->isCompany())
-                <flux:button href="{{ route('jobs.create') }}" wire:navigate variant="primary" icon="plus">
+                <a href="{{ route('jobs.create') }}" wire:navigate class="bg-[#FF6B35] hover:bg-[#E55A28] text-white px-6 py-3 rounded-full font-bold transition-all transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center gap-2">
+                    <i class="fas fa-plus"></i>
                     新規募集投稿
-                </flux:button>
+                </a>
             @endif
         </div>
 
         <!-- 検索・フィルタエリア -->
-        <div class="mb-8 rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+        <div class="mb-8 rounded-2xl bg-white p-6 shadow-lg">
             <div class="space-y-6">
                 <!-- キーワード検索 -->
                 <div>
                     <flux:field>
-                        <flux:label>キーワード検索</flux:label>
+                        <flux:label class="text-[#3E3A35] font-medium">キーワード検索</flux:label>
                         <flux:input 
                             wire:model.live.debounce.300ms="keyword" 
                             type="text"
@@ -167,17 +168,17 @@ with(fn () => [
                 <!-- 希望フィルタ -->
                 <div>
                     <flux:field>
-                        <flux:label>{{ $this->getWantYouLabel() }}</flux:label>
+                        <flux:label class="text-[#3E3A35] font-medium">{{ $this->getWantYouLabel() }}</flux:label>
                         <div class="flex flex-wrap gap-4">
                             @foreach ($wantYouCodes as $code)
-                                <label class="flex items-center gap-2">
+                                <label class="flex items-center gap-2 cursor-pointer">
                                     <input 
                                         type="checkbox" 
                                         wire:model.live="want_you_types" 
                                         value="{{ $code->type_id }}"
-                                        class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                        class="h-4 w-4 rounded border-gray-300 text-[#FF6B35] focus:ring-[#FF6B35]"
                                     >
-                                    <span class="text-sm text-gray-700 dark:text-gray-300">{{ $code->name }}</span>
+                                    <span class="text-sm text-[#3E3A35]">{{ $code->name }}</span>
                                 </label>
                             @endforeach
                         </div>
@@ -187,17 +188,17 @@ with(fn () => [
                 <!-- できますフィルタ -->
                 <div>
                     <flux:field>
-                        <flux:label>{{ $this->getCanDoLabel() }}</flux:label>
+                        <flux:label class="text-[#3E3A35] font-medium">{{ $this->getCanDoLabel() }}</flux:label>
                         <div class="flex flex-wrap gap-4">
                             @foreach ($canDoCodes as $code)
-                                <label class="flex items-center gap-2">
+                                <label class="flex items-center gap-2 cursor-pointer">
                                     <input 
                                         type="checkbox" 
                                         wire:model.live="can_do_types" 
                                         value="{{ $code->type_id }}"
-                                        class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                        class="h-4 w-4 rounded border-gray-300 text-[#4CAF50] focus:ring-[#4CAF50]"
                                     >
-                                    <span class="text-sm text-gray-700 dark:text-gray-300">{{ $code->name }}</span>
+                                    <span class="text-sm text-[#3E3A35]">{{ $code->name }}</span>
                                 </label>
                             @endforeach
                         </div>
@@ -206,53 +207,53 @@ with(fn () => [
 
                 <!-- フィルタリセットボタン -->
                 <div class="flex justify-end">
-                    <flux:button wire:click="resetFilters" variant="ghost" icon="arrow-path">
+                    <button wire:click="resetFilters" class="text-[#6B6760] hover:text-[#FF6B35] flex items-center gap-2 transition-colors">
+                        <i class="fas fa-redo"></i>
                         フィルタをリセット
-                    </flux:button>
+                    </button>
                 </div>
             </div>
         </div>
 
         <!-- 検索結果数 -->
         <div class="mb-6">
-            <flux:text variant="subtle">
+            <p class="text-[#6B6760]">
                 {{ $this->jobPosts->count() }}件の募集が見つかりました
-            </flux:text>
+            </p>
         </div>
 
         <!-- 募集カード一覧 -->
         @if ($this->jobPosts->isEmpty())
-            <div class="rounded-xl border border-gray-200 bg-white p-12 text-center dark:border-gray-700 dark:bg-gray-800">
-                <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700">
-                    <svg class="h-8 w-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
+            <div class="rounded-2xl bg-white p-12 text-center shadow-lg">
+                <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[#F5F3F0]">
+                    <i class="fas fa-inbox text-3xl text-[#6B6760]"></i>
                 </div>
-                <flux:heading size="lg" class="mb-2">募集が見つかりませんでした</flux:heading>
-                <flux:text variant="subtle" class="mb-4">
+                <h2 class="text-xl font-bold text-[#3E3A35] mb-2">募集が見つかりませんでした</h2>
+                <p class="text-[#6B6760] mb-4">
                     検索条件を変更してお試しください
-                </flux:text>
-                <flux:button wire:click="resetFilters" variant="primary" icon="arrow-path">
+                </p>
+                <button wire:click="resetFilters" class="bg-[#FF6B35] hover:bg-[#E55A28] text-white px-6 py-3 rounded-full font-bold transition-all transform hover:scale-105 shadow-lg inline-flex items-center gap-2">
+                    <i class="fas fa-redo"></i>
                     フィルタをリセット
-                </flux:button>
+                </button>
             </div>
         @else
             <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                 @foreach ($this->jobPosts as $jobPost)
                     <a href="{{ route('jobs.show', $jobPost) }}" wire:navigate
-                        class="group relative overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition hover:border-blue-500 hover:shadow-lg dark:border-gray-700 dark:bg-gray-800">
+                        class="group relative overflow-hidden rounded-2xl bg-white shadow-lg transition hover:shadow-2xl transform hover:-translate-y-1">
                         
                         <!-- 参加済みバッジ（カード右上） -->
                         @if ($this->hasApplied($jobPost))
                             <div class="absolute right-3 top-3 z-10">
-                                <flux:badge color="green" size="sm" class="rounded-full font-bold shadow-md">
+                                <span class="bg-[#4CAF50] text-white px-3 py-1 rounded-full text-xs font-bold shadow-md">
                                     ✓ 参加済み
-                                </flux:badge>
+                                </span>
                             </div>
                         @endif
                         
                         <!-- アイキャッチ画像 -->
-                        <div class="aspect-video w-full overflow-hidden bg-gray-100 dark:bg-gray-700">
+                        <div class="aspect-video w-full overflow-hidden bg-[#F5F3F0]">
                             @if ($jobPost->eyecatch)
                                 @if (str_starts_with($jobPost->eyecatch, '/images/presets/'))
                                     <img src="{{ $jobPost->eyecatch }}" 
@@ -266,9 +267,7 @@ with(fn () => [
                             @else
                                 <!-- 画像がない場合のプレースホルダー -->
                                 <div class="flex h-full w-full items-center justify-center">
-                                    <svg class="h-16 w-16 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                    </svg>
+                                    <i class="fas fa-image text-5xl text-[#FF6B35]/30"></i>
                                 </div>
                             @endif
                         </div>
@@ -278,9 +277,9 @@ with(fn () => [
                             <div class="mb-3 flex flex-wrap gap-2">
                                 <!-- 希望タグ（最大2つまで表示） -->
                                 @foreach ($jobPost->getWantYouCodes()->take(2) as $code)
-                                    <flux:badge color="zinc" size="sm" class="rounded-full">
+                                    <span class="bg-[#6B6760]/10 text-[#6B6760] px-3 py-1 rounded-full text-xs font-medium">
                                         #{{ $code->name }}
-                                    </flux:badge>
+                                    </span>
                                 @endforeach
                             </div>
 
@@ -288,29 +287,27 @@ with(fn () => [
                             <div class="mb-3 flex items-start gap-2">
                                 @if ($jobPost->purpose === 'want_to_do')
                                     <!-- いつでも募集：目立つオレンジ色のバッジ -->
-                                    <flux:badge color="orange" size="sm" class="flex-shrink-0 font-bold animate-pulse">
-                                        <span class="flex items-center gap-1">
-                                            <flux:icon.bolt variant="micro" />
-                                            {{ $jobPost->getPurposeLabel() }}
-                                        </span>
-                                    </flux:badge>
+                                    <span class="bg-[#FF6B35] text-white px-3 py-1 rounded-full text-xs font-bold flex-shrink-0 animate-pulse flex items-center gap-1">
+                                        <i class="fas fa-bolt"></i>
+                                        {{ $jobPost->getPurposeLabel() }}
+                                    </span>
                                 @else
                                     <!-- 決まった日に募集：通常の赤色バッジ -->
-                                    <flux:badge color="red" size="sm" class="flex-shrink-0 font-bold">
+                                    <span class="bg-red-500 text-white px-3 py-1 rounded-full text-xs font-bold flex-shrink-0">
                                         {{ $jobPost->getPurposeLabel() }}
-                                    </flux:badge>
+                                    </span>
                                 @endif
-                                <flux:heading size="md" class="line-clamp-2 flex-1 text-gray-900 dark:text-white">
+                                <h3 class="line-clamp-2 flex-1 text-lg font-bold text-[#3E3A35]">
                                     {{ $jobPost->job_title }}
-                                </flux:heading>
+                                </h3>
                             </div>
 
                             <!-- 決まった日に募集の場合：日時表示 -->
                             @if ($jobPost->purpose === 'need_help' && $jobPost->start_datetime && $jobPost->end_datetime)
-                                <div class="mb-3 rounded-lg bg-blue-50 p-3 dark:bg-blue-900/20">
-                                    <div class="flex items-center gap-2 text-sm text-blue-700 dark:text-blue-300">
-                                        <flux:icon.calendar variant="micro" />
-                                        <span class="font-medium">
+                                <div class="mb-3 rounded-lg bg-[#87CEEB]/10 p-3">
+                                    <div class="flex items-center gap-2 text-sm text-[#87CEEB] font-medium">
+                                        <i class="fas fa-calendar-alt"></i>
+                                        <span>
                                             {{ $jobPost->start_datetime->format('Y年n月j日 H:i') }} 〜 
                                             {{ $jobPost->end_datetime->format('Y年n月j日 H:i') }}
                                         </span>
@@ -319,17 +316,17 @@ with(fn () => [
                             @endif
 
                             <!-- 事業内容（90文字まで） -->
-                            <flux:text class="mb-4 line-clamp-3 text-sm text-gray-600 dark:text-gray-400">
+                            <p class="mb-4 line-clamp-3 text-sm text-[#6B6760]">
                                 {{ Str::limit($jobPost->job_detail, 90) }}
-                            </flux:text>
+                            </p>
 
                             <!-- どこで -->
                             @if ($jobPost->location)
                                 <div class="mb-4 flex items-start gap-2">
-                                    <flux:icon.map-pin variant="micro" class="mt-0.5 flex-shrink-0 text-gray-500 dark:text-gray-400" />
-                                    <flux:text class="text-xs text-gray-600 dark:text-gray-400">
+                                    <i class="fas fa-map-marker-alt mt-0.5 flex-shrink-0 text-[#FF6B35]"></i>
+                                    <p class="text-xs text-[#6B6760]">
                                         {{ Str::limit($jobPost->location, 50) }}
-                                    </flux:text>
+                                    </p>
                                 </div>
                             @endif
 
@@ -337,23 +334,21 @@ with(fn () => [
                             @if ($jobPost->getCanDoCodes()->isNotEmpty())
                                 <div class="mb-4 flex flex-wrap gap-1">
                                     @foreach ($jobPost->getCanDoCodes()->take(3) as $code)
-                                        <flux:badge color="green" size="sm" class="rounded-full text-xs">
+                                        <span class="bg-[#4CAF50]/10 text-[#4CAF50] px-3 py-1 rounded-full text-xs font-medium">
                                             ✓ {{ $code->name }}
-                                        </flux:badge>
+                                        </span>
                                     @endforeach
                                 </div>
                             @endif
 
                             <!-- ホスト情報 -->
-                            <div class="border-t border-gray-200 pt-4 dark:border-gray-700">
+                            <div class="border-t border-[#F5F3F0] pt-4">
                                 <div class="flex flex-wrap items-center gap-2 text-xs">
                                     <!-- ホスト名 -->
-                                    <flux:badge color="zinc" size="sm">
-                                        <span class="flex items-center gap-1">
-                                            <flux:icon.building-office-2 variant="micro" />
-                                            {{ $jobPost->company->name }}
-                                        </span>
-                                    </flux:badge>
+                                    <span class="bg-[#6B6760]/10 text-[#6B6760] px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1">
+                                        <i class="fas fa-building"></i>
+                                        {{ $jobPost->company->name }}
+                                    </span>
                                 </div>
                             </div>
                         </div>

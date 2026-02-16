@@ -9,7 +9,7 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-sans: 'Noto Sans JP', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
 
     --color-zinc-50: #fafafa;
     --color-zinc-100: #f5f5f5;
@@ -23,8 +23,20 @@
     --color-zinc-900: #171717;
     --color-zinc-950: #0a0a0a;
 
-    --color-accent: var(--color-neutral-800);
-    --color-accent-content: var(--color-neutral-800);
+    /* ふるぼのカラーパレット */
+    --color-warm-beige: #F5F3F0;
+    --color-warm-cream: #FFF8E7;
+    --color-warm-orange: #FF6B35;
+    --color-warm-orange-hover: #E55A28;
+    --color-warm-green: #4CAF50;
+    --color-warm-green-hover: #45A049;
+    --color-warm-text: #3E3A35;
+    --color-warm-text-muted: #6B6760;
+    --color-warm-gold: #FFD700;
+    --color-warm-sky: #87CEEB;
+
+    --color-accent: var(--color-warm-orange);
+    --color-accent-content: var(--color-warm-orange);
     --color-accent-foreground: var(--color-white);
 }
 
@@ -64,3 +76,56 @@ select:focus[data-flux-control] {
 /* \[:where(&)\]:size-4 {
     @apply size-4;
 } */
+
+/* ふるぼのカスタムスタイル */
+
+/* アニメーション定義 */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fade-in-up {
+    animation: fadeInUp 0.8s ease-out forwards;
+}
+
+/* ボタンスタイル */
+.btn-warm {
+    @apply bg-[#FF6B35] hover:bg-[#E55A28] text-white px-6 py-3 rounded-full font-bold transition-all transform hover:scale-105 shadow-lg hover:shadow-xl;
+}
+
+.btn-warm-secondary {
+    @apply bg-[#4CAF50] hover:bg-[#45A049] text-white px-6 py-3 rounded-full font-bold transition-all transform hover:scale-105 shadow-lg hover:shadow-xl;
+}
+
+/* 認証画面用スタイル */
+.auth-container {
+    @apply min-h-screen bg-[#F5F3F0] antialiased;
+}
+
+.auth-card {
+    @apply bg-[#FFF8E7] rounded-2xl shadow-lg p-8;
+}
+
+/* フォーカススタイルの上書き */
+input:focus[data-flux-control],
+textarea:focus[data-flux-control],
+select:focus[data-flux-control] {
+    @apply outline-hidden ring-2 ring-[#FF6B35] ring-offset-2;
+}
+
+/* Flux UIボタンのカスタマイズ */
+[data-flux-button][variant="primary"] {
+    @apply bg-[#FF6B35] hover:bg-[#E55A28];
+}
+
+/* リンクのカスタマイズ */
+[data-flux-link] {
+    @apply text-[#4CAF50] hover:text-[#45A049];
+}

@@ -1,18 +1,24 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="dark">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>
         @include('partials.head')
+        <style>
+            body {
+                font-family: 'Noto Sans JP', sans-serif;
+            }
+        </style>
     </head>
-    <body class="min-h-screen bg-white antialiased dark:bg-linear-to-b dark:from-neutral-950 dark:to-neutral-900">
-        <div class="bg-background flex min-h-svh flex-col items-center justify-center gap-6 p-6 md:p-10">
-            <div class="flex w-full max-w-sm flex-col gap-2">
-                <a href="{{ route('welcome') }}" class="flex flex-col items-center gap-2 font-medium" wire:navigate>
-                    <span class="flex h-9 w-9 mb-1 items-center justify-center rounded-md">
-                        <x-app-logo-icon class="size-9 fill-current text-black dark:text-white" />
-                    </span>
-                    <span class="sr-only">{{ config('app.name', 'Laravel') }}</span>
+    <body class="min-h-screen bg-[#F5F3F0] antialiased">
+        <div class="flex min-h-svh flex-col items-center justify-center gap-6 p-6 md:p-10 animate-fade-in-up">
+            <div class="flex w-full max-w-md flex-col gap-6">
+                <!-- ロゴとサイト名 -->
+                <a href="{{ route('welcome') }}" class="flex flex-col items-center gap-3 font-medium" wire:navigate>
+                    <img src="{{ asset('images/presets/logo.png') }}" alt="ふるぼの - みんなの平泉ロゴ" class="h-16 w-auto">
+                    <span class="text-2xl font-bold text-[#FF6B35]">ふるぼの - みんなの平泉</span>
                 </a>
-                <div class="flex flex-col gap-6">
+                
+                <!-- コンテンツカード -->
+                <div class="bg-[#FFF8E7] rounded-2xl shadow-lg p-8">
                     {{ $slot }}
                 </div>
             </div>

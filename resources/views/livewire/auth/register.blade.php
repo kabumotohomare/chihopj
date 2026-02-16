@@ -1,6 +1,10 @@
 <x-layouts.auth>
     <div class="flex flex-col gap-6">
-        <x-auth-header title="アカウントをつくる" description="平泉町とつながるために、あなたの情報を入力してください" />
+        <!-- ヘッダー -->
+        <div class="text-center">
+            <h1 class="text-2xl font-bold text-[#3E3A35] mb-2">アカウントをつくる</h1>
+            <p class="text-sm text-[#6B6760]">平泉町とつながるために、あなたの情報を入力してください</p>
+        </div>
 
         <!-- Session Status -->
         <x-auth-session-status class="text-center" :status="session('status')" />
@@ -9,29 +13,29 @@
             @csrf
             <!-- Role Selection -->
             <flux:field>
-                <flux:label>平泉町とのかかわりかた</flux:label>
-                <div class="flex gap-4">
-                    <label class="flex items-center gap-2 cursor-pointer">
+                <flux:label class="text-[#3E3A35] font-medium">平泉町とのかかわりかた</flux:label>
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <label class="flex items-center gap-2 cursor-pointer bg-white p-3 rounded-lg border-2 border-gray-200 hover:border-[#FF6B35] transition-colors">
                         <input
                             type="radio"
                             name="role"
                             value="worker"
                             {{ old('role') === 'worker' ? 'checked' : '' }}
                             required
-                            class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                            class="h-4 w-4 text-[#FF6B35] focus:ring-[#FF6B35] border-gray-300"
                         />
-                        <span>ひらいず民(平泉に参加したい人)</span>
+                        <span class="text-[#3E3A35]">ひらいず民(平泉に参加したい人)</span>
                     </label>
-                    <label class="flex items-center gap-2 cursor-pointer">
+                    <label class="flex items-center gap-2 cursor-pointer bg-white p-3 rounded-lg border-2 border-gray-200 hover:border-[#4CAF50] transition-colors">
                         <input
                             type="radio"
                             name="role"
                             value="company"
                             {{ old('role') === 'company' ? 'checked' : '' }}
                             required
-                            class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                            class="h-4 w-4 text-[#4CAF50] focus:ring-[#4CAF50] border-gray-300"
                         />
-                        <span>ホスト(平泉で募集する人)</span>
+                        <span class="text-[#3E3A35]">ホスト(平泉で募集する人)</span>
                     </label>
                 </div>
                 @error('role')
@@ -85,15 +89,15 @@
             />
 
             <div class="flex items-center justify-end">
-                <flux:button type="submit" variant="primary" class="w-full" data-test="register-user-button">
+                <button type="submit" class="w-full bg-[#FF6B35] hover:bg-[#E55A28] text-white px-6 py-3 rounded-full font-bold transition-all transform hover:scale-105 shadow-lg hover:shadow-xl" data-test="register-user-button">
                     アカウントをつくる
-                </flux:button>
+                </button>
             </div>
         </form>
 
-        <div class="space-x-1 rtl:space-x-reverse text-center text-sm text-zinc-600 dark:text-zinc-400">
+        <div class="text-sm text-center text-[#6B6760]">
             <span>すでにアカウントをお持ちですか?</span>
-            <flux:link :href="route('login')" wire:navigate>ログインする</flux:link>
+            <a href="{{ route('login') }}" class="text-[#4CAF50] hover:text-[#45A049] font-medium ml-1" wire:navigate>ログインする</a>
         </div>
     </div>
 </x-layouts.auth>

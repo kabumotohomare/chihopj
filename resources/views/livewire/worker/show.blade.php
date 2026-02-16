@@ -73,78 +73,77 @@ $getIconUrl = function (): ?string {
 
 <div class="mx-auto max-w-4xl px-4 py-8">
     <div class="mb-6 flex items-center justify-between">
-        <flux:heading size="xl">ひらいず民プロフィール</flux:heading>
-        <flux:button href="{{ route('worker.edit') }}" wire:navigate>
+        <h1 class="text-3xl font-bold text-[#3E3A35]">ひらいず民プロフィール</h1>
+        <a href="{{ route('worker.edit') }}" wire:navigate class="bg-[#FF6B35] hover:bg-[#E55A28] text-white px-6 py-3 rounded-full font-bold transition-all transform hover:scale-105 shadow-lg">
             編集
-        </flux:button>
+        </a>
     </div>
 
     <div class="space-y-6">
         {{-- アイコン画像とハンドルネーム --}}
-        <div
-            class="flex items-center gap-6 rounded-lg border border-zinc-200 bg-white p-6 dark:border-zinc-700 dark:bg-zinc-800">
+        <div class="flex items-center gap-6 rounded-2xl bg-white p-6 shadow-lg">
             @if ($this->getIconUrl())
                 <img src="{{ $this->getIconUrl() }}" alt="{{ $profile->handle_name }}"
-                    class="size-24 rounded-full object-cover">
+                    class="size-24 rounded-full object-cover border-4 border-[#4CAF50]/20 shadow-lg">
             @else
-                <div class="flex size-24 items-center justify-center rounded-full bg-zinc-200 dark:bg-zinc-700">
-                    <flux:icon.user class="size-12 text-zinc-500 dark:text-zinc-400" />
+                <div class="flex size-24 items-center justify-center rounded-full bg-[#F5F3F0]">
+                    <i class="fas fa-user text-4xl text-[#6B6760]"></i>
                 </div>
             @endif
             <div>
-                <flux:heading size="lg">{{ $profile->handle_name }}</flux:heading>
+                <h2 class="text-2xl font-bold text-[#3E3A35]">{{ $profile->handle_name }}</h2>
             </div>
         </div>
 
         {{-- 基本情報 --}}
-        <div class="rounded-lg border border-zinc-200 bg-white p-6 dark:border-zinc-700 dark:bg-zinc-800">
-            <flux:heading size="lg" class="mb-4">基本情報</flux:heading>
+        <div class="rounded-2xl bg-white p-6 shadow-lg">
+            <h2 class="text-xl font-bold text-[#3E3A35] mb-4">基本情報</h2>
             <div class="space-y-4">
                 <div>
-                    <flux:text class="font-semibold text-zinc-700 dark:text-zinc-300">性別</flux:text>
-                    <flux:text class="mt-1">{{ $profile->genderLabel }}</flux:text>
+                    <p class="font-semibold text-[#3E3A35]">性別</p>
+                    <p class="mt-1 text-[#6B6760]">{{ $profile->genderLabel }}</p>
                 </div>
                 <div>
-                    <flux:text class="font-semibold text-zinc-700 dark:text-zinc-300">生年月日</flux:text>
-                    <flux:text class="mt-1">{{ $this->getBirthdateDisplay() }}</flux:text>
+                    <p class="font-semibold text-[#3E3A35]">生年月日</p>
+                    <p class="mt-1 text-[#6B6760]">{{ $this->getBirthdateDisplay() }}</p>
                 </div>
             </div>
         </div>
 
         {{-- 現在のお住まい --}}
-        <div class="rounded-lg border border-zinc-200 bg-white p-6 dark:border-zinc-700 dark:bg-zinc-800">
-            <flux:heading size="lg" class="mb-4">現在のお住まい</flux:heading>
+        <div class="rounded-2xl bg-white p-6 shadow-lg">
+            <h2 class="text-xl font-bold text-[#3E3A35] mb-4">現在のお住まい</h2>
             <div class="space-y-4">
                 <div>
-                    <flux:text class="font-semibold text-zinc-700 dark:text-zinc-300">現在のお住まい1</flux:text>
-                    <flux:text class="mt-1">{{ $this->getLocationDisplay($profile->currentLocation1) }}</flux:text>
+                    <p class="font-semibold text-[#3E3A35]">現在のお住まい1</p>
+                    <p class="mt-1 text-[#6B6760]">{{ $this->getLocationDisplay($profile->currentLocation1) }}</p>
                 </div>
                 <div>
-                    <flux:text class="font-semibold text-zinc-700 dark:text-zinc-300">町名番地建物名</flux:text>
-                    <flux:text class="mt-1">{{ $profile->current_address ?: '未設定' }}</flux:text>
+                    <p class="font-semibold text-[#3E3A35]">町名番地建物名</p>
+                    <p class="mt-1 text-[#6B6760]">{{ $profile->current_address ?: '未設定' }}</p>
                 </div>
                 <div>
-                    <flux:text class="font-semibold text-zinc-700 dark:text-zinc-300">電話番号</flux:text>
-                    <flux:text class="mt-1">{{ $profile->phone_number ?: '未設定' }}</flux:text>
+                    <p class="font-semibold text-[#3E3A35]">電話番号</p>
+                    <p class="mt-1 text-[#6B6760]">{{ $profile->phone_number ?: '未設定' }}</p>
                 </div>
                 <div>
-                    <flux:text class="font-semibold text-zinc-700 dark:text-zinc-300">現在のお住まい2</flux:text>
-                    <flux:text class="mt-1">{{ $this->getLocationDisplay($profile->currentLocation2) }}</flux:text>
+                    <p class="font-semibold text-[#3E3A35]">現在のお住まい2</p>
+                    <p class="mt-1 text-[#6B6760]">{{ $this->getLocationDisplay($profile->currentLocation2) }}</p>
                 </div>
             </div>
         </div>
 
         {{-- 登録・更新日時 --}}
-        <div class="rounded-lg border border-zinc-200 bg-white p-6 dark:border-zinc-700 dark:bg-zinc-800">
-            <flux:heading size="lg" class="mb-4">登録情報</flux:heading>
+        <div class="rounded-2xl bg-white p-6 shadow-lg">
+            <h2 class="text-xl font-bold text-[#3E3A35] mb-4">登録情報</h2>
             <div class="space-y-4">
                 <div>
-                    <flux:text class="font-semibold text-zinc-700 dark:text-zinc-300">登録日時</flux:text>
-                    <flux:text class="mt-1">{{ $profile->created_at->format('Y年n月j日 H:i') }}</flux:text>
+                    <p class="font-semibold text-[#3E3A35]">登録日時</p>
+                    <p class="mt-1 text-[#6B6760]">{{ $profile->created_at->format('Y年n月j日 H:i') }}</p>
                 </div>
                 <div>
-                    <flux:text class="font-semibold text-zinc-700 dark:text-zinc-300">更新日時</flux:text>
-                    <flux:text class="mt-1">{{ $profile->updated_at->format('Y年n月j日 H:i') }}</flux:text>
+                    <p class="font-semibold text-[#3E3A35]">更新日時</p>
+                    <p class="mt-1 text-[#6B6760]">{{ $profile->updated_at->format('Y年n月j日 H:i') }}</p>
                 </div>
             </div>
         </div>
