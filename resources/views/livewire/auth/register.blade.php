@@ -3,7 +3,7 @@
         <!-- ヘッダー -->
         <div class="text-center">
             <h1 class="text-2xl font-bold text-[#3E3A35] mb-2">アカウントをつくる</h1>
-            <p class="text-sm text-[#6B6760]">平泉町とつながるために、あなたの情報を入力してください</p>
+            <p class="text-sm text-[#6B6760]">お名前とメールアドレスを入力してください</p>
         </div>
 
         <!-- Session Status -->

@@ -9,9 +9,7 @@ use Livewire\Attributes\Validate;
 use Livewire\Volt\Component;
 use Livewire\WithFileUploads;
 
-new #[Layout('components.layouts.auth')]
-class extends Component
-{
+new #[Layout('components.layouts.auth')] class extends Component {
     use WithFileUploads;
 
     // 基本情報
@@ -85,9 +83,7 @@ class extends Component
 
     public function getPrefecturesProperty()
     {
-        return Location::whereNull('city')
-            ->orderBy('code')
-            ->get();
+        return Location::whereNull('city')->orderBy('code')->get();
     }
 
     public function getCurrent1CitiesProperty()
@@ -96,10 +92,7 @@ class extends Component
             return collect();
         }
 
-        return Location::where('prefecture', $this->current_1_prefecture)
-            ->whereNotNull('city')
-            ->orderBy('code')
-            ->get();
+        return Location::where('prefecture', $this->current_1_prefecture)->whereNotNull('city')->orderBy('code')->get();
     }
 
     public function getCurrent2CitiesProperty()
@@ -108,12 +101,8 @@ class extends Component
             return collect();
         }
 
-        return Location::where('prefecture', $this->current_2_prefecture)
-            ->whereNotNull('city')
-            ->orderBy('code')
-            ->get();
+        return Location::where('prefecture', $this->current_2_prefecture)->whereNotNull('city')->orderBy('code')->get();
     }
-
 
     public function updatedCurrent1Prefecture($value): void
     {
@@ -124,7 +113,6 @@ class extends Component
     {
         $this->current_location_2_id = null;
     }
-
 
     public function updatedBirthYear(): void
     {
@@ -138,7 +126,7 @@ class extends Component
 
     private function updateDays(): void
     {
-        if (! $this->birth_year || ! $this->birth_month) {
+        if (!$this->birth_year || !$this->birth_month) {
             $this->days = range(1, 31);
 
             return;
@@ -162,12 +150,7 @@ class extends Component
         $this->validate();
 
         // 生年月日を結合
-        $birthdate = sprintf(
-            '%04d-%02d-%02d',
-            $this->birth_year,
-            $this->birth_month,
-            $this->birth_day
-        );
+        $birthdate = sprintf('%04d-%02d-%02d', $this->birth_year, $this->birth_month, $this->birth_day);
 
         // ひらいず民プロフィールを作成
         WorkerProfile::create([
@@ -195,7 +178,7 @@ class extends Component
         <div>
             <h1 class="text-2xl font-bold">ひらいず民プロフィール登録</h1>
             <p class="text-sm text-zinc-600 dark:text-zinc-400 mt-2">
-                ひらいず民としてのプロフィールを登録してください
+                ひらいず民としてのプロフィールを登録してください。個人情報は公開されません。運営からのご本人様確認のため、利用させていただきます。
             </p>
         </div>
 
@@ -211,16 +194,13 @@ class extends Component
                     @endphp
                     @if ($isImage)
                         <div class="mb-4">
-                            <img src="{{ $icon->temporaryUrl() }}"
-                                alt="プレビュー"
+                            <img src="{{ $icon->temporaryUrl() }}" alt="プレビュー"
                                 class="size-24 rounded-full object-cover border-2 border-zinc-300 dark:border-zinc-600">
                         </div>
                     @endif
                 @endif
 
-                <input type="file"
-                    wire:model="icon"
-                    accept="image/jpeg,image/jpg,image/png,image/gif"
+                <input type="file" wire:model="icon" accept="image/jpeg,image/jpg,image/png,image/gif"
                     class="block w-full text-sm text-zinc-900 border border-zinc-300 rounded-lg cursor-pointer bg-zinc-50 dark:text-zinc-400 focus:outline-none dark:bg-zinc-700 dark:border-zinc-600 dark:placeholder-zinc-400">
 
                 <flux:description>
@@ -242,33 +222,18 @@ class extends Component
                 <flux:label>性別 <span class="text-red-500">*</span></flux:label>
                 <div class="flex gap-4">
                     <label class="flex items-center gap-2 cursor-pointer">
-                        <input
-                            type="radio"
-                            name="gender"
-                            value="male"
-                            wire:model="gender"
-                            class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-                        />
+                        <input type="radio" name="gender" value="male" wire:model="gender"
+                            class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300" />
                         <span>男性</span>
                     </label>
                     <label class="flex items-center gap-2 cursor-pointer">
-                        <input
-                            type="radio"
-                            name="gender"
-                            value="female"
-                            wire:model="gender"
-                            class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-                        />
+                        <input type="radio" name="gender" value="female" wire:model="gender"
+                            class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300" />
                         <span>女性</span>
                     </label>
                     <label class="flex items-center gap-2 cursor-pointer">
-                        <input
-                            type="radio"
-                            name="gender"
-                            value="other"
-                            wire:model="gender"
-                            class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-                        />
+                        <input type="radio" name="gender" value="other" wire:model="gender"
+                            class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300" />
                         <span>その他</span>
                     </label>
                 </div>
@@ -280,17 +245,17 @@ class extends Component
                 <flux:label>生年月日 <span class="text-red-500">*</span></flux:label>
                 <div class="flex gap-2">
                     <flux:select wire:model.live="birth_year" placeholder="年">
-                        @foreach($years as $year)
+                        @foreach ($years as $year)
                             <option value="{{ $year }}">{{ $year }}年</option>
                         @endforeach
                     </flux:select>
                     <flux:select wire:model.live="birth_month" placeholder="月">
-                        @foreach($months as $month)
+                        @foreach ($months as $month)
                             <option value="{{ $month }}">{{ $month }}月</option>
                         @endforeach
                     </flux:select>
                     <flux:select wire:model="birth_day" placeholder="日">
-                        @foreach($days as $day)
+                        @foreach ($days as $day)
                             <option value="{{ $day }}">{{ $day }}日</option>
                         @endforeach
                     </flux:select>
@@ -307,7 +272,7 @@ class extends Component
                     <select wire:model.live="current_1_prefecture"
                         class="w-full rounded-lg border border-gray-200 px-3 py-2 dark:border-gray-700 dark:bg-gray-800">
                         <option value="">都道府県を選択</option>
-                        @foreach($this->prefectures as $prefecture)
+                        @foreach ($this->prefectures as $prefecture)
                             <option value="{{ $prefecture->prefecture }}">{{ $prefecture->prefecture }}</option>
                         @endforeach
                     </select>
@@ -315,8 +280,8 @@ class extends Component
                         class="w-full rounded-lg border border-gray-200 px-3 py-2 dark:border-gray-700 dark:bg-gray-800"
                         @disabled(empty($this->current_1_cities))>
                         <option value="">市区町村を選択</option>
-                        @if(!empty($this->current_1_cities))
-                            @foreach($this->current_1_cities as $city)
+                        @if (!empty($this->current_1_cities))
+                            @foreach ($this->current_1_cities as $city)
                                 <option value="{{ $city->id }}">{{ $city->city }}</option>
                             @endforeach
                         @endif
@@ -352,7 +317,7 @@ class extends Component
                     <select wire:model.live="current_2_prefecture"
                         class="w-full rounded-lg border border-gray-200 px-3 py-2 dark:border-gray-700 dark:bg-gray-800">
                         <option value="">都道府県を選択</option>
-                        @foreach($this->prefectures as $prefecture)
+                        @foreach ($this->prefectures as $prefecture)
                             <option value="{{ $prefecture->prefecture }}">{{ $prefecture->prefecture }}</option>
                         @endforeach
                     </select>
@@ -360,8 +325,8 @@ class extends Component
                         class="w-full rounded-lg border border-gray-200 px-3 py-2 dark:border-gray-700 dark:bg-gray-800"
                         @disabled(empty($this->current_2_cities))>
                         <option value="">市区町村を選択</option>
-                        @if(!empty($this->current_2_cities))
-                            @foreach($this->current_2_cities as $city)
+                        @if (!empty($this->current_2_cities))
+                            @foreach ($this->current_2_cities as $city)
                                 <option value="{{ $city->id }}">{{ $city->city }}</option>
                             @endforeach
                         @endif

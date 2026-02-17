@@ -497,8 +497,13 @@
 
             @if ($latestJobs->isEmpty())
                 <div class="text-center py-16">
-                    <i class="fas fa-inbox text-6xl text-gray-300 mb-4"></i>
-                    <p class="text-xl text-[#6B6760]">ひらいず民登録してお待ちください。</p>
+                    <i class="fas fa-inbox text-6xl text-gray-300 mb-6"></i>
+                    <p class="text-xl text-[#6B6760] mb-6">ひらいず民登録してお待ちください。</p>
+                    <a href="{{ url('/register') }}"
+                        class="inline-flex items-center gap-2 bg-[#FF6B35] hover:bg-[#E55A28] text-white px-8 py-4 rounded-full transition-all transform hover:scale-105 font-bold text-lg shadow-lg btn-pop">
+                        <i class="fas fa-user-plus"></i>
+                        <span>登録はこちらから</span>
+                    </a>
                 </div>
             @else
                 <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
