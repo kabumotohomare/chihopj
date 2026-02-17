@@ -5,11 +5,11 @@ declare(strict_types=1);
 use App\Http\Requests\StoreJobPostRequest;
 use App\Models\Code;
 use App\Models\JobPost;
-use App\Models\JobPostSuggestion;
 use Livewire\WithFileUploads;
 
 use function Livewire\Volt\computed;
 use function Livewire\Volt\layout;
+use function Livewire\Volt\mount;
 use function Livewire\Volt\state;
 use function Livewire\Volt\uses;
 
@@ -30,9 +30,21 @@ state([
     'location' => '',
     'want_you_ids' => [],
     'can_do_ids' => [],
-    'suggestions' => [],
-    'showSuggestions' => false,
+    'showJobTitleHelper' => false,
+    'showJobDetailHelper' => false,
+    'hasStartedJobTitle' => false,
+    'hasStartedJobDetail' => false,
 ]);
+
+// 初期化処理（プロフィール登録チェック）
+mount(function () {
+    // プロフィール未登録の場合はエラーメッセージを表示してリダイレクト
+    if (auth()->user()->companyProfile === null) {
+        session()->flash('error', '募集を行う場合はホストプロフィール登録を完了させてください');
+
+        return $this->redirect(route('company.register'), navigate: true);
+    }
+});
 
 // プリセット画像のリスト
 $presetImages = computed(function () {
@@ -58,33 +70,44 @@ $updatedPurpose = function ($value) {
     }
 };
 
-// job_detailの変更を監視（入力補助機能）
-$updatedJobDetail = function ($value) {
-    // 2文字以上で候補を検索
-    if (mb_strlen($value) >= 2) {
-        $this->suggestions = JobPostSuggestion::query()->searchByPrefix($value, 5)->get()->toArray();
-        $this->showSuggestions = count($this->suggestions) > 0;
-    } else {
-        $this->suggestions = [];
-        $this->showSuggestions = false;
+// job_titleの変更を監視（入力補助機能）
+$updatedJobTitle = function ($value) {
+    // 初めて入力を開始した時にヘルパーを表示
+    if (!$this->hasStartedJobTitle && mb_strlen($value) > 0) {
+        $this->hasStartedJobTitle = true;
+        $this->showJobTitleHelper = true;
     }
 };
 
-// 候補選択処理
-$selectSuggestion = function ($phrase) {
-    // 選択されたフレーズを設定
-    $this->job_detail = $phrase;
-
-    // 候補を非表示
-    $this->showSuggestions = false;
-    $this->suggestions = [];
-
-    // 使用回数をインクリメント
-    $suggestion = JobPostSuggestion::query()->where('phrase', $phrase)->first();
-
-    if ($suggestion) {
-        $suggestion->incrementUsage();
+// job_detailの変更を監視（入力補助機能）
+$updatedJobDetail = function ($value) {
+    // 初めて入力を開始した時にヘルパーを表示
+    if (!$this->hasStartedJobDetail && mb_strlen($value) > 0) {
+        $this->hasStartedJobDetail = true;
+        $this->showJobDetailHelper = true;
     }
+};
+
+// 見本文章の適用（やること）
+$applyJobTitleExample = function () {
+    $this->job_title = '平泉大文字送り火の運営をお手伝い';
+    $this->showJobTitleHelper = false;
+};
+
+// 見本文章の適用（さらに具体的には）
+$applyJobDetailExample = function () {
+    $this->job_detail = '平泉大文字送り火の運営のため、火床づくりを行います。持ち物は必要ありません。動きやすい服装でお越しください。教わりながら、一緒に楽しみましょう。';
+    $this->showJobDetailHelper = false;
+};
+
+// ヘルパーを閉じる（やること）
+$closeJobTitleHelper = function () {
+    $this->showJobTitleHelper = false;
+};
+
+// ヘルパーを閉じる（さらに具体的には）
+$closeJobDetailHelper = function () {
+    $this->showJobDetailHelper = false;
 };
 
 // 募集投稿処理
@@ -255,7 +278,46 @@ $create = function () {
             <flux:field>
                 <flux:label>やること <span class="text-red-500">*</span></flux:label>
                 <flux:description>50文字以内で入力してください</flux:description>
-                <flux:textarea wire:model="job_title" rows="2" placeholder="平泉大文字送り火の運営をお手伝い"></flux:textarea>
+                <div class="relative">
+                    <flux:textarea wire:model.live="job_title" rows="2" placeholder="例：平泉大文字送り火の運営をお手伝い">
+                    </flux:textarea>
+
+                    <!-- 入力補助ヘルパー -->
+                    @if ($showJobTitleHelper)
+                        <div
+                            class="absolute z-10 mt-2 w-full rounded-lg border border-blue-200 bg-blue-50 p-4 shadow-lg dark:border-blue-800 dark:bg-blue-950">
+                            <div class="mb-3 flex items-center justify-between">
+                                <div class="flex items-center gap-2">
+                                    <svg class="h-5 w-5 text-blue-600 dark:text-blue-400" fill="none"
+                                        stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <span class="font-semibold text-blue-900 dark:text-blue-100">
+                                        見本の文章が必要ですか？
+                                    </span>
+                                </div>
+                                <button type="button" wire:click="closeJobTitleHelper"
+                                    class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
+                            <div class="flex gap-3">
+                                <flux:button type="button" wire:click="applyJobTitleExample" variant="primary"
+                                    size="sm">
+                                    はい
+                                </flux:button>
+                                <flux:button type="button" wire:click="closeJobTitleHelper" variant="ghost"
+                                    size="sm">
+                                    いいえ
+                                </flux:button>
+                            </div>
+                        </div>
+                    @endif
+                </div>
                 <flux:error name="job_title" />
             </flux:field>
 
@@ -264,31 +326,42 @@ $create = function () {
                 <flux:label>さらに具体的には？ <span class="text-red-500">*</span></flux:label>
                 <flux:description>200文字以内で入力してください</flux:description>
                 <div class="relative">
-                    <flux:textarea wire:model.live.debounce.300ms="job_detail" rows="5"
-                        placeholder="平泉大文字送り火の運営のため、火床づくりを行います。持ち物は必要ありません。動きやすい服装でお越しください。教わりながら、一緒に楽しみましょう。">
+                    <flux:textarea wire:model.live="job_detail" rows="5"
+                        placeholder="例：平泉大文字送り火の運営のため、火床づくりを行います。持ち物は必要ありません。動きやすい服装でお越しください。教わりながら、一緒に楽しみましょう。">
                     </flux:textarea>
 
-                    <!-- 入力補助候補のドロップダウン -->
-                    @if ($showSuggestions && !empty($suggestions))
+                    <!-- 入力補助ヘルパー -->
+                    @if ($showJobDetailHelper)
                         <div
-                            class="absolute z-10 mt-1 w-full rounded-lg border border-gray-200 bg-white shadow-lg dark:border-gray-700 dark:bg-gray-800">
-                            <div class="px-3 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400">
-                                他の事業者の募集を参考にしてください
+                            class="absolute z-10 mt-2 w-full rounded-lg border border-blue-200 bg-blue-50 p-4 shadow-lg dark:border-blue-800 dark:bg-blue-950">
+                            <div class="mb-3 flex items-center justify-between">
+                                <div class="flex items-center gap-2">
+                                    <svg class="h-5 w-5 text-blue-600 dark:text-blue-400" fill="none"
+                                        stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <span class="font-semibold text-blue-900 dark:text-blue-100">
+                                        見本の文章が必要ですか？
+                                    </span>
+                                </div>
+                                <button type="button" wire:click="closeJobDetailHelper"
+                                    class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
                             </div>
-                            <div class="max-h-60 overflow-y-auto">
-                                @foreach ($suggestions as $suggestion)
-                                    <button type="button"
-                                        wire:click="selectSuggestion('{{ addslashes($suggestion['phrase']) }}')"
-                                        class="w-full px-3 py-2 text-left text-sm transition-colors hover:bg-blue-50 dark:hover:bg-gray-700">
-                                        <div class="text-gray-900 dark:text-gray-100">
-                                            {{ $suggestion['phrase'] }}
-                                        </div>
-                                        <div class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                                            カテゴリ: {{ $suggestion['category'] }} | 使用回数:
-                                            {{ $suggestion['usage_count'] }}
-                                        </div>
-                                    </button>
-                                @endforeach
+                            <div class="flex gap-3">
+                                <flux:button type="button" wire:click="applyJobDetailExample" variant="primary"
+                                    size="sm">
+                                    はい
+                                </flux:button>
+                                <flux:button type="button" wire:click="closeJobDetailHelper" variant="ghost"
+                                    size="sm">
+                                    いいえ
+                                </flux:button>
                             </div>
                         </div>
                     @endif

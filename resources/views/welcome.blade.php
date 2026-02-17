@@ -123,10 +123,10 @@
         <div class="container mx-auto px-4 sm:px-6 lg:px-8">
             <nav class="flex items-center justify-between h-16">
                 <!-- ロゴ -->
-                <div class="flex items-center gap-3">
+                <a href="{{ url('/') }}" class="flex items-center gap-3 hover:opacity-80 transition-opacity">
                     <img src="{{ asset('images/presets/logo.png') }}" alt="ふるぼの - みんなの平泉ロゴ" class="h-10 w-auto">
                     <span class="text-xl md:text-2xl font-bold text-[#FF6B35]">ふるぼの - みんなの平泉</span>
-                </div>
+                </a>
 
                 <!-- デスクトップメニュー -->
                 <div class="hidden md:flex items-center gap-6">
@@ -379,7 +379,7 @@
                         </div>
                         <p class="text-[#6B6760] text-base md:text-lg leading-relaxed font-medium"
                             style="letter-spacing: 0.03em;">
-                            どこに住んでいても、平泉とかかわる最初の一歩です
+                            どこに住んでいても、平泉とかかわる最初の一歩（※もちろん無料）
                         </p>
                     </div>
                 </div>
@@ -498,7 +498,7 @@
             @if ($latestJobs->isEmpty())
                 <div class="text-center py-16">
                     <i class="fas fa-inbox text-6xl text-gray-300 mb-4"></i>
-                    <p class="text-xl text-[#6B6760]">現在、募集はありません</p>
+                    <p class="text-xl text-[#6B6760]">ひらいず民登録してお待ちください。</p>
                 </div>
             @else
                 <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">

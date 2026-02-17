@@ -76,20 +76,20 @@
                             </div>
                         </flux:menu.radio.group>
 
-                        <flux:menu.separator />
+                    <flux:menu.separator />
 
-                        <flux:menu.radio.group>
-                            <flux:menu.item :href="route('profile.edit')" icon="cog" wire:navigate>{{ __('Settings') }}</flux:menu.item>
-                        </flux:menu.radio.group>
+                    <flux:menu.radio.group>
+                        <flux:menu.item :href="route('profile.edit')" icon="cog" wire:navigate>設定</flux:menu.item>
+                    </flux:menu.radio.group>
 
-                        <flux:menu.separator />
+                    <flux:menu.separator />
 
-                        <form method="POST" action="{{ route('logout') }}" class="w-full">
-                            @csrf
-                            <flux:menu.item as="button" type="submit" icon="arrow-right-start-on-rectangle" class="w-full" data-test="logout-button">
-                                {{ __('Log Out') }}
-                            </flux:menu.item>
-                        </form>
+                    <form method="POST" action="{{ route('logout') }}" class="w-full">
+                        @csrf
+                        <flux:menu.item as="button" type="submit" icon="arrow-right-start-on-rectangle" class="w-full" data-test="logout-button">
+                            ログアウト
+                        </flux:menu.item>
+                    </form>
                     </flux:menu>
                 </flux:dropdown>
             @else
@@ -125,8 +125,8 @@
             <flux:spacer />
 
             <flux:navlist variant="outline">
-                <flux:navlist.item icon="question-mark-circle" href="https://mekabu.tech/privacy-policy" target="_blank" class="text-[#6B6760] hover:bg-[#4CAF50]/10">
-                ヘルプ
+                <flux:navlist.item icon="question-mark-circle" href="https://form.run/@furubono-l7N9omymBWguT5AQABCt" target="_blank" class="text-[#6B6760] hover:bg-[#4CAF50]/10">
+                お問い合わせ
                 </flux:navlist.item>
             </flux:navlist>
         </flux:sidebar>

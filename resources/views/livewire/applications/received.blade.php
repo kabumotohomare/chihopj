@@ -44,10 +44,10 @@ $applications = computed(function (): LengthAwarePaginator {
         $query->whereIn('status', $this->statuses);
     }
 
-    // キーワード検索（ひらいず民名）
+    // キーワード検索（ニックネーム）
     if ($this->keyword) {
-        $query->whereHas('worker', function (Builder $q) {
-            $q->where('name', 'like', "%{$this->keyword}%");
+        $query->whereHas('worker.workerProfile', function (Builder $q) {
+            $q->where('handle_name', 'like', "%{$this->keyword}%");
         });
     }
 
@@ -140,8 +140,8 @@ $updatedSortOrder = function (): void {
 
         {{-- キーワード検索 --}}
         <flux:field>
-            <flux:label>ひらいず民名で検索</flux:label>
-            <flux:input wire:model.live.debounce.300ms="keyword" type="text" placeholder="ひらいず民名を入力..." />
+            <flux:label>ニックネームで検索</flux:label>
+            <flux:input wire:model.live.debounce.300ms="keyword" type="text" placeholder="ニックネームを入力..." />
         </flux:field>
 
         {{-- 並び替え --}}
@@ -161,9 +161,9 @@ $updatedSortOrder = function (): void {
                 <div class="p-6">
                     <div class="mb-4 flex flex-wrap items-start justify-between gap-4">
                         <div class="flex-1">
-                            {{-- ひらいず民名 --}}
+                            {{-- ニックネーム --}}
                             <div class="mb-2 text-lg font-semibold text-zinc-900 dark:text-white">
-                                {{ $application->worker->name }}
+                                {{ $application->worker->workerProfile->handle_name ?? '未登録' }}
                             </div>
 
                             {{-- ひらいず民募集タイトル（すべて表示の場合のみ） --}}

@@ -22,6 +22,13 @@ state(['jobPost', 'reasons' => [], 'motive' => '']);
  * コンポーネント初期化
  */
 mount(function (JobPost $jobPost) {
+    // プロフィール未登録の場合はひらいず民プロフィール登録画面にリダイレクト
+    if (auth()->user()->workerProfile === null) {
+        session()->flash('error', '応募する場合はひらいず民プロフィール登録を完了させてください');
+
+        return $this->redirect(route('worker.register'), navigate: true);
+    }
+
     // リレーションを先読み込み
     $this->jobPost = $jobPost->load(['company.companyProfile']);
 
@@ -287,7 +294,7 @@ $getPurposeLabel = function (): string {
             <div>
                 <flux:heading size="lg">本当に応募しますか？</flux:heading>
                 <flux:subheading class="mt-2">
-                    この操作は取り消せません。応募を確定してもよろしいですか？
+                    応募すると、あなたのニックネーム、性別、年齢、市区町村までのお住まいの情報が、募集しているホストに送られます（応募の時点では、個人が特定される情報は送られません）。応募を確定して構いませんか？
                 </flux:subheading>
             </div>
 

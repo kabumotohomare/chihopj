@@ -29,11 +29,17 @@ class JobPostPolicy
     }
 
     /**
-     * 新規作成の認可（企業ユーザーのみ）
+     * 新規作成の認可（企業ユーザーのみ、プロフィール登録済み）
      */
     public function create(User $user): bool
     {
-        return $user->isCompany();
+        // 企業ユーザーでない場合は不可
+        if (! $user->isCompany()) {
+            return false;
+        }
+
+        // プロフィール未登録の場合は不可
+        return $user->companyProfile !== null;
     }
 
     /**
@@ -53,12 +59,17 @@ class JobPostPolicy
     }
 
     /**
-     * 応募の認可（ワーカーのみ、重複応募不可）
+     * 応募の認可（ワーカーのみ、プロフィール登録済み、重複応募不可）
      */
     public function apply(User $user, JobPost $jobPost): bool
     {
         // ワーカーユーザーでない場合は不可
         if (! $user->isWorker()) {
+            return false;
+        }
+
+        // プロフィール未登録の場合は不可
+        if ($user->workerProfile === null) {
             return false;
         }
 

@@ -46,7 +46,12 @@ $unreadMessagesCount = computed(function (): int {
     <!-- ウェルカムメッセージ -->
     <div class="rounded-2xl bg-white p-6 md:p-8 shadow-lg animate-fade-in-up">
         <h1 class="text-2xl md:text-3xl font-bold text-[#3E3A35] mb-2">
-            ようこそ、{{ auth()->user()->name }}さん
+            ようこそ、
+            @if (auth()->user()->isWorker() && auth()->user()->workerProfile?->handle_name)
+                {{ auth()->user()->workerProfile->handle_name }}さん
+            @else
+                {{ auth()->user()->name }}さん
+            @endif
         </h1>
         <p class="text-[#6B6760]">
             @if (auth()->user()->isCompany())
