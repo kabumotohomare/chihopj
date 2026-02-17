@@ -24,6 +24,8 @@
     <style>
         body {
             font-family: 'Noto Sans JP', sans-serif;
+            font-weight: 500;
+            letter-spacing: 0.05em;
         }
 
         /* Alpine.js x-cloak */
@@ -40,14 +42,14 @@
             }
 
             50% {
-                transform: translateY(-20px);
+                transform: translateY(-10px);
             }
         }
 
         @keyframes fadeInUp {
             from {
                 opacity: 0;
-                transform: translateY(30px);
+                transform: translateY(20px);
             }
 
             to {
@@ -59,7 +61,7 @@
         @keyframes scaleIn {
             from {
                 opacity: 0;
-                transform: scale(0.8);
+                transform: scale(0.95);
             }
 
             to {
@@ -69,31 +71,47 @@
         }
 
         .animate-float {
-            animation: float 3s ease-in-out infinite;
+            animation: float 4s ease-in-out infinite;
         }
 
         .animate-fade-in-up {
-            animation: fadeInUp 0.8s ease-out forwards;
+            animation: fadeInUp 1s ease-out forwards;
         }
 
         .animate-scale-in {
-            animation: scaleIn 0.6s ease-out forwards;
+            animation: scaleIn 0.8s ease-out forwards;
         }
 
-        /* 手書き風の影 */
+        /* 手書き風の柔らかい影 */
         .text-shadow-soft {
-            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.2);
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         /* ポップなボタンスタイル */
         .btn-pop {
-            box-shadow: 0 6px 0 rgba(0, 0, 0, 0.2);
-            transition: all 0.1s;
+            box-shadow: 0 4px 0 rgba(0, 0, 0, 0.15);
+            transition: all 0.15s ease;
+        }
+
+        .btn-pop:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 0 rgba(0, 0, 0, 0.15);
         }
 
         .btn-pop:active {
-            transform: translateY(4px);
-            box-shadow: 0 2px 0 rgba(0, 0, 0, 0.2);
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 rgba(0, 0, 0, 0.15);
+        }
+
+        /* 手書き風の丸み */
+        .rounded-organic {
+            border-radius: 2rem 1.8rem 2rem 1.9rem / 1.9rem 2rem 1.8rem 2rem;
+        }
+
+        /* ステップ番号の手書き風 */
+        .step-number {
+            font-weight: 900;
+            letter-spacing: -0.02em;
         }
     </style>
 </head>
@@ -197,7 +215,7 @@
                 <!-- メインキャッチコピー -->
                 <div class="mb-6 sm:mb-8 animate-scale-in">
                     <h1 class="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-black text-[#FF6B35] mb-4 leading-tight"
-                        style="text-shadow: 4px 4px 8px rgba(255, 255, 255, 0.9), 2px 2px 4px rgba(0, 0, 0, 0.3);">
+                        style="text-shadow: 3px 3px 0px rgba(255, 255, 255, 0.8), 1px 1px 2px rgba(0, 0, 0, 0.15); letter-spacing: 0.05em;">
                         あつまれ<br>
                         <span class="text-[#4CAF50]">ひらいず民</span>！
                     </h1>
@@ -205,7 +223,7 @@
 
                 <!-- サブキャッチ -->
                 <div class="mb-8 sm:mb-12 animate-fade-in-up px-2" style="animation-delay: 0.2s;">
-                    <p class="text-lg sm:text-2xl md:text-3xl font-bold text-[#3E3A35]">
+                    <p class="text-lg sm:text-2xl md:text-3xl font-bold text-[#3E3A35]" style="letter-spacing: 0.08em;">
                         ~ 住んでいる人も、<br class="xs:inline sm:hidden">外から来た人も ~
                     </p>
                 </div>
@@ -213,8 +231,9 @@
                 <!-- 説明文 -->
                 <div class="mb-8 sm:mb-12 animate-fade-in-up px-2" style="animation-delay: 0.4s;">
                     <div
-                        class="bg-white/90 backdrop-blur-md px-4 sm:px-6 py-3 sm:py-4 rounded-2xl shadow-xl inline-block max-w-full">
-                        <p class="text-base sm:text-xl md:text-2xl text-[#3E3A35] font-medium leading-relaxed">
+                        class="bg-white/95 backdrop-blur-sm px-5 sm:px-7 py-4 sm:py-5 rounded-organic shadow-lg inline-block max-w-full">
+                        <p class="text-base sm:text-xl md:text-2xl text-[#3E3A35] font-medium leading-relaxed"
+                            style="letter-spacing: 0.05em;">
                             お手伝いを通じて、<br class="xs:inline sm:hidden"><span
                                 class="text-[#4CAF50] font-bold">平泉の暮らし</span>に参加しよう！<br>
                             <span class="text-[#FF6B35] font-bold">あなた</span>を待っている人がいます。
@@ -226,14 +245,16 @@
                 <div class="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center items-center animate-fade-in-up px-4"
                     style="animation-delay: 0.6s;">
                     <a href="#jobs"
-                        class="btn-pop bg-[#FF6B35] hover:bg-[#E55A28] text-white px-8 sm:px-10 py-4 sm:py-5 rounded-full font-black text-lg sm:text-xl md:text-2xl transition-all transform hover:scale-110 shadow-2xl w-full sm:w-auto">
+                        class="btn-pop bg-[#FF6B35] hover:bg-[#E55A28] text-white px-8 sm:px-10 py-4 sm:py-5 rounded-full font-black text-lg sm:text-xl md:text-2xl transition-all w-full sm:w-auto"
+                        style="letter-spacing: 0.1em;">
                         <i class="fas fa-hand-holding-heart mr-2"></i>
                         募集を見る
                     </a>
                     @guest
                         @if (Route::has('login'))
                             <a href="{{ route('login') }}"
-                                class="btn-pop bg-[#4CAF50] hover:bg-[#45A049] text-white px-8 sm:px-10 py-4 sm:py-5 rounded-full font-black text-lg sm:text-xl md:text-2xl transition-all transform hover:scale-110 shadow-2xl w-full sm:w-auto">
+                                class="btn-pop bg-[#4CAF50] hover:bg-[#45A049] text-white px-8 sm:px-10 py-4 sm:py-5 rounded-full font-black text-lg sm:text-xl md:text-2xl transition-all w-full sm:w-auto"
+                                style="letter-spacing: 0.1em;">
                                 <i class="fas fa-door-open mr-2"></i>
                                 はじめる
                             </a>
@@ -244,21 +265,21 @@
                 <!-- 装飾的なアイコン -->
                 <div class="mt-12 sm:mt-16 flex justify-center gap-4 sm:gap-6 md:gap-8 text-3xl sm:text-4xl md:text-5xl animate-fade-in-up"
                     style="animation-delay: 0.8s;">
-                    <div class="animate-float bg-white/80 backdrop-blur-sm rounded-full p-3 sm:p-4 shadow-lg"
+                    <div class="animate-float bg-white/90 rounded-full p-3 sm:p-4 shadow-md"
                         style="animation-delay: 0s;">
                         <i class="fas fa-seedling text-[#4CAF50]"></i>
                     </div>
-                    <div class="animate-float bg-white/80 backdrop-blur-sm rounded-full p-3 sm:p-4 shadow-lg"
-                        style="animation-delay: 0.5s;">
+                    <div class="animate-float bg-white/90 rounded-full p-3 sm:p-4 shadow-md"
+                        style="animation-delay: 0.8s;">
                         <i class="fas fa-heart text-[#FF6B35]"></i>
                     </div>
-                    <div class="animate-float bg-white/80 backdrop-blur-sm rounded-full p-3 sm:p-4 shadow-lg"
-                        style="animation-delay: 1s;">
-                        <i class="fas fa-home text-[#FFD700]"></i>
+                    <div class="animate-float bg-white/90 rounded-full p-3 sm:p-4 shadow-md"
+                        style="animation-delay: 1.6s;">
+                        <i class="fas fa-home text-[#FFA000]"></i>
                     </div>
-                    <div class="animate-float bg-white/80 backdrop-blur-sm rounded-full p-3 sm:p-4 shadow-lg"
-                        style="animation-delay: 1.5s;">
-                        <i class="fas fa-users text-[#87CEEB]"></i>
+                    <div class="animate-float bg-white/90 rounded-full p-3 sm:p-4 shadow-md"
+                        style="animation-delay: 2.4s;">
+                        <i class="fas fa-users text-[#2196F3]"></i>
                     </div>
                 </div>
             </div>
@@ -273,14 +294,203 @@
         </div>
     </section>
 
+    <!-- ひらいず民って？説明セクション -->
+    <section class="py-16 md:py-24 bg-[#FFF8E7]">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="max-w-4xl mx-auto">
+                <!-- タイトル -->
+                <div class="text-center mb-10 animate-fade-in-up">
+                    <h2 class="text-3xl md:text-4xl font-black text-[#FF6B35] mb-4 inline-flex items-center gap-3"
+                        style="letter-spacing: 0.08em;">
+                        <i class="fas fa-users text-4xl md:text-5xl"></i>
+                        ひらいず民って？
+                    </h2>
+                </div>
+
+                <!-- 説明カード -->
+                <div class="bg-white rounded-organic shadow-md p-6 sm:p-8 md:p-10 animate-scale-in">
+                    <div class="text-center space-y-6">
+                        <!-- アイコン装飾 -->
+                        <div class="flex justify-center gap-4 sm:gap-6 mb-8">
+                            <div class="animate-float bg-[#FFE5D9] rounded-full p-4 shadow-sm">
+                                <i class="fas fa-home text-3xl text-[#FF6B35]"></i>
+                            </div>
+                            <div class="animate-float bg-[#E8F5E9] rounded-full p-4 shadow-sm"
+                                style="animation-delay: 1s;">
+                                <i class="fas fa-heart text-3xl text-[#4CAF50]"></i>
+                            </div>
+                            <div class="animate-float bg-[#E3F2FD] rounded-full p-4 shadow-sm"
+                                style="animation-delay: 2s;">
+                                <i class="fas fa-handshake text-3xl text-[#2196F3]"></i>
+                            </div>
+                        </div>
+
+                        <!-- 説明文 -->
+                        <div class="text-lg md:text-xl text-[#3E3A35] leading-relaxed space-y-5"
+                            style="letter-spacing: 0.05em;">
+                            <p class="font-bold text-xl md:text-2xl text-[#FF6B35]">
+                                平泉に住んでいる人も、外から来た人も、<br>
+                                お手伝いを通じて平泉とつながる。
+                            </p>
+                            <p class="font-medium">
+                                実際に住んでいなくても、<br class="sm:hidden">
+                                住民のように町に関わることができる、<br>
+                                それが<span class="text-[#4CAF50] font-black text-2xl">「ひらいず民」</span>です。
+                            </p>
+                            <p class="text-base md:text-lg text-[#6B6760] pt-2">
+                                平泉町の<a
+                                    href="https://www.town.hiraizumi.iwate.jp/%E3%80%8C%E3%81%B5%E3%82%8B%E3%81%95%E3%81%A8%E4%BD%8F%E6%B0%91%E3%80%8D%E3%82%92%E5%8B%9F%E9%9B%86%E3%81%97%E3%81%BE%E3%81%99%EF%BC%88%E3%81%B5%E3%82%8B%E3%81%95%E3%81%A8%E4%BD%8F%E6%B0%91%E5%88%B6-23557/"
+                                    target="_blank" rel="noopener noreferrer"
+                                    class="text-[#4CAF50] hover:text-[#45A049] font-medium underline decoration-2">ふるさと住民制度</a>の考え方を取り入れています。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 平泉の暮らしの楽しみ方 5ステップセクション -->
+    <section class="py-16 md:py-24 bg-[#F5F3F0]">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- タイトル -->
+            <div class="text-center mb-14 animate-fade-in-up">
+                <h2 class="text-3xl md:text-4xl font-black text-[#3E3A35] mb-4" style="letter-spacing: 0.08em;">
+                    平泉の暮らしの楽しみ方
+                </h2>
+                <p class="text-lg text-[#6B6760] font-medium" style="letter-spacing: 0.05em;">
+                    5つのステップで平泉とつながる
+                </p>
+            </div>
+
+            <!-- 5ステップ縦並び -->
+            <div class="max-w-3xl mx-auto space-y-5">
+                <!-- ステップ1 -->
+                <div class="flex items-start gap-4 md:gap-6 animate-fade-in-up">
+                    <div
+                        class="flex-shrink-0 w-16 h-16 md:w-20 md:h-20 bg-[#FF6B35] rounded-full flex items-center justify-center text-white shadow-md">
+                        <span class="text-3xl md:text-4xl font-black step-number">1</span>
+                    </div>
+                    <div class="flex-1 bg-white rounded-organic shadow-md p-5 md:p-7">
+                        <div class="flex items-center gap-3 mb-3">
+                            <i class="fas fa-user-plus text-2xl md:text-3xl text-[#FF6B35]"></i>
+                            <h3 class="text-xl md:text-2xl font-black text-[#3E3A35]" style="letter-spacing: 0.05em;">
+                                ひらいず民として登録</h3>
+                        </div>
+                        <p class="text-[#6B6760] text-base md:text-lg leading-relaxed font-medium"
+                            style="letter-spacing: 0.03em;">
+                            どこに住んでいても、平泉とかかわる最初の一歩です
+                        </p>
+                    </div>
+                </div>
+
+                <!-- 矢印 -->
+                <div class="flex justify-center py-1">
+                    <i class="fas fa-arrow-down text-2xl text-[#6B6760] opacity-50 animate-bounce"></i>
+                </div>
+
+                <!-- ステップ2 -->
+                <div class="flex items-start gap-4 md:gap-6 animate-fade-in-up" style="animation-delay: 0.1s;">
+                    <div
+                        class="flex-shrink-0 w-16 h-16 md:w-20 md:h-20 bg-[#4CAF50] rounded-full flex items-center justify-center text-white shadow-md">
+                        <span class="text-3xl md:text-4xl font-black step-number">2</span>
+                    </div>
+                    <div class="flex-1 bg-white rounded-organic shadow-md p-5 md:p-7">
+                        <div class="flex items-center gap-3 mb-3">
+                            <i class="fas fa-search text-2xl md:text-3xl text-[#4CAF50]"></i>
+                            <h3 class="text-xl md:text-2xl font-black text-[#3E3A35]" style="letter-spacing: 0.05em;">
+                                行事やお手伝いの募集を見る</h3>
+                        </div>
+                        <p class="text-[#6B6760] text-base md:text-lg leading-relaxed font-medium"
+                            style="letter-spacing: 0.03em;">
+                            平泉町の行事やお手伝いの募集をチェック
+                        </p>
+                    </div>
+                </div>
+
+                <!-- 矢印 -->
+                <div class="flex justify-center py-1">
+                    <i class="fas fa-arrow-down text-2xl text-[#6B6760] opacity-50 animate-bounce"></i>
+                </div>
+
+                <!-- ステップ3 -->
+                <div class="flex items-start gap-4 md:gap-6 animate-fade-in-up" style="animation-delay: 0.2s;">
+                    <div
+                        class="flex-shrink-0 w-16 h-16 md:w-20 md:h-20 bg-[#2196F3] rounded-full flex items-center justify-center text-white shadow-md">
+                        <span class="text-3xl md:text-4xl font-black step-number">3</span>
+                    </div>
+                    <div class="flex-1 bg-white rounded-organic shadow-md p-5 md:p-7">
+                        <div class="flex items-center gap-3 mb-3">
+                            <i class="fas fa-hand-paper text-2xl md:text-3xl text-[#2196F3]"></i>
+                            <h3 class="text-xl md:text-2xl font-black text-[#3E3A35]" style="letter-spacing: 0.05em;">
+                                応募してメッセージを送る</h3>
+                        </div>
+                        <p class="text-[#6B6760] text-base md:text-lg leading-relaxed font-medium"
+                            style="letter-spacing: 0.03em;">
+                            気になるものに応募して、メッセージを送れます
+                        </p>
+                    </div>
+                </div>
+
+                <!-- 矢印 -->
+                <div class="flex justify-center py-1">
+                    <i class="fas fa-arrow-down text-2xl text-[#6B6760] opacity-50 animate-bounce"></i>
+                </div>
+
+                <!-- ステップ4 -->
+                <div class="flex items-start gap-4 md:gap-6 animate-fade-in-up" style="animation-delay: 0.3s;">
+                    <div
+                        class="flex-shrink-0 w-16 h-16 md:w-20 md:h-20 bg-[#9C27B0] rounded-full flex items-center justify-center text-white shadow-md">
+                        <span class="text-3xl md:text-4xl font-black step-number">4</span>
+                    </div>
+                    <div class="flex-1 bg-white rounded-organic shadow-md p-5 md:p-7">
+                        <div class="flex items-center gap-3 mb-3">
+                            <i class="fas fa-heart text-2xl md:text-3xl text-[#9C27B0]"></i>
+                            <h3 class="text-xl md:text-2xl font-black text-[#3E3A35]" style="letter-spacing: 0.05em;">
+                                実際に参加する</h3>
+                        </div>
+                        <p class="text-[#6B6760] text-base md:text-lg leading-relaxed font-medium"
+                            style="letter-spacing: 0.03em;">
+                            お手伝いや行事への参加を通じて、地域と交流
+                        </p>
+                    </div>
+                </div>
+
+                <!-- 矢印 -->
+                <div class="flex justify-center py-1">
+                    <i class="fas fa-arrow-down text-2xl text-[#6B6760] opacity-50 animate-bounce"></i>
+                </div>
+
+                <!-- ステップ5 -->
+                <div class="flex items-start gap-4 md:gap-6 animate-fade-in-up" style="animation-delay: 0.4s;">
+                    <div
+                        class="flex-shrink-0 w-16 h-16 md:w-20 md:h-20 bg-[#FFA000] rounded-full flex items-center justify-center text-white shadow-md">
+                        <span class="text-3xl md:text-4xl font-black step-number">5</span>
+                    </div>
+                    <div class="flex-1 bg-white rounded-organic shadow-md p-5 md:p-7">
+                        <div class="flex items-center gap-3 mb-3">
+                            <i class="fas fa-gift text-2xl md:text-3xl text-[#FFA000]"></i>
+                            <h3 class="text-xl md:text-2xl font-black text-[#3E3A35]" style="letter-spacing: 0.05em;">
+                                "ひらいずみやげ"もらえるかも</h3>
+                        </div>
+                        <p class="text-[#6B6760] text-base md:text-lg leading-relaxed font-medium"
+                            style="letter-spacing: 0.03em;">
+                            必須ではありませんが、募集によっては御礼をいただけます
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- お手伝い情報セクション -->
     <section id="jobs" class="py-16 md:py-24">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center mb-12">
-                <h2 class="text-3xl md:text-4xl font-bold text-[#3E3A35] mb-4">
+            <div class="text-center mb-14">
+                <h2 class="text-3xl md:text-4xl font-black text-[#3E3A35] mb-4" style="letter-spacing: 0.08em;">
                     あなたが来るのを待っています
                 </h2>
-                <p class="text-lg text-[#6B6760]">
+                <p class="text-lg text-[#6B6760] font-medium" style="letter-spacing: 0.05em;">
                     新着の募集をチェックしましょう
                 </p>
             </div>
@@ -334,7 +544,7 @@
                 <div class="text-center">
                     <a href="{{ route('jobs.index') }}"
                         class="inline-flex items-center gap-2 bg-[#4CAF50] hover:bg-[#45A049] text-white px-8 py-4 rounded-full transition-all transform hover:scale-105 font-bold text-lg shadow-lg">
-                        <span>ひらいず民募集を見る</span>
+                        <span>募集をもっと見る</span>
                         <i class="fas fa-arrow-right"></i>
                     </a>
                 </div>
