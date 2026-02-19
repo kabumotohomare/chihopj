@@ -475,7 +475,7 @@
                         </div>
                         <p class="text-[#6B6760] text-base md:text-lg leading-relaxed font-medium"
                             style="letter-spacing: 0.03em;">
-                            御礼が出る募集もあります（必須ではありません）
+                            御礼が出る募集もあります（※必須ではありません）
                         </p>
                     </div>
                 </div>
