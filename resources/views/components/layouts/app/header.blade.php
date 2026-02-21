@@ -1,80 +1,71 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-    <head>
-        @include('partials.head')
-        <style>
-            body {
-                font-family: 'Noto Sans JP', sans-serif;
-            }
-        </style>
-    </head>
-    <body class="min-h-screen bg-[#F5F3F0]">
-        <flux:header container class="border-b-4 border-[#FF6B35] bg-[#FFF8E7]">
-            <flux:sidebar.toggle class="lg:hidden" icon="bars-2" inset="left" />
 
-            <a href="{{ route('dashboard') }}" class="ms-2 me-5 flex items-center space-x-2 rtl:space-x-reverse lg:ms-0" wire:navigate>
-                <x-app-logo />
-            </a>
+<head>
+    @include('partials.head')
+    <style>
+        body {
+            font-family: 'Noto Sans JP', sans-serif;
+        }
+    </style>
+</head>
 
-            <flux:navbar class="-mb-px max-lg:hidden">
-                <flux:navbar.item icon="layout-grid" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate class="text-[#3E3A35] hover:text-[#FF6B35]">
-                    ホーム画面に戻る
-                </flux:navbar.item>
-            </flux:navbar>
+<body class="min-h-screen bg-[#F5F3F0]">
+    <flux:header container class="border-b-4 border-[#FF6B35] bg-[#FFF8E7]">
+        <flux:sidebar.toggle class="lg:hidden" icon="bars-2" inset="left" />
 
-            <flux:spacer />
+        <a href="{{ route('dashboard') }}" class="ms-2 me-5 flex items-center space-x-2 rtl:space-x-reverse lg:ms-0"
+            wire:navigate>
+            <x-app-logo />
+        </a>
 
-            <flux:navbar class="me-1.5 space-x-0.5 rtl:space-x-reverse py-0!">
-                <flux:tooltip :content="__('Search')" position="bottom">
-                    <flux:navbar.item class="!h-10 [&>div>svg]:size-5" icon="magnifying-glass" href="#" :label="__('Search')" />
-                </flux:tooltip>
-                <flux:tooltip :content="__('Repository')" position="bottom">
-                    <flux:navbar.item
-                        class="h-10 max-lg:hidden [&>div>svg]:size-5"
-                        icon="folder-git-2"
-                        href="https://github.com/laravel/livewire-starter-kit"
-                        target="_blank"
-                        :label="__('Repository')"
-                    />
-                </flux:tooltip>
-                <flux:tooltip :content="__('Documentation')" position="bottom">
-                    <flux:navbar.item
-                        class="h-10 max-lg:hidden [&>div>svg]:size-5"
-                        icon="book-open-text"
-                        href="https://laravel.com/docs/starter-kits#livewire"
-                        target="_blank"
-                        label="Documentation"
-                    />
-                </flux:tooltip>
-            </flux:navbar>
+        <flux:navbar class="-mb-px max-lg:hidden">
+            <flux:navbar.item icon="layout-grid" :href="route('dashboard')" :current="request()->routeIs('dashboard')"
+                wire:navigate class="text-[#3E3A35] hover:text-[#FF6B35]">
+                ホーム画面に戻る
+            </flux:navbar.item>
+        </flux:navbar>
 
-            @auth
-                <!-- Desktop User Menu -->
-                <flux:dropdown position="top" align="end">
-                    <flux:profile
-                        class="cursor-pointer"
-                        :initials="auth()->user()->initials()"
-                    />
+        <flux:spacer />
 
-                    <flux:menu>
-                        <flux:menu.radio.group>
-                            <div class="p-0 text-sm font-normal">
-                                <div class="flex items-center gap-2 px-1 py-1.5 text-start text-sm">
-                                    <span class="relative flex h-8 w-8 shrink-0 overflow-hidden rounded-lg">
-                                        <span
-                                            class="flex h-full w-full items-center justify-center rounded-lg bg-neutral-200 text-black dark:bg-neutral-700 dark:text-white"
-                                        >
-                                            {{ auth()->user()->initials() }}
-                                        </span>
+        <flux:navbar class="me-1.5 space-x-0.5 rtl:space-x-reverse py-0!">
+            <flux:tooltip :content="__('Search')" position="bottom">
+                <flux:navbar.item class="!h-10 [&>div>svg]:size-5" icon="magnifying-glass" href="#"
+                    :label="__('Search')" />
+            </flux:tooltip>
+            <flux:tooltip :content="__('Repository')" position="bottom">
+                <flux:navbar.item class="h-10 max-lg:hidden [&>div>svg]:size-5" icon="folder-git-2"
+                    href="https://github.com/laravel/livewire-starter-kit" target="_blank" :label="__('Repository')" />
+            </flux:tooltip>
+            <flux:tooltip :content="__('Documentation')" position="bottom">
+                <flux:navbar.item class="h-10 max-lg:hidden [&>div>svg]:size-5" icon="book-open-text"
+                    href="https://laravel.com/docs/starter-kits#livewire" target="_blank" label="Documentation" />
+            </flux:tooltip>
+        </flux:navbar>
+
+        @auth
+            <!-- Desktop User Menu -->
+            <flux:dropdown position="top" align="end">
+                <flux:profile class="cursor-pointer" :initials="auth()->user()->initials()" />
+
+                <flux:menu>
+                    <flux:menu.radio.group>
+                        <div class="p-0 text-sm font-normal">
+                            <div class="flex items-center gap-2 px-1 py-1.5 text-start text-sm">
+                                <span class="relative flex h-8 w-8 shrink-0 overflow-hidden rounded-lg">
+                                    <span
+                                        class="flex h-full w-full items-center justify-center rounded-lg bg-neutral-200 text-black dark:bg-neutral-700 dark:text-white">
+                                        {{ auth()->user()->initials() }}
                                     </span>
+                                </span>
 
-                                    <div class="grid flex-1 text-start text-sm leading-tight">
-                                        <span class="truncate font-semibold">{{ auth()->user()->name }}</span>
-                                        <span class="truncate text-xs">{{ auth()->user()->email }}</span>
-                                    </div>
+                                <div class="grid flex-1 text-start text-sm leading-tight">
+                                    <span class="truncate font-semibold">{{ auth()->user()->name }}</span>
+                                    <span class="truncate text-xs">{{ auth()->user()->email }}</span>
                                 </div>
                             </div>
-                        </flux:menu.radio.group>
+                        </div>
+                    </flux:menu.radio.group>
 
                     <flux:menu.separator />
 
@@ -86,53 +77,58 @@
 
                     <form method="POST" action="{{ route('logout') }}" class="w-full">
                         @csrf
-                        <flux:menu.item as="button" type="submit" icon="arrow-right-start-on-rectangle" class="w-full" data-test="logout-button">
+                        <flux:menu.item as="button" type="submit" icon="arrow-right-start-on-rectangle" class="w-full"
+                            data-test="logout-button">
                             ログアウト
                         </flux:menu.item>
                     </form>
-                    </flux:menu>
-                </flux:dropdown>
-            @else
-                <!-- Guest User Buttons -->
-                <div class="flex gap-2">
-                    <flux:button :href="route('login')" variant="ghost" size="sm">
-                        ログイン
-                    </flux:button>
-                    <flux:button :href="route('register')" variant="primary" size="sm">
-                        会員登録
-                    </flux:button>
-                </div>
-            @endauth
-        </flux:header>
+                </flux:menu>
+            </flux:dropdown>
+        @else
+            <!-- Guest User Buttons -->
+            <div class="flex gap-2">
+                <flux:button :href="route('login')" variant="ghost" size="sm">
+                    ログイン
+                </flux:button>
+                <flux:button :href="route('register')" variant="primary" size="sm">
+                    会員登録
+                </flux:button>
+            </div>
+        @endauth
+    </flux:header>
 
-        <!-- Mobile Menu -->
-        <flux:sidebar stashable sticky class="lg:hidden border-e-4 border-[#FF6B35] bg-[#FFF8E7]">
-            <flux:sidebar.toggle class="lg:hidden" icon="x-mark" />
+    <!-- Mobile Menu -->
+    <flux:sidebar stashable sticky class="lg:hidden border-e-4 border-[#FF6B35] bg-[#FFF8E7]">
+        <flux:sidebar.toggle class="lg:hidden" icon="x-mark" />
 
-            <a href="{{ route('dashboard') }}" class="ms-1 mb-6 flex flex-col items-center gap-2" wire:navigate>
-                <img src="{{ asset('images/presets/logo.png') }}" alt="ふるぼの - みんなの平泉ロゴ" class="h-12 w-auto">
-                <span class="text-lg font-bold text-[#FF6B35]">ふるぼの</span>
-            </a>
+        <a href="{{ route('dashboard') }}" class="ms-1 mb-6 flex flex-col items-center gap-2" wire:navigate>
+            <img src="{{ asset('images/presets/logo.png') }}" alt="みんなの平泉ロゴ" class="h-12 w-auto">
+            <span class="text-lg font-bold text-[#FF6B35]">みんなの平泉</span>
+        </a>
 
-            <flux:navlist variant="outline">
-                <flux:navlist.group heading="メニュー">
-                    <flux:navlist.item icon="layout-grid" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate class="text-[#3E3A35] hover:bg-[#FF6B35]/10">
+        <flux:navlist variant="outline">
+            <flux:navlist.group heading="メニュー">
+                <flux:navlist.item icon="layout-grid" :href="route('dashboard')"
+                    :current="request()->routeIs('dashboard')" wire:navigate
+                    class="text-[#3E3A35] hover:bg-[#FF6B35]/10">
                     ホーム画面に戻る
-                    </flux:navlist.item>
-                </flux:navlist.group>
-            </flux:navlist>
-
-            <flux:spacer />
-
-            <flux:navlist variant="outline">
-                <flux:navlist.item icon="question-mark-circle" href="https://form.run/@furubono-l7N9omymBWguT5AQABCt" target="_blank" class="text-[#6B6760] hover:bg-[#4CAF50]/10">
-                お問い合わせ
                 </flux:navlist.item>
-            </flux:navlist>
-        </flux:sidebar>
+            </flux:navlist.group>
+        </flux:navlist>
 
-        {{ $slot }}
+        <flux:spacer />
 
-        @fluxScripts
-    </body>
+        <flux:navlist variant="outline">
+            <flux:navlist.item icon="question-mark-circle" href="https://form.run/@furubono-l7N9omymBWguT5AQABCt"
+                target="_blank" class="text-[#6B6760] hover:bg-[#4CAF50]/10">
+                お問い合わせ
+            </flux:navlist.item>
+        </flux:navlist>
+    </flux:sidebar>
+
+    {{ $slot }}
+
+    @fluxScripts
+</body>
+
 </html>

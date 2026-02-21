@@ -23,7 +23,7 @@
     --color-zinc-900: #171717;
     --color-zinc-950: #0a0a0a;
 
-    /* ふるぼのカラーパレット */
+    /* みんなの平泉カラーパレット */
     --color-warm-beige: #F5F3F0;
     --color-warm-cream: #FFF8E7;
     --color-warm-orange: #FF6B35;
@@ -77,7 +77,7 @@ select:focus[data-flux-control] {
     @apply size-4;
 } */
 
-/* ふるぼのカスタムスタイル */
+/* みんなの平泉カスタムスタイル */
 
 /* アニメーション定義 */
 @keyframes fadeInUp {

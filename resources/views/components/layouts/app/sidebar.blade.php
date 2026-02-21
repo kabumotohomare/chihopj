@@ -13,8 +13,8 @@
             <flux:sidebar.toggle class="lg:hidden" icon="x-mark" />
 
             <a href="{{ route('dashboard') }}" class="mb-6 flex flex-col items-center gap-2" wire:navigate>
-                <img src="{{ asset('images/presets/logo.png') }}" alt="ふるぼの - みんなの平泉ロゴ" class="h-12 w-auto">
-                <span class="text-lg font-bold text-[#FF6B35]">ふるぼの</span>
+                <img src="{{ asset('images/presets/logo.png') }}" alt="みんなの平泉ロゴ" class="h-12 w-auto">
+                <span class="text-lg font-bold text-[#FF6B35]">みんなの平泉</span>
             </a>
 
             <flux:navlist variant="outline">

@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>ふるぼの - みんなの平泉｜平泉のお手伝い案内所</title>
+    <title>みんなの平泉｜平泉のお手伝い案内所</title>
     <meta name="description" content="平泉町でのお手伝いを通じて、地域と繋がる体験ができます">
 
     <link rel="icon" href="{{ asset('favicon.ico') }}" sizes="any">
@@ -124,8 +124,8 @@
             <nav class="flex items-center justify-between h-16">
                 <!-- ロゴ -->
                 <a href="{{ url('/') }}" class="flex items-center gap-3 hover:opacity-80 transition-opacity">
-                    <img src="{{ asset('images/presets/logo.png') }}" alt="ふるぼの - みんなの平泉ロゴ" class="h-10 w-auto">
-                    <span class="text-xl md:text-2xl font-bold text-[#FF6B35]">ふるぼの - みんなの平泉</span>
+                    <img src="{{ asset('images/presets/logo.png') }}" alt="みんなの平泉ロゴ" class="h-10 w-auto">
+                    <span class="text-xl md:text-2xl font-bold text-[#FF6B35]">みんなの平泉</span>
                 </a>
 
                 <!-- デスクトップメニュー -->
@@ -234,7 +234,7 @@
                         class="bg-white/95 backdrop-blur-sm px-5 sm:px-7 py-4 sm:py-5 rounded-organic shadow-lg inline-block max-w-full">
                         <p class="text-base sm:text-xl md:text-2xl text-[#3E3A35] font-medium leading-relaxed"
                             style="letter-spacing: 0.05em;">
-                            お手伝いを通じて、<br class="xs:inline sm:hidden"><span
+                            担い手として、<br class="xs:inline sm:hidden"><span
                                 class="text-[#4CAF50] font-bold">平泉の暮らし</span>に参加しよう！<br>
                             <span class="text-[#FF6B35] font-bold">あなた</span>を待っている人がいます。
                         </p>
@@ -329,19 +329,20 @@
                         <div class="text-lg md:text-xl text-[#3E3A35] leading-relaxed space-y-5"
                             style="letter-spacing: 0.05em;">
                             <p class="font-bold text-xl md:text-2xl text-[#FF6B35]">
-                                平泉に住んでいる人も、外から来た人も、<br>
-                                お手伝いを通じて平泉とつながる。
+                                住んでいる人も、外から来た人も、<br>
+                                みんなが平泉の担い手です。
                             </p>
                             <p class="font-medium">
-                                実際に住んでいなくても、<br class="sm:hidden">
-                                住民のように町に関わることができる、<br>
-                                それが<span class="text-[#4CAF50] font-black text-2xl">「ひらいず民」</span>です。
+                                普段は離れていても、<br class="sm:hidden">
+                                住民のように町と関わりを持つ人。<br>
+                                それが<span
+                                    class="text-[#4CAF50] font-black text-2xl">「ひらいず民」</span>です。<br><br>全国どこからでも、ひらいず民になると、<br>町で使える特典やサービス、<br>
+                                行事やお手伝い募集などの情報が届きます。
                             </p>
                             <p class="text-base md:text-lg text-[#6B6760] pt-2">
-                                平泉町の<a
-                                    href="https://www.town.hiraizumi.iwate.jp/%E3%80%8C%E3%81%B5%E3%82%8B%E3%81%95%E3%81%A8%E4%BD%8F%E6%B0%91%E3%80%8D%E3%82%92%E5%8B%9F%E9%9B%86%E3%81%97%E3%81%BE%E3%81%99%EF%BC%88%E3%81%B5%E3%82%8B%E3%81%95%E3%81%A8%E4%BD%8F%E6%B0%91%E5%88%B6-23557/"
+                                <a href="https://www.town.hiraizumi.iwate.jp/%E3%80%8C%E3%81%B5%E3%82%8B%E3%81%95%E3%81%A8%E4%BD%8F%E6%B0%91%E3%80%8D%E3%82%92%E5%8B%9F%E9%9B%86%E3%81%97%E3%81%BE%E3%81%99%EF%BC%88%E3%81%B5%E3%82%8B%E3%81%95%E3%81%A8%E4%BD%8F%E6%B0%91%E5%88%B6-23557/"
                                     target="_blank" rel="noopener noreferrer"
-                                    class="text-[#4CAF50] hover:text-[#45A049] font-medium underline decoration-2">ふるさと住民制度</a>の考え方を取り入れています。
+                                    class="text-[#4CAF50] hover:text-[#45A049] font-medium underline decoration-2">ふるさと住民票®</a>の考えを取り入れています。
                             </p>
                         </div>
                     </div>
@@ -399,11 +400,11 @@
                         <div class="flex items-center gap-3 mb-3">
                             <i class="fas fa-search text-2xl md:text-3xl text-[#4CAF50]"></i>
                             <h3 class="text-xl md:text-2xl font-black text-[#3E3A35]" style="letter-spacing: 0.05em;">
-                                行事やお手伝いの募集を見る</h3>
+                                平泉の情報を見る</h3>
                         </div>
                         <p class="text-[#6B6760] text-base md:text-lg leading-relaxed font-medium"
                             style="letter-spacing: 0.03em;">
-                            平泉町の行事やお手伝いの募集をチェック
+                            イベント、行事、ボランティアなど。募集をチェック
                         </p>
                     </div>
                 </div>
@@ -423,11 +424,11 @@
                         <div class="flex items-center gap-3 mb-3">
                             <i class="fas fa-hand-paper text-2xl md:text-3xl text-[#2196F3]"></i>
                             <h3 class="text-xl md:text-2xl font-black text-[#3E3A35]" style="letter-spacing: 0.05em;">
-                                応募してメッセージを送る</h3>
+                                メッセージを送ってつながる</h3>
                         </div>
                         <p class="text-[#6B6760] text-base md:text-lg leading-relaxed font-medium"
                             style="letter-spacing: 0.03em;">
-                            気になるものに応募して、メッセージを送れます
+                            平泉で募集をする人（ホスト）にメッセージを送れます
                         </p>
                     </div>
                 </div>
@@ -447,11 +448,11 @@
                         <div class="flex items-center gap-3 mb-3">
                             <i class="fas fa-heart text-2xl md:text-3xl text-[#9C27B0]"></i>
                             <h3 class="text-xl md:text-2xl font-black text-[#3E3A35]" style="letter-spacing: 0.05em;">
-                                実際に参加する</h3>
+                                一緒に町の活動に参加する</h3>
                         </div>
                         <p class="text-[#6B6760] text-base md:text-lg leading-relaxed font-medium"
                             style="letter-spacing: 0.03em;">
-                            お手伝いや行事への参加を通じて、地域と交流
+                            行事やお祭り、町内会の活動を楽しむ。あなたも地域の一員！
                         </p>
                     </div>
                 </div>
@@ -563,10 +564,10 @@
             <div class="grid md:grid-cols-2 gap-8 items-center">
                 <div class="text-center md:text-left">
                     <div class="flex items-center gap-3 justify-center md:justify-start mb-4">
-                        <img src="{{ asset('images/presets/logo.png') }}" alt="ふるぼの - みんなの平泉ロゴ" class="h-8 w-auto">
-                        <span class="text-xl font-bold">ふるぼの - みんなの平泉</span>
+                        <img src="{{ asset('images/presets/logo.png') }}" alt="みんなの平泉ロゴ" class="h-8 w-auto">
+                        <span class="text-xl font-bold">みんなの平泉</span>
                     </div>
-                    <p class="text-sm text-gray-300">お手伝いでみんなの地域とつながる</p>
+                    <p class="text-sm text-gray-300">ふるぼの - みんなの地域とつながる</p>
                 </div>
 
                 <div class="text-center md:text-right">
@@ -579,7 +580,7 @@
             </div>
 
             <div class="mt-8 pt-8 border-t border-gray-600 text-center text-sm text-gray-400">
-                <p>© 2025 MEKABU.co. All rights reserved.</p>
+                <p>© 2026 ふるぼの All rights reserved.</p>
             </div>
         </div>
     </footer>
