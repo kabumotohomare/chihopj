@@ -23,9 +23,7 @@ return new class extends Migration
             $table->string('icon')->nullable()->comment('アイコン画像パス');
             $table->enum('gender', ['male', 'female', 'other'])->comment('性別');
             $table->date('birthdate')->comment('生年月日');
-            $table->text('experiences')->nullable()->comment('これまでの経験（200文字以内）');
-            $table->text('want_to_do')->nullable()->comment('これからやりたいこと（200文字以内）');
-            $table->text('good_contribution')->nullable()->comment('得意なことや貢献できること（200文字以内）');
+            $table->text('message')->nullable()->comment('ひとことメッセージ（200文字以内）');
             $table->foreignId('birth_location_id')
                 ->constrained('locations')
                 ->comment('出身地ID（市区町村）');
@@ -36,21 +34,6 @@ return new class extends Migration
                 ->nullable()
                 ->constrained('locations')
                 ->comment('現在のお住まい2ID（市区町村）');
-            $table->foreignId('favorite_location_1_id')
-                ->nullable()
-                ->constrained('locations')
-                ->comment('移住に関心のある地域1ID（市区町村）');
-            $table->foreignId('favorite_location_2_id')
-                ->nullable()
-                ->constrained('locations')
-                ->comment('移住に関心のある地域2ID（市区町村）');
-            $table->foreignId('favorite_location_3_id')
-                ->nullable()
-                ->constrained('locations')
-                ->comment('移住に関心のある地域3ID（市区町村）');
-            $table->json('available_action')
-                ->nullable()
-                ->comment('興味のあるお手伝い（JSON配列: mowing, snowplow, diy, localcleaning, volunteer）');
             $table->timestamps();
 
             // ユニーク制約
@@ -61,9 +44,6 @@ return new class extends Migration
             $table->index('birth_location_id');
             $table->index('current_location_1_id');
             $table->index('current_location_2_id');
-            $table->index('favorite_location_1_id');
-            $table->index('favorite_location_2_id');
-            $table->index('favorite_location_3_id');
         });
     }
 

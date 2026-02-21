@@ -50,15 +50,14 @@ $jobPosts = computed(function () {
         ->orderBy('posted_at', 'desc');
 
     // キーワード検索（タイトル・詳細内容）
-    if (! empty($this->keyword)) {
+    if (!empty($this->keyword)) {
         $query->where(function ($q) {
-            $q->where('job_title', 'like', "%{$this->keyword}%")
-                ->orWhere('job_detail', 'like', "%{$this->keyword}%");
+            $q->where('job_title', 'like', "%{$this->keyword}%")->orWhere('job_detail', 'like', "%{$this->keyword}%");
         });
     }
 
     // 希望フィルタ
-    if (! empty($this->want_you_types)) {
+    if (!empty($this->want_you_types)) {
         $query->where(function ($q) {
             foreach ($this->want_you_types as $typeId) {
                 $q->orWhereJsonContains('want_you_ids', (int) $typeId);
@@ -67,7 +66,7 @@ $jobPosts = computed(function () {
     }
 
     // できますフィルタ
-    if (! empty($this->can_do_types)) {
+    if (!empty($this->can_do_types)) {
         $query->where(function ($q) {
             foreach ($this->can_do_types as $typeId) {
                 $q->orWhereJsonContains('can_do_ids', (int) $typeId);
@@ -77,7 +76,7 @@ $jobPosts = computed(function () {
 
     // ひらいず民の場合、自分の応募状況を先読み込み（N+1問題回避）
     if (auth()->check() && auth()->user()->isWorker()) {
-        $query->with(['applications' => fn ($q) => $q->where('worker_id', auth()->id())]);
+        $query->with(['applications' => fn($q) => $q->where('worker_id', auth()->id())]);
     }
 
     return $query->get();
@@ -101,7 +100,7 @@ $isWorker = function (): bool {
  * ゲストユーザー（未認証）かどうかチェック
  */
 $isGuest = function (): bool {
-    return ! auth()->check();
+    return !auth()->check();
 };
 
 /**
@@ -109,7 +108,7 @@ $isGuest = function (): bool {
  */
 $hasApplied = function (JobPost $jobPost): bool {
     // ひらいず民でない場合はfalse
-    if (! auth()->check() || ! auth()->user()?->isWorker()) {
+    if (!auth()->check() || !auth()->user()?->isWorker()) {
         return false;
     }
 
@@ -143,10 +142,12 @@ $resetFilters = function (): void {
 /**
  * データを提供
  */
-with(fn () => [
-    'wantYouCodes' => Code::getRequests(),
-    'canDoCodes' => Code::getOffers(),
-]);
+with(
+    fn() => [
+        'wantYouCodes' => Code::getRequests(),
+        'canDoCodes' => Code::getOffers(),
+    ],
+);
 
 ?>
 
@@ -163,7 +164,8 @@ with(fn () => [
 
             <!-- ホストユーザー: 新規投稿ボタン -->
             @if ($this->isCompany())
-                <a href="{{ route('jobs.create') }}" wire:navigate class="bg-[#FF6B35] hover:bg-[#E55A28] text-white px-6 py-3 rounded-full font-bold transition-all transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center gap-2">
+                <a href="{{ route('jobs.create') }}" wire:navigate
+                    class="bg-[#FF6B35] hover:bg-[#E55A28] text-white px-6 py-3 rounded-full font-bold transition-all transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center gap-2">
                     <i class="fas fa-plus"></i>
                     新規募集投稿
                 </a>
@@ -187,7 +189,8 @@ with(fn () => [
                 <p class="text-[#6B6760] mb-4">
                     検索条件を変更してお試しください
                 </p>
-                <button wire:click="resetFilters" class="bg-[#FF6B35] hover:bg-[#E55A28] text-white px-6 py-3 rounded-full font-bold transition-all transform hover:scale-105 shadow-lg inline-flex items-center gap-2">
+                <button wire:click="resetFilters"
+                    class="bg-[#FF6B35] hover:bg-[#E55A28] text-white px-6 py-3 rounded-full font-bold transition-all transform hover:scale-105 shadow-lg inline-flex items-center gap-2">
                     <i class="fas fa-redo"></i>
                     フィルタをリセット
                 </button>
@@ -197,27 +200,26 @@ with(fn () => [
                 @foreach ($this->jobPosts as $jobPost)
                     <a href="{{ route('jobs.show', $jobPost) }}" wire:navigate
                         class="group relative overflow-hidden rounded-2xl bg-white shadow-lg transition hover:shadow-2xl transform hover:-translate-y-1">
-                        
+
                         <!-- 応募済みバッジ（カード右上） -->
                         @if ($this->hasApplied($jobPost))
                             <div class="absolute right-3 top-3 z-10">
-                                <span class="bg-[#4CAF50] text-white px-3 py-1 rounded-full text-xs font-bold shadow-md">
+                                <span
+                                    class="bg-[#4CAF50] text-white px-3 py-1 rounded-full text-xs font-bold shadow-md">
                                     ✓ 応募済み
                                 </span>
                             </div>
                         @endif
-                        
+
                         <!-- アイキャッチ画像 -->
                         <div class="aspect-video w-full overflow-hidden bg-[#F5F3F0]">
                             @if ($jobPost->eyecatch)
                                 @if (str_starts_with($jobPost->eyecatch, '/images/presets/'))
-                                    <img src="{{ $jobPost->eyecatch }}" 
-                                         alt="{{ $jobPost->job_title }}" 
-                                         class="h-full w-full object-cover transition group-hover:scale-105">
+                                    <img src="{{ $jobPost->eyecatch }}" alt="{{ $jobPost->job_title }}"
+                                        class="h-full w-full object-cover transition group-hover:scale-105">
                                 @else
-                                    <img src="{{ Storage::url($jobPost->eyecatch) }}" 
-                                         alt="{{ $jobPost->job_title }}" 
-                                         class="h-full w-full object-cover transition group-hover:scale-105">
+                                    <img src="{{ Storage::url($jobPost->eyecatch) }}" alt="{{ $jobPost->job_title }}"
+                                        class="h-full w-full object-cover transition group-hover:scale-105">
                                 @endif
                             @else
                                 <!-- 画像がない場合のプレースホルダー -->
@@ -232,7 +234,8 @@ with(fn () => [
                             <div class="mb-3 flex flex-wrap gap-2">
                                 <!-- 希望タグ（最大2つまで表示） -->
                                 @foreach ($jobPost->getWantYouCodes()->take(2) as $code)
-                                    <span class="bg-[#6B6760]/10 text-[#6B6760] px-3 py-1 rounded-full text-xs font-medium">
+                                    <span
+                                        class="bg-[#6B6760]/10 text-[#6B6760] px-3 py-1 rounded-full text-xs font-medium">
                                         #{{ $code->name }}
                                     </span>
                                 @endforeach
@@ -242,13 +245,15 @@ with(fn () => [
                             <div class="mb-3 flex items-start gap-2">
                                 @if ($jobPost->purpose === 'want_to_do')
                                     <!-- いつでも連絡して：目立つオレンジ色のバッジ -->
-                                    <span class="bg-[#FF6B35] text-white px-3 py-1 rounded-full text-xs font-bold flex-shrink-0 animate-pulse flex items-center gap-1">
+                                    <span
+                                        class="bg-[#FF6B35] text-white px-3 py-1 rounded-full text-xs font-bold flex-shrink-0 animate-pulse flex items-center gap-1">
                                         <i class="fas fa-bolt"></i>
                                         {{ $jobPost->getPurposeLabel() }}
                                     </span>
                                 @else
                                     <!-- この日にやるから来て：通常の赤色バッジ -->
-                                    <span class="bg-red-500 text-white px-3 py-1 rounded-full text-xs font-bold flex-shrink-0">
+                                    <span
+                                        class="bg-red-500 text-white px-3 py-1 rounded-full text-xs font-bold flex-shrink-0">
                                         {{ $jobPost->getPurposeLabel() }}
                                     </span>
                                 @endif
@@ -263,7 +268,7 @@ with(fn () => [
                                     <div class="flex items-center gap-2 text-sm text-[#87CEEB] font-medium">
                                         <i class="fas fa-calendar-alt"></i>
                                         <span>
-                                            {{ $jobPost->start_datetime->format('Y年n月j日 H:i') }} 〜 
+                                            {{ $jobPost->start_datetime->format('Y年n月j日 H:i') }} 〜
                                             {{ $jobPost->end_datetime->format('Y年n月j日 H:i') }}
                                         </span>
                                     </div>
@@ -289,7 +294,8 @@ with(fn () => [
                             @if ($jobPost->getCanDoCodes()->isNotEmpty())
                                 <div class="mb-4 flex flex-wrap gap-1">
                                     @foreach ($jobPost->getCanDoCodes()->take(3) as $code)
-                                        <span class="bg-[#4CAF50]/10 text-[#4CAF50] px-3 py-1 rounded-full text-xs font-medium">
+                                        <span
+                                            class="bg-[#4CAF50]/10 text-[#4CAF50] px-3 py-1 rounded-full text-xs font-medium">
                                             ✓ {{ $code->name }}
                                         </span>
                                     @endforeach
@@ -300,7 +306,8 @@ with(fn () => [
                             <div class="border-t border-[#F5F3F0] pt-4">
                                 <div class="flex flex-wrap items-center gap-2 text-xs">
                                     <!-- ホスト名 -->
-                                    <span class="bg-[#6B6760]/10 text-[#6B6760] px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1">
+                                    <span
+                                        class="bg-[#6B6760]/10 text-[#6B6760] px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1">
                                         <i class="fas fa-building"></i>
                                         {{ $jobPost->company->name }}
                                     </span>
@@ -329,12 +336,8 @@ with(fn () => [
                 <div>
                     <flux:field>
                         <flux:label class="text-[#3E3A35] font-medium">キーワード検索</flux:label>
-                        <flux:input 
-                            wire:model="keyword_input" 
-                            type="text"
-                            placeholder="タイトルや内容で検索..."
-                            icon="magnifying-glass"
-                        />
+                        <flux:input wire:model="keyword_input" type="text" placeholder="タイトルや内容で検索..."
+                            icon="magnifying-glass" />
                     </flux:field>
                 </div>
 
@@ -345,12 +348,9 @@ with(fn () => [
                         <div class="flex flex-wrap gap-4">
                             @foreach ($wantYouCodes as $code)
                                 <label class="flex items-center gap-2 cursor-pointer">
-                                    <input 
-                                        type="checkbox" 
-                                        wire:model="want_you_types_input" 
+                                    <input type="checkbox" wire:model="want_you_types_input"
                                         value="{{ $code->type_id }}"
-                                        class="h-4 w-4 rounded border-gray-300 text-[#FF6B35] focus:ring-[#FF6B35]"
-                                    >
+                                        class="h-4 w-4 rounded border-gray-300 text-[#FF6B35] focus:ring-[#FF6B35]">
                                     <span class="text-sm text-[#3E3A35]">{{ $code->name }}</span>
                                 </label>
                             @endforeach
@@ -365,12 +365,8 @@ with(fn () => [
                         <div class="flex flex-wrap gap-4">
                             @foreach ($canDoCodes as $code)
                                 <label class="flex items-center gap-2 cursor-pointer">
-                                    <input 
-                                        type="checkbox" 
-                                        wire:model="can_do_types_input" 
-                                        value="{{ $code->type_id }}"
-                                        class="h-4 w-4 rounded border-gray-300 text-[#4CAF50] focus:ring-[#4CAF50]"
-                                    >
+                                    <input type="checkbox" wire:model="can_do_types_input" value="{{ $code->type_id }}"
+                                        class="h-4 w-4 rounded border-gray-300 text-[#4CAF50] focus:ring-[#4CAF50]">
                                     <span class="text-sm text-[#3E3A35]">{{ $code->name }}</span>
                                 </label>
                             @endforeach
@@ -380,11 +376,13 @@ with(fn () => [
 
                 <!-- 検索・リセットボタン -->
                 <div class="flex justify-end gap-4">
-                    <button wire:click="resetFilters" class="text-[#6B6760] hover:text-[#FF6B35] flex items-center gap-2 transition-colors">
+                    <button wire:click="resetFilters"
+                        class="text-[#6B6760] hover:text-[#FF6B35] flex items-center gap-2 transition-colors">
                         <i class="fas fa-redo"></i>
                         リセット
                     </button>
-                    <button wire:click="search" class="bg-[#FF6B35] hover:bg-[#E55A28] text-white px-8 py-3 rounded-full font-bold transition-all transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center gap-2">
+                    <button wire:click="search"
+                        class="bg-[#FF6B35] hover:bg-[#E55A28] text-white px-8 py-3 rounded-full font-bold transition-all transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center gap-2">
                         <i class="fas fa-search"></i>
                         検索する
                     </button>
@@ -393,4 +391,3 @@ with(fn () => [
         </div>
     </div>
 </div>
-

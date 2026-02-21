@@ -31,8 +31,6 @@ class WorkerProfile extends Model
         'message',
         'birth_location_id',
         'current_location_1_id',
-        'current_address',
-        'phone_number',
         'current_location_2_id',
     ];
 
