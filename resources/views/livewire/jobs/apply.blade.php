@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-use App\Http\Requests\StoreJobApplicationRequest;
 use App\Models\ChatRoom;
 use App\Models\JobApplication;
 use App\Models\JobPost;
+use App\Models\Message;
 use Illuminate\Support\Facades\DB;
 
 use function Livewire\Volt\layout;
@@ -57,21 +57,20 @@ $submit = function () {
     // ポリシーで認可チェック（重複応募チェックを含む）
     $this->authorize('apply', $this->jobPost);
 
-    // トランザクション内で応募データとチャットルームを作成
+    // トランザクション内で応募データ、チャットルーム、初回メッセージを作成
     DB::transaction(function () use ($validated) {
         // 1. 応募データ（JobApplication）を登録
         $jobApplication = JobApplication::create([
             'job_id' => $this->jobPost->id,
             'worker_id' => auth()->id(),
-            'reasons' => !empty($validated['reasons']) ? $validated['reasons'] : null,
+            'reasons' => ! empty($validated['reasons']) ? $validated['reasons'] : null,
             'motive' => $validated['motive'] ?: null,
             'status' => 'applied',
             'applied_at' => now(),
         ]);
 
         // 2. 登録成功後、ChatRoomを自動作成（application_idを設定）
-        // application_idにユニーク制約があるため、firstOrCreateで重複を防止
-        ChatRoom::firstOrCreate(
+        $chatRoom = ChatRoom::firstOrCreate(
             ['application_id' => $jobApplication->id],
             [
                 'application_id' => $jobApplication->id,
@@ -79,11 +78,53 @@ $submit = function () {
                 'updated_at' => now(),
             ],
         );
+
+        // 3. 応募内容をチャットメッセージとして投稿
+        // 気になる点と応募メッセージを結合
+        $messageContent = '';
+
+        // 気になる点がある場合
+        if (! empty($validated['reasons'])) {
+            $reasonsLabels = [
+                'where_to_meet' => '集合はどこ？',
+                'what_time_ends' => '何時に終わる？',
+                'will_pick_up' => '迎えに来てくれる？',
+                'what_to_bring' => '持ち物は何が必要？',
+                'late_join_ok' => '遅れて参加でも良い？',
+                'children_ok' => '子どもと一緒でも大丈夫？',
+            ];
+
+            $messageContent .= "【募集で気になる点】\n";
+            foreach ($validated['reasons'] as $reason) {
+                $messageContent .= '・'.$reasonsLabels[$reason]."\n";
+            }
+            $messageContent .= "\n";
+        }
+
+        // 応募メッセージがある場合
+        if (! empty($validated['motive'])) {
+            if (! empty($messageContent)) {
+                $messageContent .= "【応募メッセージ】\n";
+            }
+            $messageContent .= $validated['motive'];
+        }
+
+        // メッセージがある場合のみチャットに投稿
+        if (! empty($messageContent)) {
+            Message::create([
+                'chat_room_id' => $chatRoom->id,
+                'sender_id' => auth()->id(),
+                'message' => $messageContent,
+                'is_read' => false,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
     });
 
     session()->flash('status', '応募が完了しました。');
 
-    // 3. ひらいず民募集詳細画面にリダイレクト
+    // 4. ひらいず民募集詳細画面にリダイレクト
     return $this->redirect(route('jobs.show', $this->jobPost), navigate: true);
 };
 

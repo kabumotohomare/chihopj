@@ -1,139 +1,140 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-    <head>
-        @include('partials.head')
-        <style>
-            body {
-                font-family: 'Noto Sans JP', sans-serif;
-            }
-        </style>
-    </head>
-    <body class="min-h-screen bg-[#F5F3F0]">
-        <flux:sidebar sticky stashable class="border-e-4 border-[#FF6B35] bg-[#FFF8E7]">
-            <flux:sidebar.toggle class="lg:hidden" icon="x-mark" />
 
-            <a href="{{ route('dashboard') }}" class="mb-6 flex flex-col items-center gap-2" wire:navigate>
-                <img src="{{ asset('images/presets/logo.png') }}" alt="みんなの平泉ロゴ" class="h-12 w-auto">
-                <span class="text-lg font-bold text-[#FF6B35]">みんなの平泉</span>
-            </a>
+<head>
+    @include('partials.head')
+    <style>
+        body {
+            font-family: 'Noto Sans JP', sans-serif;
+        }
+    </style>
+</head>
 
-            <flux:navlist variant="outline">
-                <flux:navlist.group heading="メニュー" class="grid">
-                    <flux:navlist.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate class="text-[#3E3A35] hover:bg-[#FF6B35]/10">ホーム</flux:navlist.item>
-                    <flux:navlist.item icon="briefcase" :href="route('jobs.index')" :current="request()->routeIs('jobs.*')" wire:navigate class="text-[#3E3A35] hover:bg-[#FF6B35]/10">募集一覧</flux:navlist.item>
-                    @if(auth()->user()->role === 'worker')
-                        <flux:navlist.item icon="clipboard-document-list" :href="route('applications.index')" :current="request()->routeIs('applications.*')" wire:navigate class="text-[#3E3A35] hover:bg-[#FF6B35]/10">応募履歴</flux:navlist.item>
-                    @endif
-                </flux:navlist.group>
-            </flux:navlist>
+<body class="min-h-screen bg-[#F5F3F0]">
+    <flux:sidebar sticky stashable class="border-e-4 border-[#FF6B35] bg-[#FFF8E7]">
+        <flux:sidebar.toggle class="lg:hidden" icon="x-mark" />
 
-            <flux:spacer />
+        <a href="{{ route('welcome') }}" class="mb-6 flex flex-col items-center gap-2" wire:navigate>
+            <img src="{{ asset('images/presets/logo.png') }}" alt="みんなの平泉ロゴ" class="h-12 w-auto">
+            <span class="text-lg font-bold text-[#FF6B35]">みんなの平泉</span>
+        </a>
 
-            <flux:navlist variant="outline">
-                <flux:navlist.item icon="question-mark-circle" href="https://form.run/@furubono-l7N9omymBWguT5AQABCt" target="_blank" class="text-[#6B6760] hover:bg-[#4CAF50]/10">
+        <flux:navlist variant="outline">
+            <flux:navlist.group heading="メニュー" class="grid">
+                <flux:navlist.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')"
+                    wire:navigate class="text-[#3E3A35] hover:bg-[#FF6B35]/10">ホーム</flux:navlist.item>
+                <flux:navlist.item icon="briefcase" :href="route('jobs.index')" :current="request()->routeIs('jobs.*')"
+                    wire:navigate class="text-[#3E3A35] hover:bg-[#FF6B35]/10">募集一覧</flux:navlist.item>
+                @if (auth()->user()->role === 'worker')
+                    <flux:navlist.item icon="clipboard-document-list" :href="route('applications.index')"
+                        :current="request()->routeIs('applications.*')" wire:navigate
+                        class="text-[#3E3A35] hover:bg-[#FF6B35]/10">応募履歴</flux:navlist.item>
+                @endif
+            </flux:navlist.group>
+        </flux:navlist>
+
+        <flux:spacer />
+
+        <flux:navlist variant="outline">
+            <flux:navlist.item icon="question-mark-circle" href="https://form.run/@furubono-l7N9omymBWguT5AQABCt"
+                target="_blank" class="text-[#6B6760] hover:bg-[#4CAF50]/10">
                 お問い合わせ
-                </flux:navlist.item>
-            </flux:navlist>
+            </flux:navlist.item>
+        </flux:navlist>
 
-            <!-- Desktop User Menu -->
-            <flux:dropdown class="hidden lg:block" position="bottom" align="start">
-                <flux:profile
-                    :name="auth()->user()->name"
-                    :initials="auth()->user()->initials()"
-                    icon:trailing="chevrons-up-down"
-                    data-test="sidebar-menu-button"
-                />
+        <!-- Desktop User Menu -->
+        <flux:dropdown class="hidden lg:block" position="bottom" align="start">
+            <flux:profile :name="auth()->user()->name ?? 'ゲスト'" :initials="auth()->user()->initials()"
+                icon:trailing="chevrons-up-down" data-test="sidebar-menu-button" />
 
-                <flux:menu class="w-[220px]">
-                    <flux:menu.radio.group>
-                        <div class="p-0 text-sm font-normal">
-                            <div class="flex items-center gap-2 px-1 py-1.5 text-start text-sm">
-                                <span class="relative flex h-8 w-8 shrink-0 overflow-hidden rounded-lg">
-                                    <span
-                                        class="flex h-full w-full items-center justify-center rounded-lg bg-neutral-200 text-black dark:bg-neutral-700 dark:text-white"
-                                    >
-                                        {{ auth()->user()->initials() }}
-                                    </span>
+            <flux:menu class="w-[220px]">
+                <flux:menu.radio.group>
+                    <div class="p-0 text-sm font-normal">
+                        <div class="flex items-center gap-2 px-1 py-1.5 text-start text-sm">
+                            <span class="relative flex h-8 w-8 shrink-0 overflow-hidden rounded-lg">
+                                <span
+                                    class="flex h-full w-full items-center justify-center rounded-lg bg-neutral-200 text-black dark:bg-neutral-700 dark:text-white">
+                                    {{ auth()->user()->initials() }}
                                 </span>
+                            </span>
 
-                                <div class="grid flex-1 text-start text-sm leading-tight">
-                                    <span class="truncate font-semibold">{{ auth()->user()->name }}</span>
-                                    <span class="truncate text-xs">{{ auth()->user()->email }}</span>
-                                </div>
+                            <div class="grid flex-1 text-start text-sm leading-tight">
+                                <span class="truncate font-semibold">{{ auth()->user()->name ?? 'ゲスト' }}</span>
+                                <span class="truncate text-xs">{{ auth()->user()->email }}</span>
                             </div>
                         </div>
-                    </flux:menu.radio.group>
+                    </div>
+                </flux:menu.radio.group>
 
-                    <flux:menu.separator />
+                <flux:menu.separator />
 
-                    <flux:menu.radio.group>
-                        <flux:menu.item :href="route('profile.edit')" icon="cog" wire:navigate>設定</flux:menu.item>
-                    </flux:menu.radio.group>
+                <flux:menu.radio.group>
+                    <flux:menu.item :href="route('profile.edit')" icon="cog" wire:navigate>設定</flux:menu.item>
+                </flux:menu.radio.group>
 
-                    <flux:menu.separator />
+                <flux:menu.separator />
 
-                    <form method="POST" action="{{ route('logout') }}" class="w-full">
-                        @csrf
-                        <flux:menu.item as="button" type="submit" icon="arrow-right-start-on-rectangle" class="w-full" data-test="logout-button">
-                            ログアウト
-                        </flux:menu.item>
-                    </form>
-                </flux:menu>
-            </flux:dropdown>
-        </flux:sidebar>
+                <form method="POST" action="{{ route('logout') }}" class="w-full">
+                    @csrf
+                    <flux:menu.item as="button" type="submit" icon="arrow-right-start-on-rectangle" class="w-full"
+                        data-test="logout-button">
+                        ログアウト
+                    </flux:menu.item>
+                </form>
+            </flux:menu>
+        </flux:dropdown>
+    </flux:sidebar>
 
-        <!-- Mobile User Menu -->
-        <flux:header class="lg:hidden">
-            <flux:sidebar.toggle class="lg:hidden" icon="bars-2" inset="left" />
+    <!-- Mobile User Menu -->
+    <flux:header class="lg:hidden">
+        <flux:sidebar.toggle class="lg:hidden" icon="bars-2" inset="left" />
 
-            <flux:spacer />
+        <flux:spacer />
 
-            <flux:dropdown position="top" align="end">
-                <flux:profile
-                    :initials="auth()->user()->initials()"
-                    icon-trailing="chevron-down"
-                />
+        <flux:dropdown position="top" align="end">
+            <flux:profile :initials="auth()->user()->initials()" icon-trailing="chevron-down" />
 
-                <flux:menu>
-                    <flux:menu.radio.group>
-                        <div class="p-0 text-sm font-normal">
-                            <div class="flex items-center gap-2 px-1 py-1.5 text-start text-sm">
-                                <span class="relative flex h-8 w-8 shrink-0 overflow-hidden rounded-full">
-                                    <span
-                                        class="flex h-full w-full items-center justify-center rounded-full bg-[#FF6B35] text-white font-bold"
-                                    >
-                                        {{ auth()->user()->initials() }}
-                                    </span>
+            <flux:menu>
+                <flux:menu.radio.group>
+                    <div class="p-0 text-sm font-normal">
+                        <div class="flex items-center gap-2 px-1 py-1.5 text-start text-sm">
+                            <span class="relative flex h-8 w-8 shrink-0 overflow-hidden rounded-full">
+                                <span
+                                    class="flex h-full w-full items-center justify-center rounded-full bg-[#FF6B35] text-white font-bold">
+                                    {{ auth()->user()->initials() }}
                                 </span>
+                            </span>
 
-                                <div class="grid flex-1 text-start text-sm leading-tight">
-                                    <span class="truncate font-semibold">{{ auth()->user()->name }}</span>
-                                    <span class="truncate text-xs">{{ auth()->user()->email }}</span>
-                                </div>
+                            <div class="grid flex-1 text-start text-sm leading-tight">
+                                <span class="truncate font-semibold">{{ auth()->user()->name ?? 'ゲスト' }}</span>
+                                <span class="truncate text-xs">{{ auth()->user()->email }}</span>
                             </div>
                         </div>
-                    </flux:menu.radio.group>
+                    </div>
+                </flux:menu.radio.group>
 
-                    <flux:menu.separator />
+                <flux:menu.separator />
 
-                    <flux:menu.radio.group>
-                        <flux:menu.item :href="route('profile.edit')" icon="cog" wire:navigate>設定</flux:menu.item>
-                    </flux:menu.radio.group>
+                <flux:menu.radio.group>
+                    <flux:menu.item :href="route('profile.edit')" icon="cog" wire:navigate>設定</flux:menu.item>
+                </flux:menu.radio.group>
 
-                    <flux:menu.separator />
+                <flux:menu.separator />
 
-                    <form method="POST" action="{{ route('logout') }}" class="w-full">
-                        @csrf
-                        <flux:menu.item as="button" type="submit" icon="arrow-right-start-on-rectangle" class="w-full text-[#FF6B35]" data-test="logout-button">
-                            ログアウト
-                        </flux:menu.item>
-                    </form>
-                </flux:menu>
-            </flux:dropdown>
-        </flux:header>
+                <form method="POST" action="{{ route('logout') }}" class="w-full">
+                    @csrf
+                    <flux:menu.item as="button" type="submit" icon="arrow-right-start-on-rectangle"
+                        class="w-full text-[#FF6B35]" data-test="logout-button">
+                        ログアウト
+                    </flux:menu.item>
+                </form>
+            </flux:menu>
+        </flux:dropdown>
+    </flux:header>
 
-        {{ $slot }}
+    {{ $slot }}
 
-        @fluxScripts
-    </body>
+    @fluxScripts
+</body>
+
 </html>

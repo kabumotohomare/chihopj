@@ -101,8 +101,8 @@ $getStatusBadgeClass = function (string $status): string {
 // 募集目的ラベル取得
 $getPurposeLabel = function (string $purpose): string {
     return match ($purpose) {
-        'want_to_do' => 'いつでも募集',
-        'need_help' => '決まった日に募集',
+        'want_to_do' => 'いつでも連絡して',
+        'need_help' => 'この日にやるから来て',
         default => '不明',
     };
 };

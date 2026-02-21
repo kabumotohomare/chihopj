@@ -3,7 +3,11 @@
 declare(strict_types=1);
 
 use App\Models\ChatRoom;
-use function Livewire\Volt\{computed, layout, state, title};
+
+use function Livewire\Volt\computed;
+use function Livewire\Volt\layout;
+use function Livewire\Volt\state;
+use function Livewire\Volt\title;
 
 layout('components.layouts.app.header');
 title('チャット一覧');
@@ -29,28 +33,28 @@ $chatRooms = computed(function () {
         });
     }
 
-    // Eager Loading: application.jobPost, application.worker, application.jobPost.companyProfile.user, messages（最新1件のみ）
+    // Eager Loading: application.jobPost, application.worker, application.worker.workerProfile, application.jobPost.companyProfile.user, messages（最新1件のみ）
     $query->with([
         'jobApplication.jobPost',
-        'jobApplication.worker',
+        'jobApplication.worker.workerProfile',
         'jobApplication.jobPost.company.companyProfile',
         'messages' => function ($q) {
-            $q->latest()->limit(1);
+            $q->with('sender')->latest()->limit(1);
         },
     ]);
 
-    // キーワード検索（ホスト名、ひらいず民募集タイトル、ひらいず民名）
+    // キーワード検索（ホスト名、ひらいず民募集タイトル、ひらいず民のニックネーム）
     if ($this->keyword) {
         $query->where(function ($q) {
             $q->whereHas('jobApplication.jobPost.company', function ($companyQuery) {
-                $companyQuery->where('name', 'like', '%' . $this->keyword . '%');
+                $companyQuery->where('name', 'like', '%'.$this->keyword.'%');
             })
-            ->orWhereHas('jobApplication.jobPost', function ($jobQuery) {
-                $jobQuery->where('job_title', 'like', '%' . $this->keyword . '%');
-            })
-            ->orWhereHas('jobApplication.worker', function ($workerQuery) {
-                $workerQuery->where('name', 'like', '%' . $this->keyword . '%');
-            });
+                ->orWhereHas('jobApplication.jobPost', function ($jobQuery) {
+                    $jobQuery->where('job_title', 'like', '%'.$this->keyword.'%');
+                })
+                ->orWhereHas('jobApplication.worker.workerProfile', function ($workerQuery) {
+                    $workerQuery->where('handle_name', 'like', '%'.$this->keyword.'%');
+                });
         });
     }
 
@@ -66,14 +70,14 @@ $chatRooms = computed(function () {
     return $query->paginate(20);
 });
 
-// 相手の名前を取得（ホスト：ひらいず民名、ひらいず民：ホスト名）
+// 相手の名前を取得（ホスト：ひらいず民のニックネーム、ひらいず民：ホスト名）
 $getOpponentName = function (ChatRoom $chatRoom): string {
     $user = auth()->user();
     $application = $chatRoom->jobApplication;
 
     if ($user->role === 'company') {
-        // ホストユーザーの場合、ひらいず民名を返す
-        return $application->worker->name;
+        // ホストユーザーの場合、ひらいず民のニックネームを返す
+        return $application->worker->workerProfile?->handle_name ?? $application->worker->name;
     } else {
         // ひらいず民の場合、ホスト名を返す
         return $application->jobPost->company->name;
@@ -104,13 +108,19 @@ $getStatusBadgeClass = function (string $status): string {
 
 // 最新メッセージを取得（Eager Loadingされたメッセージから取得）
 $getLatestMessage = function (ChatRoom $chatRoom): ?\App\Models\Message {
-    return $chatRoom->messages->first();
+    // messagesリレーションが既にロードされている場合はそれを使用
+    if ($chatRoom->relationLoaded('messages') && $chatRoom->messages->isNotEmpty()) {
+        return $chatRoom->messages->first();
+    }
+
+    // ロードされていない場合は直接クエリ
+    return $chatRoom->messages()->latest()->first();
 };
 
 // 最新メッセージのプレビューを取得（30文字まで）
 $getLatestMessagePreview = function (ChatRoom $chatRoom): ?string {
     $latestMessage = $this->getLatestMessage($chatRoom);
-    if (!$latestMessage) {
+    if (! $latestMessage) {
         return null;
     }
 
@@ -120,7 +130,7 @@ $getLatestMessagePreview = function (ChatRoom $chatRoom): ?string {
 // 最新メッセージの送信日時を取得
 $getLatestMessageCreatedAt = function (ChatRoom $chatRoom): ?string {
     $latestMessage = $this->getLatestMessage($chatRoom);
-    if (!$latestMessage) {
+    if (! $latestMessage) {
         return null;
     }
 
@@ -147,7 +157,7 @@ $getUnreadCount = function (ChatRoom $chatRoom): int {
             <flux:label>キーワード検索</flux:label>
             <flux:input
                 wire:model.live.debounce.300ms="keyword"
-                placeholder="ホスト名、ひらいず民募集タイトル、ひらいず民名で検索..."
+                placeholder="ホスト名、ひらいず民募集タイトル、ニックネームで検索..."
             />
         </flux:field>
     </div>

@@ -154,7 +154,7 @@ $isWorker = function (): bool {
                 </div>
             @endif
 
-            <div class="p-6 sm:p-8">
+            <div class="p-6 sm:p-8 text-left">
                 <!-- タグエリア：希望 -->
                 <div class="mb-4 flex flex-wrap gap-2">
                     <!-- 希望タグ（ハッシュタグ形式） -->
@@ -170,12 +170,12 @@ $isWorker = function (): bool {
                     <flux:badge color="red" size="lg" class="flex-shrink-0 font-bold">
                         {{ $this->getHowsoonLabel() }}
                     </flux:badge>
-                    <flux:heading size="xl" class="flex-1 text-gray-900 dark:text-white">
+                    <flux:heading size="xl" class="flex-1 text-left text-gray-900 dark:text-white">
                         {{ $jobPost->job_title }}
                     </flux:heading>
                 </div>
 
-                <!-- 開始日時・終了日時（決まった日に募集の場合のみ） -->
+                <!-- 開始日時・終了日時（この日にやるから来ての場合のみ） -->
                 @if ($jobPost->purpose === 'need_help' && $jobPost->start_datetime && $jobPost->end_datetime)
                     <div class="mb-6 rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-900/20">
                         <div class="flex items-center gap-2">
@@ -184,7 +184,7 @@ $isWorker = function (): bool {
                                 開催日時
                             </flux:text>
                         </div>
-                        <div class="mt-2 space-y-1">
+                        <div class="mt-2 space-y-1 text-left">
                             <flux:text class="text-blue-700 dark:text-blue-300">
                                 開始: {{ $jobPost->start_datetime->format('Y年n月j日 H:i') }}
                             </flux:text>
@@ -197,9 +197,9 @@ $isWorker = function (): bool {
 
                 <!-- 具体的にはこんなことを手伝ってほしい -->
                 <div class="mb-6">
-                    <flux:text class="whitespace-pre-wrap text-gray-600 dark:text-gray-400">
-                        {{ $jobPost->job_detail }}
-                    </flux:text>
+                    <div class="whitespace-pre-wrap break-words text-gray-600 dark:text-gray-400" style="text-align: left;">
+                        {!! \App\Helpers\TextHelper::autoLink($jobPost->job_detail) !!}
+                    </div>
                 </div>
 
                 <!-- どこで -->

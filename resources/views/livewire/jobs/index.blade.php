@@ -15,13 +15,31 @@ layout('components.layouts.app.header');
 title('募集一覧');
 
 /**
- * 検索・フィルタの状態
+ * 検索・フィルタの入力状態（ボタン押下前）
+ */
+state([
+    'keyword_input' => '',
+    'want_you_types_input' => [],
+    'can_do_types_input' => [],
+]);
+
+/**
+ * 検索・フィルタの実行状態（ボタン押下後）
  */
 state([
     'keyword' => '',
     'want_you_types' => [],
     'can_do_types' => [],
 ]);
+
+/**
+ * 検索を実行
+ */
+$search = function (): void {
+    $this->keyword = $this->keyword_input;
+    $this->want_you_types = $this->want_you_types_input;
+    $this->can_do_types = $this->can_do_types_input;
+};
 
 /**
  * 募集一覧を取得（検索・フィルタ適用）
@@ -114,6 +132,9 @@ $getCanDoLabel = function (): string {
  * フィルタをリセット
  */
 $resetFilters = function (): void {
+    $this->keyword_input = '';
+    $this->want_you_types_input = [];
+    $this->can_do_types_input = [];
     $this->keyword = '';
     $this->want_you_types = [];
     $this->can_do_types = [];
@@ -147,72 +168,6 @@ with(fn () => [
                     新規募集投稿
                 </a>
             @endif
-        </div>
-
-        <!-- 検索・フィルタエリア -->
-        <div class="mb-8 rounded-2xl bg-white p-6 shadow-lg">
-            <div class="space-y-6">
-                <!-- キーワード検索 -->
-                <div>
-                    <flux:field>
-                        <flux:label class="text-[#3E3A35] font-medium">キーワード検索</flux:label>
-                        <flux:input 
-                            wire:model.live.debounce.300ms="keyword" 
-                            type="text"
-                            placeholder="タイトルや内容で検索..."
-                            icon="magnifying-glass"
-                        />
-                    </flux:field>
-                </div>
-
-                <!-- 希望フィルタ -->
-                <div>
-                    <flux:field>
-                        <flux:label class="text-[#3E3A35] font-medium">{{ $this->getWantYouLabel() }}</flux:label>
-                        <div class="flex flex-wrap gap-4">
-                            @foreach ($wantYouCodes as $code)
-                                <label class="flex items-center gap-2 cursor-pointer">
-                                    <input 
-                                        type="checkbox" 
-                                        wire:model.live="want_you_types" 
-                                        value="{{ $code->type_id }}"
-                                        class="h-4 w-4 rounded border-gray-300 text-[#FF6B35] focus:ring-[#FF6B35]"
-                                    >
-                                    <span class="text-sm text-[#3E3A35]">{{ $code->name }}</span>
-                                </label>
-                            @endforeach
-                        </div>
-                    </flux:field>
-                </div>
-
-                <!-- できますフィルタ -->
-                <div>
-                    <flux:field>
-                        <flux:label class="text-[#3E3A35] font-medium">{{ $this->getCanDoLabel() }}</flux:label>
-                        <div class="flex flex-wrap gap-4">
-                            @foreach ($canDoCodes as $code)
-                                <label class="flex items-center gap-2 cursor-pointer">
-                                    <input 
-                                        type="checkbox" 
-                                        wire:model.live="can_do_types" 
-                                        value="{{ $code->type_id }}"
-                                        class="h-4 w-4 rounded border-gray-300 text-[#4CAF50] focus:ring-[#4CAF50]"
-                                    >
-                                    <span class="text-sm text-[#3E3A35]">{{ $code->name }}</span>
-                                </label>
-                            @endforeach
-                        </div>
-                    </flux:field>
-                </div>
-
-                <!-- フィルタリセットボタン -->
-                <div class="flex justify-end">
-                    <button wire:click="resetFilters" class="text-[#6B6760] hover:text-[#FF6B35] flex items-center gap-2 transition-colors">
-                        <i class="fas fa-redo"></i>
-                        フィルタをリセット
-                    </button>
-                </div>
-            </div>
         </div>
 
         <!-- 検索結果数 -->
@@ -286,13 +241,13 @@ with(fn () => [
                             <!-- 募集見出し -->
                             <div class="mb-3 flex items-start gap-2">
                                 @if ($jobPost->purpose === 'want_to_do')
-                                    <!-- いつでも募集：目立つオレンジ色のバッジ -->
+                                    <!-- いつでも連絡して：目立つオレンジ色のバッジ -->
                                     <span class="bg-[#FF6B35] text-white px-3 py-1 rounded-full text-xs font-bold flex-shrink-0 animate-pulse flex items-center gap-1">
                                         <i class="fas fa-bolt"></i>
                                         {{ $jobPost->getPurposeLabel() }}
                                     </span>
                                 @else
-                                    <!-- 決まった日に募集：通常の赤色バッジ -->
+                                    <!-- この日にやるから来て：通常の赤色バッジ -->
                                     <span class="bg-red-500 text-white px-3 py-1 rounded-full text-xs font-bold flex-shrink-0">
                                         {{ $jobPost->getPurposeLabel() }}
                                     </span>
@@ -302,7 +257,7 @@ with(fn () => [
                                 </h3>
                             </div>
 
-                            <!-- 決まった日に募集の場合：日時表示 -->
+                            <!-- この日にやるから来ての場合：日時表示 -->
                             @if ($jobPost->purpose === 'need_help' && $jobPost->start_datetime && $jobPost->end_datetime)
                                 <div class="mb-3 rounded-lg bg-[#87CEEB]/10 p-3">
                                     <div class="flex items-center gap-2 text-sm text-[#87CEEB] font-medium">
@@ -356,6 +311,86 @@ with(fn () => [
                 @endforeach
             </div>
         @endif
+
+        <!-- 検索・フィルタエリア -->
+        <div class="mt-12 rounded-2xl bg-white p-6 shadow-lg">
+            <div class="mb-4">
+                <h2 class="text-xl font-bold text-[#3E3A35] flex items-center gap-2">
+                    <i class="fas fa-filter text-[#FF6B35]"></i>
+                    募集を探す
+                </h2>
+                <p class="text-sm text-[#6B6760] mt-1">
+                    キーワードや条件で募集を絞り込めます
+                </p>
+            </div>
+
+            <div class="space-y-6">
+                <!-- キーワード検索 -->
+                <div>
+                    <flux:field>
+                        <flux:label class="text-[#3E3A35] font-medium">キーワード検索</flux:label>
+                        <flux:input 
+                            wire:model="keyword_input" 
+                            type="text"
+                            placeholder="タイトルや内容で検索..."
+                            icon="magnifying-glass"
+                        />
+                    </flux:field>
+                </div>
+
+                <!-- 希望フィルタ -->
+                <div>
+                    <flux:field>
+                        <flux:label class="text-[#3E3A35] font-medium">{{ $this->getWantYouLabel() }}</flux:label>
+                        <div class="flex flex-wrap gap-4">
+                            @foreach ($wantYouCodes as $code)
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input 
+                                        type="checkbox" 
+                                        wire:model="want_you_types_input" 
+                                        value="{{ $code->type_id }}"
+                                        class="h-4 w-4 rounded border-gray-300 text-[#FF6B35] focus:ring-[#FF6B35]"
+                                    >
+                                    <span class="text-sm text-[#3E3A35]">{{ $code->name }}</span>
+                                </label>
+                            @endforeach
+                        </div>
+                    </flux:field>
+                </div>
+
+                <!-- できますフィルタ -->
+                <div>
+                    <flux:field>
+                        <flux:label class="text-[#3E3A35] font-medium">{{ $this->getCanDoLabel() }}</flux:label>
+                        <div class="flex flex-wrap gap-4">
+                            @foreach ($canDoCodes as $code)
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input 
+                                        type="checkbox" 
+                                        wire:model="can_do_types_input" 
+                                        value="{{ $code->type_id }}"
+                                        class="h-4 w-4 rounded border-gray-300 text-[#4CAF50] focus:ring-[#4CAF50]"
+                                    >
+                                    <span class="text-sm text-[#3E3A35]">{{ $code->name }}</span>
+                                </label>
+                            @endforeach
+                        </div>
+                    </flux:field>
+                </div>
+
+                <!-- 検索・リセットボタン -->
+                <div class="flex justify-end gap-4">
+                    <button wire:click="resetFilters" class="text-[#6B6760] hover:text-[#FF6B35] flex items-center gap-2 transition-colors">
+                        <i class="fas fa-redo"></i>
+                        リセット
+                    </button>
+                    <button wire:click="search" class="bg-[#FF6B35] hover:bg-[#E55A28] text-white px-8 py-3 rounded-full font-bold transition-all transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center gap-2">
+                        <i class="fas fa-search"></i>
+                        検索する
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 

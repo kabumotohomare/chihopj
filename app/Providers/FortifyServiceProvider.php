@@ -50,6 +50,12 @@ class FortifyServiceProvider extends ServiceProvider
             \Laravel\Fortify\Contracts\RegisterResponse::class,
             CreateNewRegisterResponse::class
         );
+
+        // ログイン後のリダイレクトをカスタマイズ
+        $this->app->singleton(
+            \Laravel\Fortify\Contracts\LoginResponse::class,
+            \App\Actions\Fortify\CreateNewLoginResponse::class
+        );
     }
 
     /**

@@ -8,14 +8,13 @@ test('registration screen can be rendered', function () {
     $response = $this->get(route('register'));
 
     $response->assertStatus(200);
-    $response->assertSee('アカウントタイプ');
-    $response->assertSee('ワーカー（プロボノワーカー）');
-    $response->assertSee('カンパニー（地域の事業者）');
+    $response->assertSee('平泉町とのかかわりかた');
+    $response->assertSee('ひらいず民');
+    $response->assertSee('ホスト');
 });
 
 test('ワーカーとして登録できる', function () {
     $response = $this->post(route('register.store'), [
-        'name' => 'テストワーカー',
         'email' => 'worker@example.com',
         'password' => 'password',
         'password_confirmation' => 'password',
@@ -28,12 +27,12 @@ test('ワーカーとして登録できる', function () {
 
     $user = User::where('email', 'worker@example.com')->first();
     expect($user->role)->toBe('worker');
+    expect($user->name)->toBeNull(); // 名前はプロフィール登録時に設定される
     expect($user->workerProfile)->toBeNull();
 });
 
 test('カンパニーとして登録できる', function () {
     $response = $this->post(route('register.store'), [
-        'name' => 'テスト企業',
         'email' => 'company@example.com',
         'password' => 'password',
         'password_confirmation' => 'password',
@@ -46,12 +45,12 @@ test('カンパニーとして登録できる', function () {
 
     $user = User::where('email', 'company@example.com')->first();
     expect($user->role)->toBe('company');
+    expect($user->name)->toBeNull(); // 名前はプロフィール登録時に設定される
     expect($user->companyProfile)->toBeNull();
 });
 
 test('ロールが未選択の場合はバリデーションエラーになる', function () {
     $response = $this->post(route('register.store'), [
-        'name' => 'テストユーザー',
         'email' => 'test@example.com',
         'password' => 'password',
         'password_confirmation' => 'password',
@@ -62,7 +61,6 @@ test('ロールが未選択の場合はバリデーションエラーになる',
 
 test('無効なロールの場合はバリデーションエラーになる', function () {
     $response = $this->post(route('register.store'), [
-        'name' => 'テストユーザー',
         'email' => 'test@example.com',
         'password' => 'password',
         'password_confirmation' => 'password',

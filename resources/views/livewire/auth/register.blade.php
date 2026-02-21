@@ -3,7 +3,7 @@
         <!-- ヘッダー -->
         <div class="text-center">
             <h1 class="text-2xl font-bold text-[#3E3A35] mb-2">アカウントをつくる</h1>
-            <p class="text-sm text-[#6B6760]">お名前とメールアドレスを入力してください</p>
+            <p class="text-sm text-[#6B6760]">メールアドレスを入力してください</p>
         </div>
 
         <!-- Session Status -->
@@ -42,18 +42,6 @@
                     <flux:error>{{ $message }}</flux:error>
                 @enderror
             </flux:field>
-
-            <!-- Name -->
-            <flux:input
-                name="name"
-                label="お名前"
-                :value="old('name')"
-                type="text"
-                required
-                autofocus
-                autocomplete="name"
-                placeholder="山田 太郎"
-            />
 
             <!-- Email Address -->
             <flux:input

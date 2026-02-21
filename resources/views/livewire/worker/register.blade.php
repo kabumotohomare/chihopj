@@ -12,6 +12,10 @@ use Livewire\WithFileUploads;
 new #[Layout('components.layouts.auth')] class extends Component {
     use WithFileUploads;
 
+    // お名前（本名）
+    #[Validate('required|string|max:50')]
+    public string $name = '';
+
     // 基本情報
     #[Validate('required|string|max:50')]
     public string $handle_name = '';
@@ -53,6 +57,10 @@ new #[Layout('components.layouts.auth')] class extends Component {
 
     #[Validate('nullable|exists:locations,id')]
     public ?int $current_location_2_id = null;
+
+    // 同意チェックボックス
+    #[Validate('accepted', message: 'ふるさと住民制度実施要綱に同意する必要があります。')]
+    public bool $agree_to_terms = false;
 
     // 年月日リスト
     public $years = [];
@@ -152,6 +160,11 @@ new #[Layout('components.layouts.auth')] class extends Component {
         // 生年月日を結合
         $birthdate = sprintf('%04d-%02d-%02d', $this->birth_year, $this->birth_month, $this->birth_day);
 
+        // usersテーブルのnameを更新
+        auth()->user()->update([
+            'name' => $this->name,
+        ]);
+
         // ひらいず民プロフィールを作成
         WorkerProfile::create([
             'user_id' => auth()->id(),
@@ -183,6 +196,16 @@ new #[Layout('components.layouts.auth')] class extends Component {
         </div>
 
         <form wire:submit="register" class="flex flex-col gap-6">
+            <!-- お名前（本名） -->
+            <flux:field>
+                <flux:label>お名前（本名） <span class="text-red-500">*</span></flux:label>
+                <flux:input wire:model="name" placeholder="例：山田 太郎" />
+                <flux:description>
+                    本名を入力してください。公開されません。
+                </flux:description>
+                <flux:error name="name" />
+            </flux:field>
+
             <!-- アイコン画像 -->
             <flux:field>
                 <flux:label>アイコン画像 <span class="text-zinc-500">(任意)</span></flux:label>
@@ -333,6 +356,24 @@ new #[Layout('components.layouts.auth')] class extends Component {
                     </select>
                 </div>
                 <flux:error name="current_location_2_id" />
+            </flux:field>
+
+            <!-- ふるさと住民制度への同意 -->
+            <flux:field>
+                <div class="flex items-start gap-3">
+                    <input type="checkbox" 
+                        wire:model="agree_to_terms" 
+                        id="agree_to_terms"
+                        class="mt-1 h-4 w-4 rounded border-gray-300 text-[#FF6B35] focus:ring-[#FF6B35]">
+                    <label for="agree_to_terms" class="text-sm text-[#3E3A35] cursor-pointer">
+                        <a href="https://www.town.hiraizumi.iwate.jp/%E3%80%8C%E3%81%B5%E3%82%8B%E3%81%95%E3%81%A8%E4%BD%8F%E6%B0%91%E3%80%8D%E3%82%92%E5%8B%9F%E9%9B%86%E3%81%97%E3%81%BE%E3%81%99%EF%BC%88%E3%81%B5%E3%82%8B%E3%81%95%E3%81%A8%E4%BD%8F%E6%B0%91%E5%88%B6-23557/" 
+                            target="_blank" 
+                            class="text-[#4CAF50] hover:text-[#45A049] underline">
+                            平泉町ふるさと住民制度実施要綱
+                        </a>に同意する <span class="text-red-500">*</span>
+                    </label>
+                </div>
+                <flux:error name="agree_to_terms" />
             </flux:field>
 
             <!-- 送信ボタン -->

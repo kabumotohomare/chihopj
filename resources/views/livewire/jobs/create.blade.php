@@ -63,7 +63,7 @@ $offers = computed(function () {
 
 // purposeの変更を監視（日時フィールドをリセット）
 $updatedPurpose = function ($value) {
-    // いつでも募集に変更した場合、日時フィールドをクリア
+    // 「いつでも連絡して」に変更した場合、日時フィールドをクリア
     if ($value === 'want_to_do') {
         $this->start_datetime = '';
         $this->end_datetime = '';
@@ -243,18 +243,18 @@ $create = function () {
                     <label class="flex items-center gap-2">
                         <input type="radio" wire:model.live="purpose" value="want_to_do"
                             class="h-4 w-4 border-gray-300 text-blue-600 focus:ring-blue-500">
-                        <span>いつでも来て</span>
+                        <span>いつでも連絡して</span>
                     </label>
                     <label class="flex items-center gap-2">
                         <input type="radio" wire:model.live="purpose" value="need_help"
                             class="h-4 w-4 border-gray-300 text-blue-600 focus:ring-blue-500">
-                        <span>決まった日に来て</span>
+                        <span>この日にやるから来て</span>
                     </label>
                 </div>
                 <flux:error name="purpose" />
             </flux:field>
 
-            <!-- 開始日時・終了日時（決まった日に募集の場合のみ表示） -->
+            <!-- 開始日時・終了日時（この日にやるから来ての場合のみ表示） -->
             @if ($purpose === 'need_help')
                 <div
                     class="space-y-4 rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-950">
@@ -371,7 +371,7 @@ $create = function () {
 
             <!-- どこで -->
             <flux:field>
-                <flux:label>どこで <span class="text-red-500">*</span></flux:label>
+                <flux:label>どこで（任意）</flux:label>
                 <flux:description>おおまかで構いませんので、集合場所や活動場所を入力してください</flux:description>
                 <flux:input wire:model="location" type="text" placeholder="例：平泉駅前に集合して、皆で平泉文化センターに移動します。">
                 </flux:input>
@@ -388,7 +388,10 @@ $create = function () {
                     <div
                         class="mt-3 min-h-[2.5rem] rounded-lg border border-gray-200 bg-gray-50 p-2 dark:border-gray-700 dark:bg-gray-900">
                         <div class="flex flex-wrap gap-2">
-                            @foreach ($this->requests as $request)
+                            @php
+                                $requestsCollection = Code::getRequests();
+                            @endphp
+                            @foreach ($requestsCollection as $request)
                                 @if (in_array($request->type_id, $want_you_ids))
                                     <span
                                         class="inline-flex items-center gap-1.5 rounded-md bg-blue-500 px-2.5 py-1 text-sm font-medium text-white shadow-sm transition-all hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700">
@@ -413,7 +416,10 @@ $create = function () {
                 <select wire:model.live="want_you_ids" multiple
                     class="mt-3 w-full rounded-lg border border-gray-200 px-3 py-2 transition-colors focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 dark:border-gray-700 dark:bg-gray-800 dark:focus:border-blue-500"
                     size="6">
-                    @foreach ($this->requests as $request)
+                    @php
+                        $requestsCollection = Code::getRequests();
+                    @endphp
+                    @foreach ($requestsCollection as $request)
                         <option value="{{ $request->type_id }}">{{ $request->name }}</option>
                     @endforeach
                 </select>
@@ -426,10 +432,13 @@ $create = function () {
 
             <!-- できます -->
             <flux:field>
-                <flux:label>できます（任意）</flux:label>
+                <flux:label>私からは御礼にこれをします（任意）</flux:label>
                 <flux:description>複数選択可能です</flux:description>
                 <div class="mt-2 space-y-2">
-                    @foreach ($this->offers as $offer)
+                    @php
+                        $offersCollection = Code::getOffers();
+                    @endphp
+                    @foreach ($offersCollection as $offer)
                         <label class="flex items-center gap-2">
                             <input type="checkbox" wire:model="can_do_ids" value="{{ $offer->type_id }}"
                                 class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">

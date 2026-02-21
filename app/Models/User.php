@@ -60,6 +60,11 @@ class User extends Authenticatable
      */
     public function initials(): string
     {
+        // nameがnullの場合は空文字を返す
+        if (empty($this->name)) {
+            return '';
+        }
+
         return Str::of($this->name)
             ->explode(' ')
             ->take(2)

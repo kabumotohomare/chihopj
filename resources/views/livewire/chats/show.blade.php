@@ -23,12 +23,12 @@ mount(function (ChatRoom $chatRoom) {
     // 認可チェック（チャットルームの参加者のみ閲覧可能）
     $this->authorize('view', $chatRoom);
 
-    // Eager Loading: application.jobPost, application.worker, application.jobPost.companyProfile.user, messages.sender
+    // Eager Loading: application.jobPost, application.worker.workerProfile, application.jobPost.companyProfile.user, messages.sender.workerProfile, messages.sender.companyProfile
     $this->chatRoom = $chatRoom->load([
         'jobApplication.jobPost.company.companyProfile',
-        'jobApplication.worker',
+        'jobApplication.worker.workerProfile',
         'messages' => function ($query) {
-            $query->with('sender')->orderBy('created_at', 'asc');
+            $query->with(['sender.workerProfile', 'sender.companyProfile'])->orderBy('created_at', 'asc');
         },
     ]);
 
@@ -74,7 +74,7 @@ $sendMessage = function () {
     $this->chatRoom->refresh();
     $this->chatRoom->load([
         'messages' => function ($query) {
-            $query->with('sender')->orderBy('created_at', 'asc');
+            $query->with(['sender.workerProfile', 'sender.companyProfile'])->orderBy('created_at', 'asc');
         },
     ]);
 
@@ -135,9 +135,9 @@ $acceptApplication = function () {
     $this->chatRoom->refresh();
     $this->chatRoom->load([
         'jobApplication.jobPost.company.companyProfile',
-        'jobApplication.worker',
+        'jobApplication.worker.workerProfile',
         'messages' => function ($query) {
-            $query->with('sender')->orderBy('created_at', 'asc');
+            $query->with(['sender.workerProfile', 'sender.companyProfile'])->orderBy('created_at', 'asc');
         },
     ]);
 
@@ -168,7 +168,7 @@ $rejectApplication = function () {
     $this->chatRoom->refresh();
     $this->chatRoom->load([
         'jobApplication.jobPost.company.companyProfile',
-        'jobApplication.worker',
+        'jobApplication.worker.workerProfile',
     ]);
 
     session()->flash('success', 'ステータスを「今回ごめんね」に変更しました。');
@@ -221,11 +221,11 @@ $rejectApplication = function () {
                     </flux:text>
                 </div>
 
-                {{-- ひらいず民名 --}}
+                {{-- ひらいず民名（ニックネーム） --}}
                 <div>
-                    <flux:text class="text-sm font-medium text-gray-500 dark:text-gray-400">ひらいず民名</flux:text>
+                    <flux:text class="text-sm font-medium text-gray-500 dark:text-gray-400">ひらいず民</flux:text>
                     <flux:text class="mt-1 text-gray-900 dark:text-white">
-                        {{ $chatRoom->jobApplication->worker->name }}
+                        {{ $chatRoom->jobApplication->worker->workerProfile?->handle_name ?? $chatRoom->jobApplication->worker->name }}
                     </flux:text>
                 </div>
 
@@ -274,12 +274,47 @@ $rejectApplication = function () {
             <div id="messages-container" class="space-y-4 max-h-96 overflow-y-auto">
                 @forelse ($chatRoom->messages as $message)
                     <div class="flex items-start gap-3 {{ $message->sender_id === auth()->id() ? 'flex-row-reverse' : '' }}">
+                        {{-- アイコン表示 --}}
+                        <div class="flex-shrink-0">
+                            @if ($message->sender->role === 'worker')
+                                {{-- ワーカーのアイコン --}}
+                                @if ($message->sender->workerProfile?->icon)
+                                    <img
+                                        src="{{ Storage::url($message->sender->workerProfile->icon) }}"
+                                        alt="{{ $message->sender->workerProfile->handle_name ?? $message->sender->name }}"
+                                        class="h-10 w-10 rounded-full object-cover"
+                                    />
+                                @else
+                                    <div class="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-blue-400 to-purple-500 text-sm font-bold text-white">
+                                        {{ mb_substr($message->sender->workerProfile?->handle_name ?? $message->sender->name, 0, 1) }}
+                                    </div>
+                                @endif
+                            @else
+                                {{-- 企業のアイコン --}}
+                                @if ($message->sender->companyProfile?->icon)
+                                    <img
+                                        src="{{ Storage::url($message->sender->companyProfile->icon) }}"
+                                        alt="{{ $message->sender->name }}"
+                                        class="h-10 w-10 rounded-full object-cover"
+                                    />
+                                @else
+                                    <div class="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-orange-400 to-pink-500 text-sm font-bold text-white">
+                                        {{ mb_substr($message->sender->name, 0, 1) }}
+                                    </div>
+                                @endif
+                            @endif
+                        </div>
+
                         <div
                             class="flex-1 rounded-lg p-4 {{ $message->sender_id === auth()->id() ? 'bg-blue-50 dark:bg-blue-900/20' : 'bg-gray-50 dark:bg-gray-700/50' }}">
-                            {{-- 送信者名 --}}
+                            {{-- 送信者名（ワーカーの場合はニックネーム） --}}
                             <div class="mb-1">
                                 <flux:text class="text-sm font-medium text-gray-900 dark:text-white">
-                                    {{ $message->sender->name }}
+                                    @if ($message->sender->role === 'worker')
+                                        {{ $message->sender->workerProfile?->handle_name ?? $message->sender->name }}
+                                    @else
+                                        {{ $message->sender->name }}
+                                    @endif
                                 </flux:text>
                             </div>
 

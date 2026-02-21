@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Models\JobApplication;
 use App\Models\Message;
 
 use function Livewire\Volt\computed;
@@ -40,6 +41,24 @@ $unreadMessagesCount = computed(function (): int {
     return 0;
 });
 
+/**
+ * 未対応の応募数を取得（企業ユーザー専用）
+ */
+$pendingApplicationsCount = computed(function (): int {
+    $user = auth()->user();
+
+    if ($user->isCompany()) {
+        // 企業ユーザー：自社求人への未対応（応募中）の応募数
+        return JobApplication::whereHas('jobPost', function ($query) use ($user) {
+            $query->where('company_id', $user->id);
+        })
+            ->where('status', 'applied')
+            ->count();
+    }
+
+    return 0;
+});
+
 ?>
 
 <div class="flex h-full w-full flex-1 flex-col gap-6 rounded-xl p-4 md:p-8" wire:poll.30s>
@@ -50,7 +69,7 @@ $unreadMessagesCount = computed(function (): int {
             @if (auth()->user()->isWorker() && auth()->user()->workerProfile?->handle_name)
                 {{ auth()->user()->workerProfile->handle_name }}さん
             @else
-                {{ auth()->user()->name }}さん
+                {{ auth()->user()->name ?? 'ゲスト' }}さん
             @endif
         </h1>
         <p class="text-[#6B6760]">
@@ -76,10 +95,19 @@ $unreadMessagesCount = computed(function (): int {
 
             <a href="{{ route('applications.received') }}" wire:navigate
                 class="group relative flex flex-col items-center justify-center overflow-hidden rounded-2xl bg-white p-12 transition hover:shadow-2xl transform hover:scale-105 shadow-lg">
-                <div class="mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-[#4CAF50]/10">
+                <div class="relative mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-[#4CAF50]/10">
                     <i class="fas fa-users text-5xl text-[#4CAF50]"></i>
+                    @if ($this->pendingApplicationsCount > 0)
+                        <span
+                            class="absolute -top-2 -right-2 flex h-10 w-10 items-center justify-center rounded-full bg-[#FF6B35] text-white text-sm font-bold shadow-lg animate-pulse">
+                            {{ $this->pendingApplicationsCount > 99 ? '99+' : $this->pendingApplicationsCount }}
+                        </span>
+                    @endif
                 </div>
                 <h2 class="text-xl font-bold text-[#3E3A35] text-center">希望者を確認</h2>
+                @if ($this->pendingApplicationsCount > 0)
+                    <p class="mt-2 text-sm text-[#FF6B35] font-semibold">{{ $this->pendingApplicationsCount }}件の新着応募</p>
+                @endif
             </a>
 
             <a href="{{ route('chats.index') }}" wire:navigate

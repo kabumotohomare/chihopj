@@ -138,9 +138,9 @@
                         <a href="{{ url('/dashboard') }}"
                             class="bg-[#FF6B35] hover:bg-[#E55A28] text-white px-6 py-2.5 rounded-full transition-all font-bold shadow-lg hover:shadow-xl transform hover:scale-105">
                             @if (auth()->user()->role === 'worker')
-                                {{ auth()->user()->workerProfile?->handle_name ?? auth()->user()->name }}さんの部屋
+                                {{ auth()->user()->workerProfile?->handle_name ?? auth()->user()->name ?? 'ゲスト' }}さんの部屋
                             @else
-                                {{ auth()->user()->name }}さんの部屋
+                                {{ auth()->user()->name ?? 'ゲスト' }}さんの部屋
                             @endif
                         </a>
                     @else
@@ -175,9 +175,9 @@
                     <a href="{{ url('/dashboard') }}" @click="mobileMenuOpen = false"
                         class="block text-[#3E3A35] hover:text-[#FF6B35] transition-colors font-bold py-2 text-center">
                         @if (auth()->user()->role === 'worker')
-                            {{ auth()->user()->workerProfile?->handle_name ?? auth()->user()->name }}さんの部屋
+                            {{ auth()->user()->workerProfile?->handle_name ?? auth()->user()->name ?? 'ゲスト' }}さんの部屋
                         @else
-                            {{ auth()->user()->name }}さんの部屋
+                            {{ auth()->user()->name ?? 'ゲスト' }}さんの部屋
                         @endif
                     </a>
                 @else
@@ -499,12 +499,27 @@
             @if ($latestJobs->isEmpty())
                 <div class="text-center py-16">
                     <i class="fas fa-inbox text-6xl text-gray-300 mb-6"></i>
-                    <p class="text-xl text-[#6B6760] mb-6">ひらいず民登録してお待ちください。</p>
-                    <a href="{{ url('/register') }}"
-                        class="inline-flex items-center gap-2 bg-[#FF6B35] hover:bg-[#E55A28] text-white px-8 py-4 rounded-full transition-all transform hover:scale-105 font-bold text-lg shadow-lg btn-pop">
-                        <i class="fas fa-user-plus"></i>
-                        <span>登録はこちらから</span>
-                    </a>
+                    @auth
+                        <p class="text-xl text-[#6B6760] mb-6">現在募集はありません。しばらくお待ちください。</p>
+                        <a href="{{ url('/dashboard') }}"
+                            class="inline-flex items-center gap-2 bg-[#4CAF50] hover:bg-[#45A049] text-white px-8 py-4 rounded-full transition-all transform hover:scale-105 font-bold text-lg shadow-lg btn-pop">
+                            <i class="fas fa-door-open"></i>
+                            <span>
+                                @if (auth()->user()->role === 'worker')
+                                    {{ auth()->user()->workerProfile?->handle_name ?? auth()->user()->name ?? 'ゲスト' }}さんの部屋はこちら
+                                @else
+                                    {{ auth()->user()->name ?? 'ゲスト' }}さんの部屋はこちら
+                                @endif
+                            </span>
+                        </a>
+                    @else
+                        <p class="text-xl text-[#6B6760] mb-6">ひらいず民登録してお待ちください。</p>
+                        <a href="{{ url('/register') }}"
+                            class="inline-flex items-center gap-2 bg-[#FF6B35] hover:bg-[#E55A28] text-white px-8 py-4 rounded-full transition-all transform hover:scale-105 font-bold text-lg shadow-lg btn-pop">
+                            <i class="fas fa-user-plus"></i>
+                            <span>登録はこちらから</span>
+                        </a>
+                    @endauth
                 </div>
             @else
                 <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
@@ -586,6 +601,9 @@
     </footer>
 
     @stack('scripts')
+    
+    <!-- Alpine.js (Livewireに含まれる) -->
+    <script src="//unpkg.com/alpinejs" defer></script>
 </body>
 
 </html>

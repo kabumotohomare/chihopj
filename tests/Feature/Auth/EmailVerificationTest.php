@@ -14,7 +14,7 @@ test('email verification screen can be rendered', function () {
 });
 
 test('email can be verified', function () {
-    $user = User::factory()->unverified()->create();
+    $user = User::factory()->unverified()->create(['role' => 'worker']);
 
     Event::fake();
 
@@ -29,7 +29,8 @@ test('email can be verified', function () {
     Event::assertDispatched(Verified::class);
 
     expect($user->fresh()->hasVerifiedEmail())->toBeTrue();
-    $response->assertRedirect(route('dashboard', absolute: false).'?verified=1');
+    // プロフィール未登録のため、プロフィール登録画面にリダイレクト
+    $response->assertRedirect(route('worker.register').'?verified=1');
 });
 
 test('email is not verified with invalid hash', function () {
@@ -48,6 +49,7 @@ test('email is not verified with invalid hash', function () {
 
 test('already verified user visiting verification link is redirected without firing event again', function () {
     $user = User::factory()->create([
+        'role' => 'worker',
         'email_verified_at' => now(),
     ]);
 
@@ -60,7 +62,7 @@ test('already verified user visiting verification link is redirected without fir
     );
 
     $this->actingAs($user)->get($verificationUrl)
-        ->assertRedirect(route('dashboard', absolute: false).'?verified=1');
+        ->assertRedirect(route('worker.register').'?verified=1'); // プロフィール未登録のため
 
     expect($user->fresh()->hasVerifiedEmail())->toBeTrue();
     Event::assertNotDispatched(Verified::class);

@@ -85,6 +85,15 @@ $offers = computed(function () {
     return Code::getOffers();
 });
 
+// 募集目的変更時の処理
+$updatedPurpose = function (): void {
+    // 「いつでも募集」に変更された場合、日時をnullにリセット
+    if ($this->purpose === 'want_to_do') {
+        $this->start_datetime = null;
+        $this->end_datetime = null;
+    }
+};
+
 // 募集更新処理
 $update = function () {
     // 認可チェック
@@ -92,6 +101,16 @@ $update = function () {
 
     // バリデーション
     $validated = $this->validate((new UpdateJobPostRequest)->rules());
+
+    // 空文字列をnullに変換（いつでも募集の場合）
+    if ($this->purpose === 'want_to_do') {
+        $validated['start_datetime'] = null;
+        $validated['end_datetime'] = null;
+    } else {
+        // 空文字列の場合はnullに変換
+        $validated['start_datetime'] = $validated['start_datetime'] ?: null;
+        $validated['end_datetime'] = $validated['end_datetime'] ?: null;
+    }
 
     // アイキャッチ画像の処理
     $eyecatchPath = $this->existing_eyecatch;
@@ -210,23 +229,23 @@ $update = function () {
 
             <!-- 募集目的 -->
             <flux:field>
-                <flux:label>募集目的 <span class="text-red-500">*</span></flux:label>
+                <flux:label>いつやるの？ <span class="text-red-500">*</span></flux:label>
                 <div class="mt-2 space-y-2">
                     <label class="flex items-center gap-2">
                         <input type="radio" wire:model.live="purpose" value="want_to_do"
                             class="h-4 w-4 border-gray-300 text-blue-600 focus:ring-blue-500">
-                        <span>いつでも募集</span>
+                        <span>いつでも連絡して</span>
                     </label>
                     <label class="flex items-center gap-2">
                         <input type="radio" wire:model.live="purpose" value="need_help"
                             class="h-4 w-4 border-gray-300 text-blue-600 focus:ring-blue-500">
-                        <span>決まった日に募集</span>
+                        <span>この日にやるから来て</span>
                     </label>
                 </div>
                 <flux:error name="purpose" />
             </flux:field>
 
-            <!-- 開始日時・終了日時（決まった日に募集の場合のみ表示） -->
+            <!-- 開始日時・終了日時（この日にやるから来ての場合のみ表示） -->
             @if($purpose === 'need_help')
                 <div class="space-y-4 rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-950">
                     <!-- 開始日時 -->
@@ -264,7 +283,7 @@ $update = function () {
 
             <!-- どこで -->
             <flux:field>
-                <flux:label>どこで <span class="text-red-500">*</span></flux:label>
+                <flux:label>どこで（任意）</flux:label>
                 <flux:description>活動場所を入力してください（200文字以内）</flux:description>
                 <flux:input wire:model="location" type="text" placeholder="例：平泉町平泉字大沢1-1 平泉文化センター"></flux:input>
                 <flux:error name="location" />
@@ -312,9 +331,9 @@ $update = function () {
                 <flux:error name="want_you_ids" />
             </flux:field>
 
-            <!-- 私からは〇〇できます -->
+            <!-- 私からは御礼にこれをします -->
             <flux:field>
-                <flux:label>私からは〇〇できます（任意）</flux:label>
+                <flux:label>私からは御礼にこれをします（任意）</flux:label>
                 <flux:description>複数選択可能です</flux:description>
                 <div class="mt-2 space-y-2">
                     @foreach ($this->offers as $offer)
