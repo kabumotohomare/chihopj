@@ -3,5 +3,5 @@
 </div>
 <div class="ms-1 grid flex-1 text-start text-sm">
     <span class="font-semibold text-zinc-900 dark:text-white">みんなの平泉</span>
-    <span class="text-xs text-zinc-500 dark:text-zinc-400">平泉のお手伝い案内所</span>
+    <span class="text-xs text-zinc-500 dark:text-zinc-400">ふるさと住民の部屋</span>
 </div>

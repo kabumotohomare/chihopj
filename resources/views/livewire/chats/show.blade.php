@@ -93,7 +93,6 @@ $getStatusLabel = function (string $status): string {
         'applied' => '応募中',
         'accepted' => 'ぜひ来てね',
         'rejected' => '今回ごめんね',
-        'declined' => '辞退済み',
         default => '不明',
     };
 };
@@ -106,7 +105,6 @@ $getStatusBadgeClass = function (string $status): string {
         'applied' => 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
         'accepted' => 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
         'rejected' => 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
-        'declined' => 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200',
         default => 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200',
     };
 };

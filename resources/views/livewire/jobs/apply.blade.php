@@ -63,7 +63,7 @@ $submit = function () {
         $jobApplication = JobApplication::create([
             'job_id' => $this->jobPost->id,
             'worker_id' => auth()->id(),
-            'reasons' => ! empty($validated['reasons']) ? $validated['reasons'] : null,
+            'reasons' => !empty($validated['reasons']) ? $validated['reasons'] : null,
             'motive' => $validated['motive'] ?: null,
             'status' => 'applied',
             'applied_at' => now(),
@@ -84,7 +84,7 @@ $submit = function () {
         $messageContent = '';
 
         // 気になる点がある場合
-        if (! empty($validated['reasons'])) {
+        if (!empty($validated['reasons'])) {
             $reasonsLabels = [
                 'where_to_meet' => '集合はどこ？',
                 'what_time_ends' => '何時に終わる？',
@@ -96,21 +96,21 @@ $submit = function () {
 
             $messageContent .= "【募集で気になる点】\n";
             foreach ($validated['reasons'] as $reason) {
-                $messageContent .= '・'.$reasonsLabels[$reason]."\n";
+                $messageContent .= '・' . $reasonsLabels[$reason] . "\n";
             }
             $messageContent .= "\n";
         }
 
         // 応募メッセージがある場合
-        if (! empty($validated['motive'])) {
-            if (! empty($messageContent)) {
+        if (!empty($validated['motive'])) {
+            if (!empty($messageContent)) {
                 $messageContent .= "【応募メッセージ】\n";
             }
             $messageContent .= $validated['motive'];
         }
 
         // メッセージがある場合のみチャットに投稿
-        if (! empty($messageContent)) {
+        if (!empty($messageContent)) {
             Message::create([
                 'chat_room_id' => $chatRoom->id,
                 'sender_id' => auth()->id(),
@@ -152,6 +152,12 @@ $getPurposeLabel = function (): string {
                 応募する
             </flux:heading>
         </div>
+
+        <!-- 注意喚起メッセージ -->
+        <flux:callout variant="warning" icon="exclamation-triangle" class="mb-6">
+            <strong>まだ応募は完了していません。</strong><br>
+            下から、ホストに向けて気になる点の質問やメッセージ(任意)を作成し、「応募する」を押してください。
+        </flux:callout>
 
         <!-- 募集情報サマリー -->
         <div class="mb-8 overflow-hidden rounded-xl bg-white shadow dark:bg-gray-800">

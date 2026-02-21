@@ -28,31 +28,10 @@
             opacity: 1;
             pointer-events: auto;
         }
-
-        /* デバッグ用：メニューの状態を確認 */
-        #mobile-menu::before {
-            content: 'Menu state: ' attr(data-state);
-            position: absolute;
-            top: 0;
-            left: 0;
-            background: yellow;
-            color: black;
-            padding: 4px;
-            font-size: 10px;
-            z-index: 1000;
-        }
     </style>
 </head>
 
 <body class="min-h-screen bg-[#F5F3F0]">
-    <!-- デバッグ用：常に表示されるテストボタン -->
-    <div class="fixed bottom-4 right-4 z-[100]">
-        <button onclick="console.log('TEST BUTTON CLICKED'); window.toggleMobileMenu(); return false;"
-            class="bg-red-500 text-white px-4 py-2 rounded-lg shadow-lg">
-            TEST MENU
-        </button>
-    </div>
-
     <!-- Mobile Sidebar -->
     <div id="mobile-menu"
         class="fixed inset-y-0 left-0 z-50 w-64 border-e-4 border-[#FF6B35] bg-[#FFF8E7] p-6 shadow-lg lg:hidden">

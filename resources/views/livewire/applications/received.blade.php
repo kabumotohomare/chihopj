@@ -70,7 +70,6 @@ $getStatusLabel = function (string $status): string {
         'applied' => '応募中',
         'accepted' => 'ぜひ来てね',
         'rejected' => '今回ごめんね',
-        'declined' => '辞退',
         default => '不明',
     };
 };
@@ -81,7 +80,6 @@ $getStatusColor = function (string $status): string {
         'applied' => 'zinc',
         'accepted' => 'green',
         'rejected' => 'red',
-        'declined' => 'orange',
         default => 'zinc',
     };
 };
@@ -110,8 +108,8 @@ $updatedSortOrder = function (): void {
 
 <div class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
     <div class="mb-8">
-        <flux:heading size="xl" class="mb-2">応募一覧</flux:heading>
-        <flux:subheading>自社募集への応募を確認・管理できます</flux:subheading>
+        <flux:heading size="xl" class="mb-2">応募者一覧</flux:heading>
+        <flux:subheading>あなたの募集に応募したひらいず民を確認・管理できます</flux:subheading>
     </div>
 
     {{-- 検索・フィルタ --}}
@@ -134,7 +132,6 @@ $updatedSortOrder = function (): void {
                 <flux:checkbox wire:model.live="statuses" value="applied" label="応募中" />
                 <flux:checkbox wire:model.live="statuses" value="accepted" label="ぜひ来てね" />
                 <flux:checkbox wire:model.live="statuses" value="rejected" label="今回ごめんね" />
-                <flux:checkbox wire:model.live="statuses" value="declined" label="辞退" />
             </div>
         </flux:field>
 

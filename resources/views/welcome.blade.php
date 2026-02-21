@@ -5,8 +5,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>みんなの平泉｜平泉のお手伝い案内所</title>
-    <meta name="description" content="平泉町でのお手伝いを通じて、地域と繋がる体験ができます">
+    <title>みんなの平泉｜ふるぼの</title>
+    <meta name="description" content="平泉町のふるさと住民になって、地域活動に参加しましょう">
 
     <link rel="icon" href="{{ asset('favicon.ico') }}" sizes="any">
     <link rel="icon" href="{{ asset('favicon.svg') }}" type="image/svg+xml">
@@ -124,7 +124,7 @@
             <nav class="flex items-center justify-between h-16">
                 <!-- ロゴ -->
                 <a href="{{ url('/') }}" class="flex items-center gap-3 hover:opacity-80 transition-opacity">
-                    <img src="{{ asset('images/presets/logo.png') }}" alt="みんなの平泉ロゴ" class="h-10 w-auto">
+                    <img src="{{ asset('images/presets/logo.png') }}" alt="ふるぼのロゴ" class="h-10 w-auto">
                     <span class="text-xl md:text-2xl font-bold text-[#FF6B35]">みんなの平泉</span>
                 </a>
 
@@ -169,7 +169,7 @@
                 x-transition:leave-end="opacity-0 transform -translate-y-2" class="md:hidden py-4 space-y-3">
                 <a href="#jobs" @click="mobileMenuOpen = false"
                     class="block text-[#3E3A35] hover:text-[#FF6B35] transition-colors font-bold py-2 text-center">
-                    お手伝い
+                    募集を見る
                 </a>
                 @auth
                     <a href="{{ url('/dashboard') }}" @click="mobileMenuOpen = false"
@@ -380,7 +380,7 @@
                         </div>
                         <p class="text-[#6B6760] text-base md:text-lg leading-relaxed font-medium"
                             style="letter-spacing: 0.03em;">
-                            どこに住んでいても、平泉とかかわる最初の一歩（※もちろん無料）
+                            どこに住んでいても平泉とかかわる最初の一歩（※もちろん無料）<br>ふるさと住民登録が認められると、各種特典を受けられます。
                         </p>
                     </div>
                 </div>
@@ -404,7 +404,7 @@
                         </div>
                         <p class="text-[#6B6760] text-base md:text-lg leading-relaxed font-medium"
                             style="letter-spacing: 0.03em;">
-                            イベント、行事、ボランティアなど。募集をチェック
+                            地域行事、季節のお祭り、ボランティアなど。募集をチェック
                         </p>
                     </div>
                 </div>
@@ -452,7 +452,7 @@
                         </div>
                         <p class="text-[#6B6760] text-base md:text-lg leading-relaxed font-medium"
                             style="letter-spacing: 0.03em;">
-                            行事やお祭り、町内会の活動を楽しむ。あなたも地域の一員！
+                            地域や町内会での活動を楽しむ。あなたも住民！
                         </p>
                     </div>
                 </div>
@@ -476,7 +476,7 @@
                         </div>
                         <p class="text-[#6B6760] text-base md:text-lg leading-relaxed font-medium"
                             style="letter-spacing: 0.03em;">
-                            御礼が出る募集もあります（※必須ではありません）
+                            ホストからお礼が出る募集もあります（※必須ではありません）
                         </p>
                     </div>
                 </div>

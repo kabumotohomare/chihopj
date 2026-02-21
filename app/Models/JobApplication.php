@@ -29,7 +29,6 @@ class JobApplication extends Model
         'status',
         'applied_at',
         'judged_at',
-        'declined_at',
     ];
 
     /**
@@ -43,7 +42,6 @@ class JobApplication extends Model
             'reasons' => 'array',
             'applied_at' => 'datetime',
             'judged_at' => 'datetime',
-            'declined_at' => 'datetime',
         ];
     }
 
@@ -80,7 +78,6 @@ class JobApplication extends Model
             'applied' => '応募中',
             'accepted' => '承認',
             'rejected' => '不承認',
-            'declined' => '辞退',
             default => '不明',
         };
     }
@@ -107,13 +104,5 @@ class JobApplication extends Model
     public function isRejected(): bool
     {
         return $this->status === 'rejected';
-    }
-
-    /**
-     * 辞退したかどうか
-     */
-    public function isDeclined(): bool
-    {
-        return $this->status === 'declined';
     }
 }

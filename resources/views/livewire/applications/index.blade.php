@@ -12,7 +12,7 @@ title('応募履歴');
 // 検索・フィルタ状態
 state([
     'keyword' => '',
-    'status_filters' => [], // applied, accepted, rejected, declined
+    'status_filters' => [], // applied, accepted, rejected
     'sort' => 'desc', // desc: 新しい順, asc: 古い順
 ]);
 
@@ -53,7 +53,6 @@ $getStatusLabel = function (string $status): string {
         'applied' => '応募中',
         'accepted' => 'ぜひ来てね',
         'rejected' => '今回ごめんね',
-        'declined' => '辞退済み',
         default => '不明',
     };
 };
@@ -64,7 +63,6 @@ $getStatusBadgeClass = function (string $status): string {
         'applied' => 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
         'accepted' => 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
         'rejected' => 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
-        'declined' => 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200',
         default => 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200',
     };
 };
@@ -129,15 +127,6 @@ $getPurposeLabel = function (string $purpose): string {
                         class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800"
                     />
                     <span class="text-sm">今回ごめんね</span>
-                </label>
-                <label class="flex items-center gap-2">
-                    <input
-                        type="checkbox"
-                        wire:model.live="status_filters"
-                        value="declined"
-                        class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800"
-                    />
-                    <span class="text-sm">辞退済み</span>
                 </label>
             </div>
         </flux:field>

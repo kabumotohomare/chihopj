@@ -157,7 +157,7 @@ with(fn () => [
             <div>
                 <h1 class="text-3xl font-bold text-[#3E3A35] mb-2">募集一覧</h1>
                 <p class="text-[#6B6760]">
-                    平泉町内の事業者や地域の方からの募集を探せます
+                    平泉町の事業者や地域の方が募集しているイベント一覧です
                 </p>
             </div>
 
@@ -198,11 +198,11 @@ with(fn () => [
                     <a href="{{ route('jobs.show', $jobPost) }}" wire:navigate
                         class="group relative overflow-hidden rounded-2xl bg-white shadow-lg transition hover:shadow-2xl transform hover:-translate-y-1">
                         
-                        <!-- 参加済みバッジ（カード右上） -->
+                        <!-- 応募済みバッジ（カード右上） -->
                         @if ($this->hasApplied($jobPost))
                             <div class="absolute right-3 top-3 z-10">
                                 <span class="bg-[#4CAF50] text-white px-3 py-1 rounded-full text-xs font-bold shadow-md">
-                                    ✓ 参加済み
+                                    ✓ 応募済み
                                 </span>
                             </div>
                         @endif

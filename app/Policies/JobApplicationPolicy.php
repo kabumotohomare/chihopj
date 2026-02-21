@@ -45,17 +45,11 @@ class JobApplicationPolicy
     /**
      * ユーザーが応募を更新できるか判定
      * - 企業: ステータス変更（承認/不承認）
-     * - ワーカー: 辞退のみ
      */
     public function update(User $user, JobApplication $jobApplication): bool
     {
         // 企業: 自社募集への応募のステータスを変更可能
         if ($user->isCompany() && $user->id === $jobApplication->jobPost->company_id) {
-            return true;
-        }
-
-        // ワーカー: 自分の応募を辞退可能（応募中のみ）
-        if ($user->isWorker() && $user->id === $jobApplication->worker_id && $jobApplication->isApplied()) {
             return true;
         }
 
@@ -104,16 +98,6 @@ class JobApplicationPolicy
     {
         return $user->isCompany()
             && $user->id === $jobApplication->jobPost->company_id
-            && $jobApplication->isApplied();
-    }
-
-    /**
-     * ワーカーが応募を辞退できるか判定
-     */
-    public function decline(User $user, JobApplication $jobApplication): bool
-    {
-        return $user->isWorker()
-            && $user->id === $jobApplication->worker_id
             && $jobApplication->isApplied();
     }
 }

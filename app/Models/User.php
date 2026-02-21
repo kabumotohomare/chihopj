@@ -119,4 +119,12 @@ class User extends Authenticatable
     {
         return $this->role === 'worker';
     }
+
+    /**
+     * ゲストユーザーかどうか（ワーカーだがプロフィール未登録）
+     */
+    public function isGuest(): bool
+    {
+        return $this->role === 'worker' && ! $this->workerProfile;
+    }
 }

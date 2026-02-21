@@ -28,22 +28,6 @@ mount(function (JobApplication $jobApplication) {
     ]);
 });
 
-// 辞退処理
-$decline = function () {
-    // 認可チェック
-    $this->authorize('decline', $this->application);
-
-    // ステータスを更新
-    $this->application->update([
-        'status' => 'declined',
-        'declined_at' => now(),
-    ]);
-
-    session()->flash('message', '応募を辞退しました。');
-
-    return $this->redirect(route('applications.index'), navigate: true);
-};
-
 // ぜひ来てね処理
 $accept = function () {
     // 認可チェック
@@ -82,7 +66,6 @@ $getStatusLabel = function (string $status): string {
         'applied' => '応募中',
         'accepted' => 'ぜひ来てね',
         'rejected' => '今回ごめんね',
-        'declined' => '辞退済み',
         default => '不明',
     };
 };
@@ -93,7 +76,6 @@ $getStatusBadgeClass = function (string $status): string {
         'applied' => 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
         'accepted' => 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
         'rejected' => 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
-        'declined' => 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200',
         default => 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200',
     };
 };
@@ -269,14 +251,6 @@ $getPurposeLabel = function (string $purpose): string {
                 </div>
             @endif
 
-            {{-- 辞退日（辞退済みの場合のみ） --}}
-            @if ($application->status === 'declined' && $application->declined_at)
-                <div>
-                    <flux:text class="mb-1 font-semibold">辞退日</flux:text>
-                    <flux:text>{{ $application->declined_at->format('Y年n月j日 H:i') }}</flux:text>
-                </div>
-            @endif
-
             {{-- 募集で気になる点は？ --}}
             @if (!empty($application->reasons) && is_array($application->reasons))
                 <div>
@@ -312,15 +286,6 @@ $getPurposeLabel = function (string $purpose): string {
             @endif
 
             @if ($application->status === 'applied')
-                {{-- ひらいず民向け: 辞退ボタン --}}
-                @if (auth()->user()->isWorker())
-                    <flux:modal.trigger name="decline-modal">
-                        <flux:button variant="danger">
-                            辞退する
-                        </flux:button>
-                    </flux:modal.trigger>
-                @endif
-
                 {{-- ホスト向け: ぜひ来てね・今回ごめんねボタン --}}
                 @if (auth()->user()->isCompany())
                     <flux:modal.trigger name="accept-modal">
@@ -429,29 +394,6 @@ $getPurposeLabel = function (string $purpose): string {
             </flux:button>
         </div>
     </div>
-
-    {{-- 辞退確認モーダル --}}
-    <flux:modal name="decline-modal" class="space-y-6">
-        <div>
-            <flux:heading size="lg">応募を辞退しますか？</flux:heading>
-            <flux:text class="mt-2">
-                この操作は取り消せません。本当に辞退してもよろしいですか？
-            </flux:text>
-        </div>
-
-        <div class="flex justify-end gap-2">
-            <flux:modal.close>
-                <flux:button variant="ghost">
-                    キャンセル
-                </flux:button>
-            </flux:modal.close>
-            <flux:modal.close>
-                <flux:button variant="danger" wire:click="decline">
-                    辞退する
-                </flux:button>
-            </flux:modal.close>
-        </div>
-    </flux:modal>
 
     {{-- ぜひ来てね確認モーダル --}}
     <flux:modal name="accept-modal" class="space-y-6">

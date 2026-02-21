@@ -135,7 +135,7 @@ $isWorker = function (): bool {
         <!-- 戻るボタン -->
         <div class="mb-6">
             <flux:button href="{{ route('jobs.index') }}" wire:navigate variant="ghost" icon="arrow-left">
-                お手伝い一覧に戻る
+                募集一覧に戻る
             </flux:button>
         </div>
 
@@ -263,17 +263,17 @@ $isWorker = function (): bool {
                             <!-- 参加済みの場合 -->
                             <div class="flex items-center gap-3">
                                 <flux:badge color="green" size="lg" class="rounded-full font-bold">
-                                    ✓ 参加済み
+                                    ✓ 応募済み
                                 </flux:badge>
                                 <flux:text variant="subtle" size="sm">
-                                    このお手伝いに参加済みです
+                                    この募集に応募済みです
                                 </flux:text>
                             </div>
                         @else
                             <!-- 未参加の場合 -->
                             <flux:button href="{{ route('jobs.apply', $jobPost) }}" wire:navigate variant="primary"
                                 icon="paper-airplane" class="flex-1 sm:flex-none">
-                                参加する
+                                応募する
                             </flux:button>
                         @endif
                     @endif
@@ -302,7 +302,7 @@ $isWorker = function (): bool {
     <flux:modal name="confirm-delete" class="max-w-md">
         <div class="space-y-6">
             <div>
-                <flux:heading size="lg">お手伝いを削除しますか？</flux:heading>
+                <flux:heading size="lg">募集を削除しますか？</flux:heading>
                 <flux:subheading class="mt-2">
                     この操作は取り消せません。本当に削除してもよろしいですか？
                 </flux:subheading>

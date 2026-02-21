@@ -36,7 +36,6 @@ class JobApplicationFactory extends Factory
             'status' => 'applied',
             'applied_at' => now(),
             'judged_at' => null,
-            'declined_at' => null,
         ];
     }
 
@@ -59,17 +58,6 @@ class JobApplicationFactory extends Factory
         return $this->state(fn (array $attributes) => [
             'status' => 'rejected',
             'judged_at' => now(),
-        ]);
-    }
-
-    /**
-     * 辞退済み状態
-     */
-    public function declined(): static
-    {
-        return $this->state(fn (array $attributes) => [
-            'status' => 'declined',
-            'declined_at' => now(),
         ]);
     }
 }
