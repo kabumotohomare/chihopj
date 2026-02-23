@@ -89,27 +89,25 @@ new #[Layout('components.layouts.auth')] class extends Component {
         $this->days = range(1, 31);
     }
 
-    public function getPrefecturesProperty()
+    public function render()
     {
-        return Location::whereNull('city')->orderBy('code')->get();
-    }
-
-    public function getCurrent1CitiesProperty()
-    {
-        if (empty($this->current_1_prefecture)) {
-            return collect();
-        }
-
-        return Location::where('prefecture', $this->current_1_prefecture)->whereNotNull('city')->orderBy('code')->get();
-    }
-
-    public function getCurrent2CitiesProperty()
-    {
-        if (empty($this->current_2_prefecture)) {
-            return collect();
-        }
-
-        return Location::where('prefecture', $this->current_2_prefecture)->whereNotNull('city')->orderBy('code')->get();
+        $prefectures = Location::whereNull('city')->orderBy('code')->get();
+        
+        // デバッグログ
+        \Log::info('WorkerRegister render called', [
+            'prefectures_count' => $prefectures->count(),
+            'sample_prefecture' => $prefectures->first()?->prefecture ?? 'none',
+        ]);
+        
+        return view('livewire.worker.register', [
+            'prefectures' => $prefectures,
+            'current_1_cities' => $this->current_1_prefecture
+                ? Location::where('prefecture', $this->current_1_prefecture)->whereNotNull('city')->orderBy('code')->get()
+                : collect(),
+            'current_2_cities' => $this->current_2_prefecture
+                ? Location::where('prefecture', $this->current_2_prefecture)->whereNotNull('city')->orderBy('code')->get()
+                : collect(),
+        ]);
     }
 
     public function updatedCurrent1Prefecture($value): void
@@ -291,23 +289,34 @@ new #[Layout('components.layouts.auth')] class extends Component {
             <!-- 現在のお住まい1 -->
             <flux:field>
                 <flux:label>現在のお住まい1 <span class="text-red-500">*</span></flux:label>
+                
+                {{-- デバッグ情報（常に表示） --}}
+                <div class="mb-2 p-2 bg-yellow-100 border border-yellow-400 text-xs rounded">
+                    <strong>デバッグ情報:</strong> 
+                    都道府県データ数: {{ count($prefectures) }}
+                    @if(count($prefectures) > 0)
+                        | 最初: {{ $prefectures->first()->prefecture }}
+                        | 最後: {{ $prefectures->last()->prefecture }}
+                    @else
+                        | <span class="text-red-600 font-bold">データが空です！</span>
+                    @endif
+                </div>
+                
                 <div class="flex gap-2">
                     <select wire:model.live="current_1_prefecture"
                         class="w-full rounded-lg border border-gray-200 px-3 py-2 dark:border-gray-700 dark:bg-gray-800">
                         <option value="">都道府県を選択</option>
-                        @foreach ($this->prefectures as $prefecture)
+                        @foreach ($prefectures as $prefecture)
                             <option value="{{ $prefecture->prefecture }}">{{ $prefecture->prefecture }}</option>
                         @endforeach
                     </select>
                     <select wire:model="current_location_1_id"
                         class="w-full rounded-lg border border-gray-200 px-3 py-2 dark:border-gray-700 dark:bg-gray-800"
-                        @disabled(empty($this->current_1_cities))>
+                        @disabled($current_1_cities->isEmpty())>
                         <option value="">市区町村を選択</option>
-                        @if (!empty($this->current_1_cities))
-                            @foreach ($this->current_1_cities as $city)
-                                <option value="{{ $city->id }}">{{ $city->city }}</option>
-                            @endforeach
-                        @endif
+                        @foreach ($current_1_cities as $city)
+                            <option value="{{ $city->id }}">{{ $city->city }}</option>
+                        @endforeach
                     </select>
                 </div>
                 <flux:error name="current_location_1_id" />
@@ -340,19 +349,17 @@ new #[Layout('components.layouts.auth')] class extends Component {
                     <select wire:model.live="current_2_prefecture"
                         class="w-full rounded-lg border border-gray-200 px-3 py-2 dark:border-gray-700 dark:bg-gray-800">
                         <option value="">都道府県を選択</option>
-                        @foreach ($this->prefectures as $prefecture)
+                        @foreach ($prefectures as $prefecture)
                             <option value="{{ $prefecture->prefecture }}">{{ $prefecture->prefecture }}</option>
                         @endforeach
                     </select>
                     <select wire:model="current_location_2_id"
                         class="w-full rounded-lg border border-gray-200 px-3 py-2 dark:border-gray-700 dark:bg-gray-800"
-                        @disabled(empty($this->current_2_cities))>
+                        @disabled($current_2_cities->isEmpty())>
                         <option value="">市区町村を選択</option>
-                        @if (!empty($this->current_2_cities))
-                            @foreach ($this->current_2_cities as $city)
-                                <option value="{{ $city->id }}">{{ $city->city }}</option>
-                            @endforeach
-                        @endif
+                        @foreach ($current_2_cities as $city)
+                            <option value="{{ $city->id }}">{{ $city->city }}</option>
+                        @endforeach
                     </select>
                 </div>
                 <flux:error name="current_location_2_id" />

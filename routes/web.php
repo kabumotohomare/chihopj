@@ -1,10 +1,37 @@
 <?php
 
 use App\Models\JobPost;
+use App\Models\Location;
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 
 Route::get('/', function () {
+    // デバッグモード：クエリパラメータで有効化
+    if (request()->has('debug_locations')) {
+        try {
+            $prefectures = \App\Models\Location::whereNull('city')->orderBy('code')->get();
+            $cities = \App\Models\Location::whereNotNull('city')->orderBy('code')->take(10)->get();
+            
+            $data = [
+                'status' => 'success',
+                'prefectures_count' => $prefectures->count(),
+                'prefectures_sample' => $prefectures->take(5)->pluck('prefecture')->toArray(),
+                'cities_count' => \App\Models\Location::whereNotNull('city')->count(),
+                'cities_sample' => $cities->map(fn($c) => $c->prefecture . ' ' . $c->city)->toArray(),
+                'database_connected' => true,
+            ];
+            
+            // 必ずJSONとして出力
+            return response()->json($data, 200, [], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage(),
+                'database_connected' => false,
+            ], 500, [], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+        }
+    }
+    
     // 最新の募集を取得（Eager Loading）
     $latestJobs = JobPost::query()
         ->with(['company.companyProfile.location', 'jobType'])
