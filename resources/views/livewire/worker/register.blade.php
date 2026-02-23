@@ -89,15 +89,9 @@ new #[Layout('components.layouts.auth')] class extends Component {
         $this->days = range(1, 31);
     }
 
-    public function render()
+    public function render(): mixed
     {
         $prefectures = Location::whereNull('city')->orderBy('code')->get();
-        
-        // デバッグログ
-        \Log::info('WorkerRegister render called', [
-            'prefectures_count' => $prefectures->count(),
-            'sample_prefecture' => $prefectures->first()?->prefecture ?? 'none',
-        ]);
         
         return view('livewire.worker.register', [
             'prefectures' => $prefectures,
@@ -289,18 +283,6 @@ new #[Layout('components.layouts.auth')] class extends Component {
             <!-- 現在のお住まい1 -->
             <flux:field>
                 <flux:label>現在のお住まい1 <span class="text-red-500">*</span></flux:label>
-                
-                {{-- デバッグ情報（常に表示） --}}
-                <div class="mb-2 p-2 bg-yellow-100 border border-yellow-400 text-xs rounded">
-                    <strong>デバッグ情報:</strong> 
-                    都道府県データ数: {{ count($prefectures) }}
-                    @if(count($prefectures) > 0)
-                        | 最初: {{ $prefectures->first()->prefecture }}
-                        | 最後: {{ $prefectures->last()->prefecture }}
-                    @else
-                        | <span class="text-red-600 font-bold">データが空です！</span>
-                    @endif
-                </div>
                 
                 <div class="flex gap-2">
                     <select wire:model.live="current_1_prefecture"
