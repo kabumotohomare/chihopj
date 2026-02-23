@@ -1,75 +1,77 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Models\User;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Session;
 use Illuminate\Validation\Rule;
-use Livewire\Volt\Component;
 
-new class extends Component {
-    public string $name = '';
-    public string $email = '';
+use function Livewire\Volt\{state, mount, rules, layout, title};
 
-    /**
-     * Mount the component.
-     */
-    public function mount(): void
-    {
-        $this->name = Auth::user()->name;
-        $this->email = Auth::user()->email;
+layout('components.layouts.app');
+title('プロフィール設定');
+
+// 状態定義
+state(['name' => '', 'email' => '']);
+
+// 初期化処理
+mount(function (): void {
+    $this->name = auth()->user()->name;
+    $this->email = auth()->user()->email;
+});
+
+// バリデーションルール
+rules(fn () => [
+    'name' => ['required', 'string', 'max:255'],
+    'email' => [
+        'required',
+        'string',
+        'lowercase',
+        'email',
+        'max:255',
+        Rule::unique(User::class)->ignore(auth()->id()),
+    ],
+]);
+
+/**
+ * プロフィール情報を更新
+ */
+$updateProfileInformation = function (): void {
+    $this->validate();
+
+    $user = auth()->user();
+    $user->fill([
+        'name' => $this->name,
+        'email' => $this->email,
+    ]);
+
+    if ($user->isDirty('email')) {
+        $user->email_verified_at = null;
     }
 
-    /**
-     * Update the profile information for the currently authenticated user.
-     */
-    public function updateProfileInformation(): void
-    {
-        $user = Auth::user();
+    $user->save();
 
-        $validated = $this->validate([
-            'name' => ['required', 'string', 'max:255'],
+    $this->dispatch('profile-updated', name: $user->name);
+};
 
-            'email' => [
-                'required',
-                'string',
-                'lowercase',
-                'email',
-                'max:255',
-                Rule::unique(User::class)->ignore($user->id)
-            ],
-        ]);
+/**
+ * メール確認通知を再送信
+ */
+$resendVerificationNotification = function (): void {
+    $user = auth()->user();
 
-        $user->fill($validated);
-
-        if ($user->isDirty('email')) {
-            $user->email_verified_at = null;
-        }
-
-        $user->save();
-
-        $this->dispatch('profile-updated', name: $user->name);
+    if ($user->hasVerifiedEmail()) {
+        $this->redirect(route('dashboard'), navigate: true);
+        return;
     }
 
-    /**
-     * Send an email verification notification to the current user.
-     */
-    public function resendVerificationNotification(): void
-    {
-        $user = Auth::user();
+    $user->sendEmailVerificationNotification();
 
-        if ($user->hasVerifiedEmail()) {
-            $this->redirectIntended(default: route('dashboard', absolute: false));
+    session()->flash('status', 'verification-link-sent');
+};
 
-            return;
-        }
+?>
 
-        $user->sendEmailVerificationNotification();
-
-        Session::flash('status', 'verification-link-sent');
-    }
-}; ?>
-
-<section class="w-full">
+<div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
     @include('partials.settings-heading')
 
     <x-settings.layout heading="プロフィール" subheading="名前とメールアドレスを更新します">
@@ -111,6 +113,6 @@ new class extends Component {
             </div>
         </form>
 
-        <livewire:settings.delete-user-form />
+        @livewire('settings.delete-user-form')
     </x-settings.layout>
-</section>
+</div>
