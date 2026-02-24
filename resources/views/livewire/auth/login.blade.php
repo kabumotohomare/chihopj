@@ -2,7 +2,7 @@
     <div class="flex flex-col gap-6">
         <!-- ヘッダー -->
         <div class="text-center">
-            <h1 class="text-2xl font-bold text-[#3E3A35] mb-2">ただいま</h1>
+            <h1 class="text-2xl font-bold text-[#3E3A35] mb-2">ようこそ</h1>
             <p class="text-sm text-[#6B6760]">メールアドレスとパスワードを入力してください</p>
         </div>
 

@@ -142,7 +142,7 @@
                         @if (Route::has('login'))
                             <a href="{{ route('login') }}"
                                 class="bg-[#4CAF50] hover:bg-[#45A049] text-white px-6 py-2.5 rounded-full transition-all font-bold shadow-lg hover:shadow-xl transform hover:scale-105">
-                                ただいま
+                                ようこそ
                             </a>
                         @endif
                     @endauth
