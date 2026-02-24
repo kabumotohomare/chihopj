@@ -5,8 +5,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>みんなの平泉｜ふるぼの</title>
-    <meta name="description" content="平泉町のふるさと住民になって、地域活動に参加しましょう">
+    <title>みんなの平泉｜ふるぼの feat. ふるさと住民票®</title>
+    <meta name="description" content="平泉町のふるさと住民になって、地域活動に参加しよう！ふるさと住民票®と連動した新しい地域参画の提案。">
 
     <link rel="icon" href="{{ asset('favicon.ico') }}" sizes="any">
     <link rel="icon" href="{{ asset('favicon.svg') }}" type="image/svg+xml">
@@ -33,7 +33,6 @@
             display: none !important;
         }
 
-        /* どうぶつの森風のアニメーション */
         @keyframes float {
 
             0%,
@@ -82,12 +81,10 @@
             animation: scaleIn 0.8s ease-out forwards;
         }
 
-        /* 手書き風の柔らかい影 */
         .text-shadow-soft {
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
         }
 
-        /* ポップなボタンスタイル */
         .btn-pop {
             box-shadow: 0 4px 0 rgba(0, 0, 0, 0.15);
             transition: all 0.15s ease;
@@ -103,12 +100,10 @@
             box-shadow: 0 2px 0 rgba(0, 0, 0, 0.15);
         }
 
-        /* 手書き風の丸み */
         .rounded-organic {
             border-radius: 2rem 1.8rem 2rem 1.9rem / 1.9rem 2rem 1.8rem 2rem;
         }
 
-        /* ステップ番号の手書き風 */
         .step-number {
             font-weight: 900;
             letter-spacing: -0.02em;
@@ -183,25 +178,20 @@
                 @else
                     <a href="{{ route('login') }}" @click="mobileMenuOpen = false"
                         class="block text-[#3E3A35] hover:text-[#FF6B35] transition-colors font-bold py-2 text-center">
-                        ただいま
+                        ようこそ
                     </a>
                 @endauth
             </div>
         </div>
     </header>
 
-    <!-- ヒーローセクション（どうぶつの森風） -->
     <section class="relative min-h-screen overflow-hidden">
-        <!-- 平泉の農村風景背景 -->
         <div class="absolute inset-0">
             <img src="{{ asset('images/presets/fv.jpg') }}" alt="平泉の農村風景" class="w-full h-full object-cover">
-            <!-- 明るく柔らかいオーバーレイ -->
             <div class="absolute inset-0 bg-gradient-to-b from-[#87CEEB]/40 via-[#B0E0E6]/30 to-[#FFF8E7]/50"></div>
         </div>
 
-        <!-- 雲のイラスト風装飾 -->
         <div class="absolute inset-0 overflow-hidden pointer-events-none">
-            <!-- 雲1 -->
             <div class="absolute top-10 left-10 w-32 h-16 bg-white/40 rounded-full blur-xl animate-float"></div>
             <div class="absolute top-20 right-20 w-40 h-20 bg-white/30 rounded-full blur-xl animate-float"
                 style="animation-delay: 1s;"></div>
@@ -262,7 +252,6 @@
                     @endguest
                 </div>
 
-                <!-- 装飾的なアイコン -->
                 <div class="mt-12 sm:mt-16 flex justify-center gap-4 sm:gap-6 md:gap-8 text-3xl sm:text-4xl md:text-5xl animate-fade-in-up"
                     style="animation-delay: 0.8s;">
                     <div class="animate-float bg-white/90 rounded-full p-3 sm:p-4 shadow-md"
@@ -294,7 +283,7 @@
         </div>
     </section>
 
-    <!-- ひらいず民って？説明セクション -->
+    <!-- 説明セクション -->
     <section class="py-16 md:py-24 bg-[#FFF8E7]">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8">
             <div class="max-w-4xl mx-auto">
@@ -330,7 +319,7 @@
                             style="letter-spacing: 0.05em;">
                             <p class="font-bold text-xl md:text-2xl text-[#FF6B35]">
                                 住んでいる人も、外から来た人も、<br>
-                                みんなが平泉の担い手です。
+                                みんなが"平泉の人"です。
                             </p>
                             <p class="font-medium">
                                 普段は離れていても、<br class="sm:hidden">
@@ -351,7 +340,7 @@
         </div>
     </section>
 
-    <!-- 平泉の暮らしの楽しみ方 5ステップセクション -->
+    <!-- 5ステップセクション -->
     <section class="py-16 md:py-24 bg-[#F5F3F0]">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8">
             <!-- タイトル -->
@@ -428,7 +417,7 @@
                         </div>
                         <p class="text-[#6B6760] text-base md:text-lg leading-relaxed font-medium"
                             style="letter-spacing: 0.03em;">
-                            平泉で募集をする人（ホスト）にメッセージを送れます
+                            地域で募集をする人（ホスト）にメッセージを送れます
                         </p>
                     </div>
                 </div>
@@ -452,7 +441,7 @@
                         </div>
                         <p class="text-[#6B6760] text-base md:text-lg leading-relaxed font-medium"
                             style="letter-spacing: 0.03em;">
-                            地域や町内会での活動を楽しむ。あなたも住民！
+                            地域の活動や交流を楽しむ。あなたも私も皆ひらいず民！
                         </p>
                     </div>
                 </div>
@@ -484,7 +473,7 @@
         </div>
     </section>
 
-    <!-- お手伝い情報セクション -->
+    <!-- 情報セクション -->
     <section id="jobs" class="py-16 md:py-24">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-14">
@@ -602,7 +591,6 @@
 
     @stack('scripts')
     
-    <!-- Alpine.js (Livewireに含まれる) -->
     <script src="//unpkg.com/alpinejs" defer></script>
 </body>
 
