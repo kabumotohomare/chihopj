@@ -1,46 +1,59 @@
 <?php
 
-use Illuminate\Support\Facades\Auth;
+declare(strict_types=1);
+
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Validation\ValidationException;
-use Livewire\Volt\Component;
 
-new class extends Component {
-    public string $current_password = '';
-    public string $password = '';
-    public string $password_confirmation = '';
+use function Livewire\Volt\layout;
+use function Livewire\Volt\rules;
+use function Livewire\Volt\state;
+use function Livewire\Volt\title;
 
-    /**
-     * Update the password for the currently authenticated user.
-     */
-    public function updatePassword(): void
-    {
-        try {
-            $validated = $this->validate([
-                'current_password' => ['required', 'string', 'current_password'],
-                'password' => ['required', 'string', Password::defaults(), 'confirmed'],
-            ]);
-        } catch (ValidationException $e) {
-            $this->reset('current_password', 'password', 'password_confirmation');
+layout('components.layouts.app');
+title('パスワード変更');
 
-            throw $e;
-        }
+// 状態定義
+state([
+    'current_password' => '',
+    'password' => '',
+    'password_confirmation' => '',
+]);
 
-        Auth::user()->update([
-            'password' => $validated['password'],
-        ]);
+// バリデーションルール
+rules([
+    'current_password' => ['required', 'string', 'current_password'],
+    'password' => ['required', 'string', Password::defaults(), 'confirmed'],
+]);
 
+/**
+ * パスワードを更新
+ */
+$updatePassword = function (): void {
+    try {
+        $validated = $this->validate();
+    } catch (ValidationException $e) {
         $this->reset('current_password', 'password', 'password_confirmation');
-
-        $this->dispatch('password-updated');
+        throw $e;
     }
-}; ?>
 
-<section class="w-full">
+    auth()->user()->update([
+        'password' => Hash::make($validated['password']),
+    ]);
+
+    $this->reset('current_password', 'password', 'password_confirmation');
+
+    $this->dispatch('password-updated');
+};
+
+?>
+
+<div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
     @include('partials.settings-heading')
 
     <x-settings.layout heading="パスワード変更" subheading="アカウントのセキュリティを保つため、長くランダムなパスワードを使用してください">
-        <form method="POST" wire:submit="updatePassword" class="mt-6 space-y-6">
+        <form wire:submit="updatePassword" class="my-6 w-full space-y-6">
             <flux:input
                 wire:model="current_password"
                 label="現在のパスワード"
@@ -76,4 +89,4 @@ new class extends Component {
             </div>
         </form>
     </x-settings.layout>
-</section>
+</div>
