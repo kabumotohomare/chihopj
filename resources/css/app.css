@@ -64,7 +64,7 @@
 }
 
 [data-flux-label] {
-    @apply  !mb-0 !leading-tight;
+    @apply !mb-0 !leading-tight !text-[#3E3A35];
 }
 
 input:focus[data-flux-control],
@@ -128,4 +128,34 @@ select:focus[data-flux-control] {
 /* リンクのカスタマイズ */
 [data-flux-link] {
     @apply text-[#4CAF50] hover:text-[#45A049];
+}
+
+/* Flux UIフォーム要素のテキスト色設定（視認性向上 - モバイル対応） */
+/* Flux UI説明文のテキスト色 */
+[data-flux-field] p:not([data-flux-label]):not([data-flux-error]),
+[data-flux-field] span:not([data-flux-label]):not([data-flux-error]),
+[data-flux-description],
+flux-description,
+[data-flux-field] > p,
+[data-flux-field] > span:not([data-flux-label]) {
+    @apply !text-[#6B6760];
+}
+
+/* ラジオボタン・チェックボックスのラベルテキスト */
+label:has(input[type="radio"]),
+label:has(input[type="checkbox"]),
+label:has(input[type="radio"]) span,
+label:has(input[type="checkbox"]) span {
+    @apply text-[#3E3A35];
+}
+
+/* セレクトボックスのオプションテキスト */
+select option {
+    @apply text-[#3E3A35] bg-white;
+}
+
+/* 入力フィールドのプレースホルダー */
+input::placeholder,
+textarea::placeholder {
+    @apply text-[#6B6760];
 }

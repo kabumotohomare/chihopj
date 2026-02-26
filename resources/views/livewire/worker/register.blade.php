@@ -92,15 +92,11 @@ new #[Layout('components.layouts.auth')] class extends Component {
     public function render(): mixed
     {
         $prefectures = Location::whereNull('city')->orderBy('code')->get();
-        
+
         return view('livewire.worker.register', [
             'prefectures' => $prefectures,
-            'current_1_cities' => $this->current_1_prefecture
-                ? Location::where('prefecture', $this->current_1_prefecture)->whereNotNull('city')->orderBy('code')->get()
-                : collect(),
-            'current_2_cities' => $this->current_2_prefecture
-                ? Location::where('prefecture', $this->current_2_prefecture)->whereNotNull('city')->orderBy('code')->get()
-                : collect(),
+            'current_1_cities' => $this->current_1_prefecture ? Location::where('prefecture', $this->current_1_prefecture)->whereNotNull('city')->orderBy('code')->get() : collect(),
+            'current_2_cities' => $this->current_2_prefecture ? Location::where('prefecture', $this->current_2_prefecture)->whereNotNull('city')->orderBy('code')->get() : collect(),
         ]);
     }
 
@@ -153,9 +149,11 @@ new #[Layout('components.layouts.auth')] class extends Component {
         $birthdate = sprintf('%04d-%02d-%02d', $this->birth_year, $this->birth_month, $this->birth_day);
 
         // usersテーブルのnameを更新
-        auth()->user()->update([
-            'name' => $this->name,
-        ]);
+        auth()
+            ->user()
+            ->update([
+                'name' => $this->name,
+            ]);
 
         // ひらいず民プロフィールを作成
         WorkerProfile::create([
@@ -283,7 +281,7 @@ new #[Layout('components.layouts.auth')] class extends Component {
             <!-- 現在のお住まい1 -->
             <flux:field>
                 <flux:label>現在のお住まい1 <span class="text-red-500">*</span></flux:label>
-                
+
                 <div class="flex gap-2">
                     <select wire:model.live="current_1_prefecture"
                         class="w-full rounded-lg border border-gray-200 px-3 py-2 dark:border-gray-700 dark:bg-gray-800">
@@ -349,18 +347,21 @@ new #[Layout('components.layouts.auth')] class extends Component {
 
             <!-- ふるさと住民制度への同意 -->
             <flux:field>
-                <div class="flex items-start gap-3">
-                    <input type="checkbox" 
-                        wire:model="agree_to_terms" 
-                        id="agree_to_terms"
-                        class="mt-1 h-4 w-4 rounded border-gray-300 text-[#FF6B35] focus:ring-[#FF6B35]">
-                    <label for="agree_to_terms" class="text-sm text-[#3E3A35] cursor-pointer">
-                        <a href="https://www.town.hiraizumi.iwate.jp/%E3%80%8C%E3%81%B5%E3%82%8B%E3%81%95%E3%81%A8%E4%BD%8F%E6%B0%91%E3%80%8D%E3%82%92%E5%8B%9F%E9%9B%86%E3%81%97%E3%81%BE%E3%81%99%EF%BC%88%E3%81%B5%E3%82%8B%E3%81%95%E3%81%A8%E4%BD%8F%E6%B0%91%E5%88%B6-23557/" 
-                            target="_blank" 
-                            class="text-[#4CAF50] hover:text-[#45A049] underline">
-                            平泉町ふるさと住民制度実施要綱
-                        </a>に同意する <span class="text-red-500">*</span>
-                    </label>
+                <div class="space-y-2">
+                    <div class="flex items-start gap-3">
+                        <input type="checkbox" wire:model="agree_to_terms" id="agree_to_terms"
+                            class="mt-1 h-4 w-4 rounded border-gray-300 text-[#FF6B35] focus:ring-[#FF6B35]">
+                        <label for="agree_to_terms" class="text-sm text-[#3E3A35] cursor-pointer">
+                            平泉町ふるさと住民登録に同意する <span class="text-red-500">*</span>
+                        </label>
+                    </div>
+                    <div class="ml-7 text-sm text-[#6B6760]">
+                        平泉町ふるさと住民制度実施要綱は
+                        <a href="https://hi-hp-production.s3.ap-northeast-1.amazonaws.com/wp-content/uploads/2025/03/20133954/20240417-140037.pdf"
+                            target="_blank" class="text-[#4CAF50] hover:text-[#45A049] underline">
+                            こちら
+                        </a>
+                    </div>
                 </div>
                 <flux:error name="agree_to_terms" />
             </flux:field>
@@ -368,7 +369,7 @@ new #[Layout('components.layouts.auth')] class extends Component {
             <!-- 送信ボタン -->
             <div class="flex justify-end">
                 <flux:button type="submit" variant="primary">
-                    ひらいず民として登録
+                    登録
                 </flux:button>
             </div>
         </form>

@@ -133,7 +133,7 @@
                         <a href="{{ url('/dashboard') }}"
                             class="bg-[#FF6B35] hover:bg-[#E55A28] text-white px-6 py-2.5 rounded-full transition-all font-bold shadow-lg hover:shadow-xl transform hover:scale-105">
                             @if (auth()->user()->role === 'worker')
-                                {{ auth()->user()->workerProfile?->handle_name ?? auth()->user()->name ?? 'ゲスト' }}さんの部屋
+                                {{ auth()->user()->workerProfile?->handle_name ?? (auth()->user()->name ?? 'ゲスト') }}さんの部屋
                             @else
                                 {{ auth()->user()->name ?? 'ゲスト' }}さんの部屋
                             @endif
@@ -170,7 +170,7 @@
                     <a href="{{ url('/dashboard') }}" @click="mobileMenuOpen = false"
                         class="block text-[#3E3A35] hover:text-[#FF6B35] transition-colors font-bold py-2 text-center">
                         @if (auth()->user()->role === 'worker')
-                            {{ auth()->user()->workerProfile?->handle_name ?? auth()->user()->name ?? 'ゲスト' }}さんの部屋
+                            {{ auth()->user()->workerProfile?->handle_name ?? (auth()->user()->name ?? 'ゲスト') }}さんの部屋
                         @else
                             {{ auth()->user()->name ?? 'ゲスト' }}さんの部屋
                         @endif
@@ -189,14 +189,6 @@
         <div class="absolute inset-0">
             <img src="{{ asset('images/presets/fv.jpg') }}" alt="平泉の農村風景" class="w-full h-full object-cover">
             <div class="absolute inset-0 bg-gradient-to-b from-[#87CEEB]/40 via-[#B0E0E6]/30 to-[#FFF8E7]/50"></div>
-        </div>
-
-        <div class="absolute inset-0 overflow-hidden pointer-events-none">
-            <div class="absolute top-10 left-10 w-32 h-16 bg-white/40 rounded-full blur-xl animate-float"></div>
-            <div class="absolute top-20 right-20 w-40 h-20 bg-white/30 rounded-full blur-xl animate-float"
-                style="animation-delay: 1s;"></div>
-            <div class="absolute top-40 left-1/3 w-36 h-18 bg-white/30 rounded-full blur-xl animate-float"
-                style="animation-delay: 2s;"></div>
         </div>
 
         <!-- メインコンテンツ -->
@@ -365,7 +357,7 @@
                         <div class="flex items-center gap-3 mb-3">
                             <i class="fas fa-user-plus text-2xl md:text-3xl text-[#FF6B35]"></i>
                             <h3 class="text-xl md:text-2xl font-black text-[#3E3A35]" style="letter-spacing: 0.05em;">
-                                ひらいず民として登録</h3>
+                                ひらいず民（ふるさと住民）登録</h3>
                         </div>
                         <p class="text-[#6B6760] text-base md:text-lg leading-relaxed font-medium"
                             style="letter-spacing: 0.03em;">
@@ -389,7 +381,7 @@
                         <div class="flex items-center gap-3 mb-3">
                             <i class="fas fa-search text-2xl md:text-3xl text-[#4CAF50]"></i>
                             <h3 class="text-xl md:text-2xl font-black text-[#3E3A35]" style="letter-spacing: 0.05em;">
-                                平泉の情報を見る</h3>
+                                平泉町の地域情報を見る</h3>
                         </div>
                         <p class="text-[#6B6760] text-base md:text-lg leading-relaxed font-medium"
                             style="letter-spacing: 0.03em;">
@@ -495,14 +487,14 @@
                             <i class="fas fa-door-open"></i>
                             <span>
                                 @if (auth()->user()->role === 'worker')
-                                    {{ auth()->user()->workerProfile?->handle_name ?? auth()->user()->name ?? 'ゲスト' }}さんの部屋はこちら
+                                    {{ auth()->user()->workerProfile?->handle_name ?? (auth()->user()->name ?? 'ゲスト') }}さんの部屋はこちら
                                 @else
                                     {{ auth()->user()->name ?? 'ゲスト' }}さんの部屋はこちら
                                 @endif
                             </span>
                         </a>
                     @else
-                        <p class="text-xl text-[#6B6760] mb-6">ひらいず民登録してお待ちください。</p>
+                        <p class="text-xl text-[#6B6760] mb-6">ひらいず民（ふるさと住民）登録してお待ちください。</p>
                         <a href="{{ url('/register') }}"
                             class="inline-flex items-center gap-2 bg-[#FF6B35] hover:bg-[#E55A28] text-white px-8 py-4 rounded-full transition-all transform hover:scale-105 font-bold text-lg shadow-lg btn-pop">
                             <i class="fas fa-user-plus"></i>
@@ -562,6 +554,18 @@
         </div>
     </section>
 
+    <!-- ふるさと住民登録 -->
+    <section class="py-16 md:py-24 bg-[#F5F3F0]">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="max-w-4xl mx-auto">
+                <div class="bg-white rounded-organic shadow-md overflow-hidden animate-scale-in">
+                    <img src="{{ asset('images/presets/hiraizumi_furusato_residents.jpg') }}" alt="平泉町ふるさと住民登録ポスター"
+                        class="w-full h-auto object-cover">
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- フッター -->
     <footer class="bg-[#3E3A35] text-white py-12">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -571,7 +575,7 @@
                         <img src="{{ asset('images/presets/logo.png') }}" alt="みんなの平泉ロゴ" class="h-8 w-auto">
                         <span class="text-xl font-bold">みんなの平泉</span>
                     </div>
-                    <p class="text-sm text-gray-300">ふるぼの - みんなの地域とつながる</p>
+                    <p class="text-sm text-gray-300">ふるぼの - ふるさと住民票®</p>
                 </div>
 
                 <div class="text-center md:text-right">
@@ -590,7 +594,7 @@
     </footer>
 
     @stack('scripts')
-    
+
     <script src="//unpkg.com/alpinejs" defer></script>
 </body>
 
