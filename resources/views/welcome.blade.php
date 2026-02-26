@@ -536,7 +536,7 @@
                                 <!-- ホスト名 -->
                                 <div class="flex items-center gap-2 text-sm text-[#6B6760]">
                                     <i class="fas fa-building text-[#FF6B35]"></i>
-                                    <span>{{ $job->company->name }}</span>
+                                    <span>{{ $job->company?->name ?? 'ホスト' }}</span>
                                 </div>
                             </div>
                         </a>
