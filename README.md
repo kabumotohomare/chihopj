@@ -66,11 +66,20 @@ cd /var/www/chihopj
 bash deploy.sh
 ```
 
+### デプロイ後の必須作業
+デプロイ完了後は、必ずパーミッション修正スクリプトを実行してください：
+
+```bash
+# パーミッション修正（デプロイ後必須）
+./scripts/fix-permissions.sh
+```
+
 ### 詳細なデプロイ手順
 完全なデプロイ手順、トラブルシューティング、ロールバック方法については、以下のドキュメントを参照してください:
 - **詳細版**: [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md)
 - **クイックリファレンス**: [DEPLOY_QUICK_REFERENCE.md](DEPLOY_QUICK_REFERENCE.md)
 - **エラー対応**: [DEPLOY_FIX.md](DEPLOY_FIX.md)
+- **インシデント報告**: [INCIDENT_REPORT_2026-03-03.md](INCIDENT_REPORT_2026-03-03.md)
 
 ## テスト
 
@@ -125,10 +134,13 @@ chihopj/
 ├── tests/
 │   ├── Feature/             # 機能テスト
 │   └── Unit/                # ユニットテスト
+├── scripts/
+│   └── fix-permissions.sh   # パーミッション修正スクリプト
 ├── deploy.sh                # デプロイスクリプト
 ├── DEPLOYMENT_GUIDE.md      # 詳細デプロイ手順
 ├── DEPLOY_QUICK_REFERENCE.md # クイックリファレンス
-└── DEPLOY_FIX.md            # エラー対応手順
+├── DEPLOY_FIX.md            # エラー対応手順
+└── INCIDENT_REPORT_*.md     # インシデント報告書
 ```
 
 ## 主要機能
