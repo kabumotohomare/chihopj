@@ -155,7 +155,7 @@ $days = computed(function () {
         return range(1, 31);
     }
 
-    $daysInMonth = cal_days_in_month(CAL_GREGORIAN, (int) $this->birthMonth, (int) $this->birthYear);
+    $daysInMonth = (int) date('t', mktime(0, 0, 0, (int) $this->birthMonth, 1, (int) $this->birthYear));
 
     return range(1, $daysInMonth);
 });
@@ -179,7 +179,7 @@ $updatedCurrent2Prefecture = function (): void {
  */
 $updatedBirthYear = function (): void {
     if ($this->birthYear && $this->birthMonth && $this->birthDay) {
-        $daysInMonth = cal_days_in_month(CAL_GREGORIAN, (int) $this->birthMonth, (int) $this->birthYear);
+        $daysInMonth = (int) date('t', mktime(0, 0, 0, (int) $this->birthMonth, 1, (int) $this->birthYear));
         if ($this->birthDay > $daysInMonth) {
             $this->birthDay = null;
         }
@@ -188,7 +188,7 @@ $updatedBirthYear = function (): void {
 
 $updatedBirthMonth = function (): void {
     if ($this->birthYear && $this->birthMonth && $this->birthDay) {
-        $daysInMonth = cal_days_in_month(CAL_GREGORIAN, (int) $this->birthMonth, (int) $this->birthYear);
+        $daysInMonth = (int) date('t', mktime(0, 0, 0, (int) $this->birthMonth, 1, (int) $this->birthYear));
         if ($this->birthDay > $daysInMonth) {
             $this->birthDay = null;
         }

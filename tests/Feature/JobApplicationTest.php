@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Models\JobApplication;
 use App\Models\JobPost;
 use App\Models\User;
+use App\Models\WorkerProfile;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Volt\Volt;
 
@@ -26,6 +27,7 @@ beforeEach(function () {
  */
 test('worker can view application form', function () {
     $worker = User::factory()->worker()->create();
+    WorkerProfile::factory()->create(['user_id' => $worker->id]);
     $company = User::factory()->company()->create();
     $jobPost = JobPost::factory()->create(['company_id' => $company->id]);
 
@@ -69,6 +71,7 @@ test('guest cannot view application form', function () {
  */
 test('worker can apply to job post', function () {
     $worker = User::factory()->worker()->create();
+    WorkerProfile::factory()->create(['user_id' => $worker->id]);
     $company = User::factory()->company()->create();
     $jobPost = JobPost::factory()->create(['company_id' => $company->id]);
 
@@ -101,6 +104,7 @@ test('worker can apply to job post', function () {
  */
 test('worker can apply without message', function () {
     $worker = User::factory()->worker()->create();
+    WorkerProfile::factory()->create(['user_id' => $worker->id]);
     $company = User::factory()->company()->create();
     $jobPost = JobPost::factory()->create(['company_id' => $company->id]);
 
@@ -132,6 +136,7 @@ test('worker can apply without message', function () {
  */
 test('application message cannot exceed 1000 characters', function () {
     $worker = User::factory()->worker()->create();
+    WorkerProfile::factory()->create(['user_id' => $worker->id]);
     $company = User::factory()->company()->create();
     $jobPost = JobPost::factory()->create(['company_id' => $company->id]);
 
@@ -148,6 +153,7 @@ test('application message cannot exceed 1000 characters', function () {
  */
 test('worker cannot apply to same job post twice', function () {
     $worker = User::factory()->worker()->create();
+    WorkerProfile::factory()->create(['user_id' => $worker->id]);
     $company = User::factory()->company()->create();
     $jobPost = JobPost::factory()->create(['company_id' => $company->id]);
 
@@ -186,6 +192,7 @@ test('company user cannot apply to job post', function () {
  */
 test('applied_at is automatically set', function () {
     $worker = User::factory()->worker()->create();
+    WorkerProfile::factory()->create(['user_id' => $worker->id]);
     $company = User::factory()->company()->create();
     $jobPost = JobPost::factory()->create(['company_id' => $company->id]);
 
@@ -209,6 +216,7 @@ test('applied_at is automatically set', function () {
  */
 test('worker can select multiple reasons', function () {
     $worker = User::factory()->worker()->create();
+    WorkerProfile::factory()->create(['user_id' => $worker->id]);
     $company = User::factory()->company()->create();
     $jobPost = JobPost::factory()->create(['company_id' => $company->id]);
 
@@ -233,6 +241,7 @@ test('worker can select multiple reasons', function () {
  */
 test('invalid reason causes validation error', function () {
     $worker = User::factory()->worker()->create();
+    WorkerProfile::factory()->create(['user_id' => $worker->id]);
     $company = User::factory()->company()->create();
     $jobPost = JobPost::factory()->create(['company_id' => $company->id]);
 

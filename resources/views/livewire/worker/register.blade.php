@@ -134,7 +134,7 @@ new #[Layout('components.layouts.auth')] class extends Component {
         $month = (int) $this->birth_month;
 
         // 月の日数を取得
-        $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $month, $year);
+        $daysInMonth = (int) date('t', mktime(0, 0, 0, $month, 1, $year));
         $this->days = range(1, $daysInMonth);
 
         // 選択中の日が新しい日数を超える場合はリセット

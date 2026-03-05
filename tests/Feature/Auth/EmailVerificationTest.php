@@ -29,8 +29,8 @@ test('email can be verified', function () {
     Event::assertDispatched(Verified::class);
 
     expect($user->fresh()->hasVerifiedEmail())->toBeTrue();
-    // プロフィール未登録のため、プロフィール登録画面にリダイレクト
-    $response->assertRedirect(route('worker.register').'?verified=1');
+    // Fortify デフォルト: config('fortify.home') にリダイレクト
+    $response->assertRedirect(config('fortify.home').'?verified=1');
 });
 
 test('email is not verified with invalid hash', function () {
@@ -62,7 +62,7 @@ test('already verified user visiting verification link is redirected without fir
     );
 
     $this->actingAs($user)->get($verificationUrl)
-        ->assertRedirect(route('worker.register').'?verified=1'); // プロフィール未登録のため
+        ->assertRedirect(config('fortify.home').'?verified=1'); // Fortify デフォルト
 
     expect($user->fresh()->hasVerifiedEmail())->toBeTrue();
     Event::assertNotDispatched(Verified::class);
