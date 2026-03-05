@@ -77,6 +77,12 @@ select:focus[data-flux-control] {
     @apply size-4;
 } */
 
+/* 修正:WinLogic - Tailwind CSS 4 の Preflight「* { margin: 0 }」が <dialog> のブラウザデフォルト margin: auto を上書きし、
+   flux:modal の応募確認ダイアログが画面右上に表示されていた問題を修正。!important で Preflight に勝つようにした */
+[data-flux-modal] > dialog[open] {
+    margin: auto !important;
+}
+
 /* みんなの平泉カスタムスタイル */
 
 /* アニメーション定義 */

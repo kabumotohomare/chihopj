@@ -111,46 +111,56 @@
         <flux:spacer />
 
         @auth
-            <!-- User Menu -->
-            <flux:dropdown position="top" align="end">
-                <flux:profile class="cursor-pointer" :initials="auth()->user()->initials()" />
+            <div class="flex items-center gap-2">
+                <!-- User Menu -->
+                <flux:dropdown position="top" align="end">
+                    <flux:profile class="cursor-pointer" :initials="auth()->user()->initials()" />
 
-                <flux:menu>
-                    <flux:menu.radio.group>
-                        <div class="p-0 text-sm font-normal">
-                            <div class="flex items-center gap-2 px-1 py-1.5 text-start text-sm">
-                                <span class="relative flex h-8 w-8 shrink-0 overflow-hidden rounded-lg">
-                                    <span
-                                        class="flex h-full w-full items-center justify-center rounded-lg bg-neutral-200 text-black dark:bg-neutral-700 dark:text-white">
-                                        {{ auth()->user()->initials() }}
+                    <flux:menu>
+                        <flux:menu.radio.group>
+                            <div class="p-0 text-sm font-normal">
+                                <div class="flex items-center gap-2 px-1 py-1.5 text-start text-sm">
+                                    <span class="relative flex h-8 w-8 shrink-0 overflow-hidden rounded-lg">
+                                        <span
+                                            class="flex h-full w-full items-center justify-center rounded-lg bg-neutral-200 text-black dark:bg-neutral-700 dark:text-white">
+                                            {{ auth()->user()->initials() }}
+                                        </span>
                                     </span>
-                                </span>
 
-                                <div class="grid flex-1 text-start text-sm leading-tight">
-                                    <span class="truncate font-semibold">{{ auth()->user()->name ?? 'ゲスト' }}</span>
-                                    <span class="truncate text-xs">{{ auth()->user()->email }}</span>
+                                    <div class="grid flex-1 text-start text-sm leading-tight">
+                                        <span class="truncate font-semibold">{{ auth()->user()->name ?? 'ゲスト' }}</span>
+                                        <span class="truncate text-xs">{{ auth()->user()->email }}</span>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    </flux:menu.radio.group>
+                        </flux:menu.radio.group>
 
-                    <flux:menu.separator />
+                        <flux:menu.separator />
 
-                    <flux:menu.radio.group>
-                        <flux:menu.item :href="route('profile.edit')" icon="cog" wire:navigate>設定</flux:menu.item>
-                    </flux:menu.radio.group>
+                        <flux:menu.radio.group>
+                            <flux:menu.item :href="route('profile.edit')" icon="cog" wire:navigate>設定</flux:menu.item>
+                        </flux:menu.radio.group>
 
-                    <flux:menu.separator />
+                        <flux:menu.separator />
 
-                    <form method="POST" action="{{ route('logout') }}" class="w-full">
-                        @csrf
-                        <flux:menu.item as="button" type="submit" icon="arrow-right-start-on-rectangle" class="w-full"
-                            data-test="logout-button">
-                            ログアウト
-                        </flux:menu.item>
-                    </form>
-                </flux:menu>
-            </flux:dropdown>
+                        <form method="POST" action="{{ route('logout') }}" class="w-full">
+                            @csrf
+                            <flux:menu.item as="button" type="submit" icon="arrow-right-start-on-rectangle" class="w-full"
+                                data-test="logout-button">
+                                ログアウト
+                            </flux:menu.item>
+                        </form>
+                    </flux:menu>
+                </flux:dropdown>
+
+                {{-- 修正:WinLogic - ログアウトがドロップダウン内にしかなく気づきにくかったため、ヘッダーに常時表示のログアウトボタンを追加 --}}
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+                    <flux:button type="submit" variant="ghost" size="sm" icon="arrow-right-start-on-rectangle">
+                        ログアウト
+                    </flux:button>
+                </form>
+            </div>
         @else
             <!-- Guest User Buttons -->
             <div class="flex gap-2">
@@ -169,6 +179,73 @@
     @fluxScripts
 
     <script>
+        /**
+         * Leaflet 地図表示用 Alpine.js コンポーネント
+         *
+         * 住所文字列を Nominatim（OpenStreetMap）でジオコーディングし、
+         * Leaflet 地図にマーカーを表示する。
+         * ジオコーディング失敗時は平泉町の中心座標にフォールバック。
+         */
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('leafletMap', (address) => ({
+                address: address,
+                addressLabel: '',
+                map: null,
+
+                init() {
+                    this.$nextTick(() => {
+                        this.renderMap();
+                    });
+                },
+
+                async renderMap() {
+                    const container = this.$refs.mapContainer;
+                    if (!container || typeof L === 'undefined') return;
+
+                    // 平泉町の中心座標（フォールバック）
+                    const defaultLat = 38.9864;
+                    const defaultLng = 141.1135;
+                    let lat = defaultLat;
+                    let lng = defaultLng;
+                    let geocoded = false;
+
+                    // Nominatim でジオコーディング
+                    if (this.address) {
+                        try {
+                            const query = encodeURIComponent(this.address);
+                            const response = await fetch(
+                                `https://nominatim.openstreetmap.org/search?format=json&q=${query}&countrycodes=jp&limit=1`,
+                                { headers: { 'Accept-Language': 'ja' } }
+                            );
+                            const data = await response.json();
+                            if (data && data.length > 0) {
+                                lat = parseFloat(data[0].lat);
+                                lng = parseFloat(data[0].lon);
+                                geocoded = true;
+                            }
+                        } catch (e) {
+                            // ジオコーディング失敗時はデフォルト座標を使用
+                        }
+                    }
+
+                    this.addressLabel = geocoded
+                        ? this.address
+                        : '岩手県西磐井郡平泉町（おおよその位置）';
+
+                    this.map = L.map(container).setView([lat, lng], geocoded ? 16 : 14);
+
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+                        maxZoom: 19,
+                    }).addTo(this.map);
+
+                    L.marker([lat, lng]).addTo(this.map)
+                        .bindPopup(this.address || '平泉町')
+                        .openPopup();
+                },
+            }));
+        });
+
         // グローバルスコープで関数を定義
         window.toggleMobileMenu = function() {
             const menu = document.getElementById('mobile-menu');

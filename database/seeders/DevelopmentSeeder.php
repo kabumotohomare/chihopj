@@ -18,6 +18,9 @@ use Illuminate\Database\Seeder;
  *
  * ※ User モデルの hashed キャストが自動でハッシュ化するため、
  *    平文パスワードをそのまま渡す
+ *
+ * 修正:WinLogic - Faker の英語テキスト（Alice in Wonderland等）が使用されており日本語キーワード検索がヒットしなかった問題を修正。
+ * 企業名・住所を平泉町の実在地名に、募集タイトル・詳細を日本語テンプレートに変更。
  */
 class DevelopmentSeeder extends Seeder
 {
@@ -33,8 +36,10 @@ class DevelopmentSeeder extends Seeder
      */
     public function run(): void
     {
-        $tokyo = Location::where('prefecture', '東京都')->whereNull('city')->first();
-        $chiyoda = Location::where('prefecture', '東京都')->where('city', '千代田区')->first();
+        // 平泉町のLocationデータ（企業は全て平泉町所在）
+        $hiraizumi = Location::where('code', '034029')->first();
+        // ワーカーの出身地用
+        $iwate = Location::where('prefecture', '岩手県')->whereNull('city')->first();
 
         $workerUsers = [];
         $companyUsers = [];
@@ -47,44 +52,72 @@ class DevelopmentSeeder extends Seeder
             'male',
             '1990-01-01',
             'IT企業で働いていますが、地方での活動に興味があります。よろしくお願いします。',
-            $chiyoda,
+            $iwate,
         );
         $workerUsers[] = $workerUser;
 
         // === 2-2: テスト企業ユーザー（プロフィール補完） ===
         $companyUser = $this->createCompanyUser(
             'company@example.com',
-            'テスト企業',
-            '山田太郎',
-            $chiyoda,
+            '平泉観光協会',
+            '佐藤一郎',
+            $hiraizumi,
+            '平泉字花立44',
         );
         $companyUsers[] = $companyUser;
 
         // === 2-3: 追加ワーカー（5人） ===
-        for ($i = 1; $i <= 5; $i++) {
+        $workerData = [
+            ['name' => '田中花子', 'handle' => 'はなちゃん', 'gender' => 'female', 'message' => '農業体験が大好きです。週末は平泉で自然を満喫しています。'],
+            ['name' => '鈴木次郎', 'handle' => 'じろう', 'gender' => 'male', 'message' => '定年退職後、地域貢献に興味があります。お寺巡りが趣味です。'],
+            ['name' => '高橋美咲', 'handle' => 'みさき', 'gender' => 'female', 'message' => '大学生です。歴史が好きで、平泉の文化財を守る活動に参加したいです。'],
+            ['name' => '伊藤健太', 'handle' => 'けんた', 'gender' => 'male', 'message' => 'プログラマーです。ITスキルを活かして地域に貢献したいと思っています。'],
+            ['name' => '渡辺優子', 'handle' => 'ゆうこ', 'gender' => 'female', 'message' => '子育て中のママです。子どもと一緒に参加できるイベントを探しています。'],
+        ];
+
+        for ($i = 0; $i < 5; $i++) {
+            $data = $workerData[$i];
             $user = $this->createWorkerUser(
-                "worker{$i}@example.com",
-                fake()->name(),
-                fake()->unique()->userName(),
-                fake()->randomElement(['male', 'female', 'other']),
+                'worker'.($i + 1).'@example.com',
+                $data['name'],
+                $data['handle'],
+                $data['gender'],
                 fake()->dateTimeBetween('-60 years', '-18 years')->format('Y-m-d'),
-                fake()->realText(200),
+                $data['message'],
             );
             $workerUsers[] = $user;
         }
 
-        // === 2-4: 追加企業（2社） ===
-        for ($i = 1; $i <= 2; $i++) {
+        // === 2-4: 追加企業（2社）===
+        $companyData = [
+            ['email' => 'company1@example.com', 'name' => '平泉農業組合', 'rep' => '小野寺正', 'address' => '平泉字志羅山1-2'],
+            ['email' => 'company2@example.com', 'name' => '中尊寺門前町振興会', 'rep' => '千葉弘美', 'address' => '平泉字衣関202'],
+        ];
+
+        foreach ($companyData as $data) {
             $user = $this->createCompanyUser(
-                "company{$i}@example.com",
-                fake()->company(),
-                fake()->name(),
+                $data['email'],
+                $data['name'],
+                $data['rep'],
+                $hiraizumi,
+                $data['address'],
             );
             $companyUsers[] = $user;
         }
 
-        // === 2-5: 求人データ（各企業2件 = 計6件） ===
+        // === 2-5: 求人データ（各企業2件 = 計6件）===
+        // 日本語の活動場所テンプレート
+        $locations = [
+            '平泉駅前に集合して、皆で平泉文化センターに移動します。',
+            '中尊寺の駐車場に集合です。',
+            '平泉町役場に集合して、会場まで車で送迎します。',
+            '毛越寺庭園の入口にお集まりください。',
+            '道の駅 平泉で現地集合です。',
+            '平泉農業体験交流施設に集合です。お車の方は駐車場をご利用ください。',
+        ];
+
         $jobPosts = [];
+        $locationIndex = 0;
         foreach ($companyUsers as $company) {
             for ($j = 0; $j < 2; $j++) {
                 $jobPosts[] = JobPost::factory()
@@ -95,8 +128,9 @@ class DevelopmentSeeder extends Seeder
                         'company_id' => $company->id,
                         'start_datetime' => now()->addDays(fake()->numberBetween(1, 30)),
                         'end_datetime' => now()->addDays(fake()->numberBetween(31, 60)),
-                        'location' => fake()->city().'の農園',
+                        'location' => $locations[$locationIndex % count($locations)],
                     ]);
+                $locationIndex++;
             }
         }
 
@@ -108,10 +142,19 @@ class DevelopmentSeeder extends Seeder
             $worker = $workerUsers[$index % count($workerUsers)];
             $jobPost = $jobPosts[$index % count($jobPosts)];
 
+            $motives = [
+                'とても興味があります。ぜひ参加させてください！',
+                '地域のお手伝いがしたくて応募しました。よろしくお願いします。',
+                '初めてですが、頑張ります！楽しみにしています。',
+                '前回も参加して楽しかったので、また応募しました。',
+                '友人に紹介されて知りました。一緒に参加したいです。',
+                '平泉の文化が大好きです。お役に立てれば嬉しいです。',
+            ];
+
             $application = JobApplication::create([
                 'job_id' => $jobPost->id,
                 'worker_id' => $worker->id,
-                'motive' => fake()->realText(200),
+                'motive' => $motives[$index % count($motives)],
                 'status' => $status,
                 'applied_at' => now()->subDays(fake()->numberBetween(1, 14)),
                 'judged_at' => $status !== 'applied' ? now() : null,
@@ -204,6 +247,7 @@ class DevelopmentSeeder extends Seeder
         string $name,
         string $representative,
         ?Location $location = null,
+        ?string $address = null,
     ): User {
         $user = User::firstOrCreate(
             ['email' => $email],
@@ -225,9 +269,9 @@ class DevelopmentSeeder extends Seeder
             CompanyProfile::create([
                 'user_id' => $user->id,
                 'location_id' => $locationId,
-                'address' => fake()->streetAddress(),
+                'address' => $address ?? '平泉字泉屋1-1',
                 'representative' => $representative,
-                'phone_number' => fake()->phoneNumber(),
+                'phone_number' => '0191-46-' . fake()->numerify('####'),
             ]);
         }
 

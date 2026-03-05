@@ -217,6 +217,33 @@ $isWorker = function (): bool {
                     </div>
                 @endif
 
+                {{-- 修正:WinLogic - 募集詳細にホストの所在地地図がなく場所が直感的にわからなかったため、Leaflet + Nominatim（無料ジオコーディング）で地図表示を追加。企業住所から座標を取得し、失敗時は平泉町中心にフォールバック --}}
+                <!-- 地図（企業の所在地） -->
+                @if ($jobPost->company->companyProfile)
+                    @php
+                        $profile = $jobPost->company->companyProfile;
+                        $location = $profile->location;
+                        $fullAddress = ($location ? $location->prefecture . ($location->city ?? '') : '岩手県平泉町') . ($profile->address ?? '');
+                    @endphp
+                    <div class="mb-6"
+                        x-data="leafletMap('{{ $fullAddress }}')"
+                        x-init="init()"
+                    >
+                        <flux:subheading class="mb-2 text-gray-700 dark:text-gray-300">
+                            ホストの所在地
+                        </flux:subheading>
+                        <div id="map-container"
+                            x-ref="mapContainer"
+                            class="h-64 w-full rounded-lg border border-gray-200 dark:border-gray-700"
+                            style="z-index: 0;"
+                        ></div>
+                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400"
+                            x-show="addressLabel"
+                            x-text="addressLabel"
+                        ></p>
+                    </div>
+                @endif
+
                 <!-- 御礼にタグ -->
                 @if ($jobPost->getCanDoCodes()->isNotEmpty())
                     <div class="mb-6">
