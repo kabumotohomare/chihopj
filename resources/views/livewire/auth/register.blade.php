@@ -52,7 +52,13 @@
                 'password' => \Illuminate\Support\Facades\Hash::make($this->password),
                 'role' => $this->role,
             ]);
-        
+
+            // 修正:WinLogic - Spatie Role が割り当てられずロールベースのミドルウェアが動作しないバグを修正
+            // 再現方法: 新規ユーザー登録後、role:worker ミドルウェアが設定されたルート（例: /worker/profile）にアクセスすると 403 エラーになる
+            // CreateNewUser（Fortify）では assignRole() を実行しているが、この Volt コンポーネントでは漏れていた
+            $roleMapping = ['admin' => 'super_admin', 'municipal' => 'municipal', 'worker' => 'worker', 'company' => 'company'];
+            $user->assignRole($roleMapping[$this->role] ?? $this->role);
+
             // ログイン
             auth()->login($user);
         

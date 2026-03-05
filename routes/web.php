@@ -21,8 +21,10 @@ Volt::route('dashboard', 'dashboard')
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
 
-// ひらいず民登録（未認証ユーザー向け）
+// 修正:WinLogic - 認証ミドルウェアが未設定のため、未認証ユーザーがフォーム送信すると auth()->user() が null で 500 エラーになるバグを修正
+// 再現方法: ログアウト状態で /worker/register に直接アクセスし、フォームを送信すると「Call to a member function update() on null」エラーが発生する
 Volt::route('worker/register', 'worker.register')
+    ->middleware(['auth'])
     ->name('worker.register');
 
 // ひらいず民プロフィール

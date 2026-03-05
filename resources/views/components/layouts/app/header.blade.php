@@ -36,7 +36,9 @@
     <div id="mobile-menu"
         class="fixed inset-y-0 left-0 z-50 w-64 border-e-4 border-[#FF6B35] bg-[#FFF8E7] p-6 shadow-lg lg:hidden">
         <!-- 閉じるボタン -->
-        <button onclick="console.log('Close button clicked'); window.closeMobileMenu(); return false;"
+        {{-- 修正:WinLogic - デバッグ用の console.log が本番コードに残存しており、ブラウザコンソールにデバッグ情報が露出する問題を修正 --}}
+        {{-- 再現方法: /dashboard 等にアクセスしてブラウザの開発者ツール（F12）のConsoleタブを確認すると、大量のデバッグログが出力されている --}}
+        <button onclick="window.closeMobileMenu(); return false;"
             class="absolute top-4 right-4 text-[#3E3A35] hover:text-[#FF6B35]">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
                 stroke="currentColor">
@@ -79,14 +81,14 @@
     </div>
 
     <!-- オーバーレイ -->
-    <div id="menu-overlay" onclick="console.log('Overlay clicked'); window.closeMobileMenu(); return false;"
+    <div id="menu-overlay" onclick="window.closeMobileMenu(); return false;"
         class="fixed inset-0 z-40 bg-black bg-opacity-50 lg:hidden">
     </div>
 
     <!-- Header -->
     <flux:header container class="border-b-4 border-[#FF6B35] bg-[#FFF8E7]">
         <!-- ハンバーガーメニューボタン -->
-        <button onclick="console.log('Button clicked'); window.toggleMobileMenu(); return false;"
+        <button onclick="window.toggleMobileMenu(); return false;"
             class="lg:hidden p-2 text-[#3E3A35] hover:text-[#FF6B35]" type="button">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
                 stroke="currentColor">
@@ -169,49 +171,28 @@
     <script>
         // グローバルスコープで関数を定義
         window.toggleMobileMenu = function() {
-            console.log('=== toggleMobileMenu called ===');
             const menu = document.getElementById('mobile-menu');
             const overlay = document.getElementById('menu-overlay');
 
-            console.log('menu:', menu);
-            console.log('overlay:', overlay);
-
             if (!menu || !overlay) {
-                console.error('Menu or overlay not found!');
                 return;
             }
-
-            const wasShowing = menu.classList.contains('show');
-            console.log('Was showing:', wasShowing);
 
             menu.classList.toggle('show');
             overlay.classList.toggle('show');
 
             const isNowShowing = menu.classList.contains('show');
-            console.log('Is now showing:', isNowShowing);
-
-            // デバッグ用のdata属性を更新
             menu.setAttribute('data-state', isNowShowing ? 'open' : 'closed');
 
             // ボディのスクロールを制御
-            if (isNowShowing) {
-                document.body.style.overflow = 'hidden';
-                console.log('Body scroll disabled');
-            } else {
-                document.body.style.overflow = '';
-                console.log('Body scroll enabled');
-            }
-
-            console.log('=== toggleMobileMenu completed ===');
+            document.body.style.overflow = isNowShowing ? 'hidden' : '';
         };
 
         window.closeMobileMenu = function() {
-            console.log('=== closeMobileMenu called ===');
             const menu = document.getElementById('mobile-menu');
             const overlay = document.getElementById('menu-overlay');
 
             if (!menu || !overlay) {
-                console.error('Menu or overlay not found!');
                 return;
             }
 
@@ -219,36 +200,19 @@
             overlay.classList.remove('show');
             menu.setAttribute('data-state', 'closed');
             document.body.style.overflow = '';
-            console.log('=== closeMobileMenu completed ===');
         };
 
         // Escapeキーでメニューを閉じる
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
-                console.log('Escape key pressed');
                 window.closeMobileMenu();
             }
         });
 
-        // Livewire navigate後も動作するように
-        document.addEventListener('livewire:navigated', function() {
-            console.log('Livewire navigated - reinitializing menu');
-        });
-
         // ページ読み込み時の初期化
-        console.log('=== Mobile menu script loaded ===');
-        console.log('window.toggleMobileMenu:', typeof window.toggleMobileMenu);
-        console.log('window.closeMobileMenu:', typeof window.closeMobileMenu);
-
-        // メニュー要素が存在するか確認
         const menu = document.getElementById('mobile-menu');
-        const overlay = document.getElementById('menu-overlay');
-        console.log('Initial menu element:', menu);
-        console.log('Initial overlay element:', overlay);
-
         if (menu) {
             menu.setAttribute('data-state', 'closed');
-            console.log('Menu initial state set to: closed');
         }
     </script>
 </body>

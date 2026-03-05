@@ -25,13 +25,16 @@ $applications = computed(function () {
         ]);
 
     // キーワード検索（ひらいず民募集タイトル、ホスト名）
+    // 修正:WinLogic - LIKEクエリのワイルドカード文字（%_\）がエスケープされておらず、SQLインジェクション的な検索結果操作が可能だったバグを修正
+    // 再現方法: /applications の検索欄に「%」を入力すると全件がヒットしてしまい、正しいフィルタリングが行われない
     if ($this->keyword) {
-        $query->where(function ($q) {
-            $q->whereHas('jobPost', function ($jobQuery) {
-                $jobQuery->where('job_title', 'like', '%' . $this->keyword . '%');
+        $escapedKeyword = str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $this->keyword);
+        $query->where(function ($q) use ($escapedKeyword) {
+            $q->whereHas('jobPost', function ($jobQuery) use ($escapedKeyword) {
+                $jobQuery->where('job_title', 'like', '%' . $escapedKeyword . '%');
             })
-            ->orWhereHas('jobPost.company', function ($companyQuery) {
-                $companyQuery->where('name', 'like', '%' . $this->keyword . '%');
+            ->orWhereHas('jobPost.company', function ($companyQuery) use ($escapedKeyword) {
+                $companyQuery->where('name', 'like', '%' . $escapedKeyword . '%');
             });
         });
     }

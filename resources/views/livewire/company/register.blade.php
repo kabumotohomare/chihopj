@@ -30,7 +30,9 @@ rules([
     'icon' => 'nullable|image|max:2048|mimes:jpeg,jpg,png,gif',
     'address' => 'required|string|max:200',
     'representative' => 'required|string|max:50',
-    'phone_number' => 'required|string|max:30',
+    // 修正:WinLogic - 電話番号の形式バリデーションが未設定のため、不正な文字列が登録可能だったバグを修正
+    // 再現方法: ホスト登録画面（/company/register）で電話番号欄に「あいうえお」等を入力して登録すると保存される
+    'phone_number' => ['required', 'string', 'max:30', 'regex:/^[0-9\-\+\(\)]+$/'],
 ]);
 
 // 初期化処理
@@ -42,23 +44,15 @@ mount(function () {
 });
 
 // 登録処理
+// 修正:WinLogic - デバッグ用の \Log::info() が本番コードに残存しており、ログファイルが肥大化する問題を修正
+// 再現方法: /company/register からホスト登録を実行すると、storage/logs/laravel.log にデバッグログが大量出力される
 $register = function () {
-    \Log::info('Company registration started', [
-        'user_id' => auth()->id(),
-        'name' => $this->name,
-    ]);
-
     $this->validate();
-
-    \Log::info('Validation passed');
 
     // 平泉町のlocation_idを取得（岩手県平泉町: code 034029）
     $hiraizumiLocationId = Location::where('code', '034029')->value('id');
 
-    \Log::info('Location ID retrieved', ['location_id' => $hiraizumiLocationId]);
-
     if (!$hiraizumiLocationId) {
-        \Log::error('Hiraizumi location not found');
         session()->flash('error', '平泉町の地域情報が見つかりません。管理者にお問い合わせください。');
         return;
     }
@@ -67,8 +61,6 @@ $register = function () {
     auth()->user()->update([
         'name' => $this->name,
     ]);
-
-    \Log::info('User name updated');
 
     // ホストプロフィール作成（平泉町に固定）
     CompanyProfile::create([
@@ -79,8 +71,6 @@ $register = function () {
         'representative' => $this->representative,
         'phone_number' => $this->phone_number,
     ]);
-
-    \Log::info('Company profile created');
 
     session()->flash('status', 'ホストプロフィールを登録しました。');
 

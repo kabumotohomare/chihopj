@@ -93,17 +93,14 @@ $jobs = computed(function () {
                             </flux:text>
 
                             {{-- できますタグ（緑色バッジ、最大3つ） --}}
-                            @if($job->can_do_ids && count($job->can_do_ids) > 0)
+                            {{-- 修正:WinLogic - ループ内で毎回 Code::where() を実行しており N+1 クエリ問題が発生していたため、モデルメソッドに統一 --}}
+                            {{-- 再現方法: /company/my-jobs に募集が10件以上ある状態でアクセスし、Laravel Debugbar等でクエリ数を確認すると大量のCode取得クエリが発生する --}}
+                            @if($job->getCanDoCodes()->isNotEmpty())
                                 <div class="mb-4 flex flex-wrap gap-2">
-                                    @foreach(array_slice($job->can_do_ids, 0, 3) as $canDoId)
-                                        @php
-                                            $canDo = \App\Models\Code::where('type', 3)->where('type_id', $canDoId)->first();
-                                        @endphp
-                                        @if($canDo)
-                                            <flux:badge color="green" size="sm">
-                                                {{ $canDo->name }}
-                                            </flux:badge>
-                                        @endif
+                                    @foreach($job->getCanDoCodes()->take(3) as $canDo)
+                                        <flux:badge color="green" size="sm">
+                                            {{ $canDo->name }}
+                                        </flux:badge>
                                     @endforeach
                                 </div>
                             @endif

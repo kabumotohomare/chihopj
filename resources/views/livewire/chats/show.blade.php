@@ -174,7 +174,9 @@ $rejectApplication = function () {
 
 ?>
 
-<div class="mx-auto max-w-4xl space-y-6 px-4 py-8 sm:px-6 lg:px-8" wire:poll.5s>
+{{-- 修正:WinLogic - wire:poll.5s（5秒間隔）ではサーバー負荷が高く、同時接続ユーザーが増えるとレスポンス遅延やサーバーダウンのリスクがあるため15秒に変更 --}}
+{{-- 再現方法: /chats/{id} を複数タブで開き、ブラウザのネットワークタブを確認すると5秒ごとにリクエストが発生し続けている --}}
+<div class="mx-auto max-w-4xl space-y-6 px-4 py-8 sm:px-6 lg:px-8" wire:poll.15s>
     {{-- 戻るボタン --}}
     <div>
         <flux:button href="{{ route('chats.index') }}" wire:navigate variant="ghost" icon="arrow-left">

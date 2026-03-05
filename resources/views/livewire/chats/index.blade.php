@@ -44,16 +44,19 @@ $chatRooms = computed(function () {
     ]);
 
     // キーワード検索（ホスト名、ひらいず民募集タイトル、ひらいず民のニックネーム）
+    // 修正:WinLogic - LIKEクエリのワイルドカード文字（%_\）がエスケープされておらず、意図しない検索結果になるバグを修正
+    // 再現方法: /chats の検索欄に「%」を入力すると全件がヒットし、正しいフィルタリングが行われない
     if ($this->keyword) {
-        $query->where(function ($q) {
-            $q->whereHas('jobApplication.jobPost.company', function ($companyQuery) {
-                $companyQuery->where('name', 'like', '%'.$this->keyword.'%');
+        $escapedKeyword = str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $this->keyword);
+        $query->where(function ($q) use ($escapedKeyword) {
+            $q->whereHas('jobApplication.jobPost.company', function ($companyQuery) use ($escapedKeyword) {
+                $companyQuery->where('name', 'like', '%'.$escapedKeyword.'%');
             })
-                ->orWhereHas('jobApplication.jobPost', function ($jobQuery) {
-                    $jobQuery->where('job_title', 'like', '%'.$this->keyword.'%');
+                ->orWhereHas('jobApplication.jobPost', function ($jobQuery) use ($escapedKeyword) {
+                    $jobQuery->where('job_title', 'like', '%'.$escapedKeyword.'%');
                 })
-                ->orWhereHas('jobApplication.worker.workerProfile', function ($workerQuery) {
-                    $workerQuery->where('handle_name', 'like', '%'.$this->keyword.'%');
+                ->orWhereHas('jobApplication.worker.workerProfile', function ($workerQuery) use ($escapedKeyword) {
+                    $workerQuery->where('handle_name', 'like', '%'.$escapedKeyword.'%');
                 });
         });
     }
