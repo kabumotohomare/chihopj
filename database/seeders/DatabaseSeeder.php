@@ -19,6 +19,17 @@ class DatabaseSeeder extends Seeder
             CodeSeeder::class,
         ]);
 
+        // Shield ロール・パーミッションを作成
+        $this->call([
+            ShieldSeeder::class,
+        ]);
+
+        // 管理者・役所ユーザーを作成
+        $this->call([
+            AdminUserSeeder::class,
+            MunicipalUserSeeder::class,
+        ]);
+
         // 開発環境用のテストデータをシード
         if (app()->environment('local', 'development')) {
             $this->call([
@@ -26,15 +37,19 @@ class DatabaseSeeder extends Seeder
             ]);
         }
 
-        // User::factory(10)->create();
-
-        User::firstOrCreate(
+        // テストユーザー（roleがない場合はworkerを付与）
+        $testUser = User::firstOrCreate(
             ['email' => 'test@example.com'],
             [
                 'name' => 'Test User',
                 'password' => 'password',
+                'role' => 'worker',
                 'email_verified_at' => now(),
             ]
         );
+
+        if (! $testUser->hasRole('worker')) {
+            $testUser->assignRole('worker');
+        }
     }
 }

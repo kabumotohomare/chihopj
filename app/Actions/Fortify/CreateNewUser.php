@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Laravel\Fortify\Contracts\CreatesNewUsers;
+use Spatie\Permission\Models\Role;
 
 class CreateNewUser implements CreatesNewUsers
 {
@@ -30,11 +31,16 @@ class CreateNewUser implements CreatesNewUsers
             'role' => ['required', 'in:worker,company'],
         ])->validate();
 
-        return User::create([
+        $user = User::create([
             'name' => null,
             'email' => $input['email'],
             'password' => $input['password'],
             'role' => $input['role'],
         ]);
+
+        Role::firstOrCreate(['name' => $input['role'], 'guard_name' => 'web']);
+        $user->assignRole($input['role']);
+
+        return $user;
     }
 }

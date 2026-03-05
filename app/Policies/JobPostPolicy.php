@@ -13,6 +13,18 @@ use App\Models\User;
 class JobPostPolicy
 {
     /**
+     * super_admin ロールは全操作をバイパス
+     */
+    public function before(User $user, string $ability): ?bool
+    {
+        if ($user->hasRole('super_admin')) {
+            return true;
+        }
+
+        return null;
+    }
+
+    /**
      * 一覧表示の認可（誰でも閲覧可能）
      */
     public function viewAny(?User $user): bool

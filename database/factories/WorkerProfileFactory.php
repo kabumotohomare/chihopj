@@ -27,6 +27,8 @@ class WorkerProfileFactory extends Factory
             'gender' => fake()->randomElement(['male', 'female', 'other']),
             'birthdate' => fake()->dateTimeBetween('-80 years', '-18 years')->format('Y-m-d'),
             'message' => fake()->optional()->realText(200),
+            'current_address' => fake()->address(),
+            'phone_number' => fake()->phoneNumber(),
             'birth_location_id' => Location::factory(),
             'current_location_1_id' => Location::factory(),
             'current_location_2_id' => fake()->optional()->randomElement([Location::factory()]),
