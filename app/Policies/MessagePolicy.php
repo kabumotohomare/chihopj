@@ -13,6 +13,18 @@ use App\Models\User;
 class MessagePolicy
 {
     /**
+     * super_admin ロールは全操作をバイパス
+     */
+    public function before(User $user, string $ability): ?bool
+    {
+        if ($user->hasRole('super_admin')) {
+            return true;
+        }
+
+        return null;
+    }
+
+    /**
      * ユーザーがメッセージ一覧を閲覧できるか判定
      * - そのチャットルームに関連する応募のワーカーまたは企業ユーザーのみ閲覧可能
      */

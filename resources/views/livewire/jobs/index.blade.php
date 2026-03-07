@@ -5,11 +5,17 @@ declare(strict_types=1);
 use App\Models\Code;
 use App\Models\JobPost;
 
+use Livewire\WithPagination;
 use function Livewire\Volt\computed;
 use function Livewire\Volt\layout;
 use function Livewire\Volt\state;
 use function Livewire\Volt\title;
+use function Livewire\Volt\uses;
 use function Livewire\Volt\with;
+
+// 修正:WinLogic - ページネーション未使用のため、募集が増加すると全件取得でメモリ不足・表示遅延が発生するバグを修正
+// 再現方法: 募集データを100件以上登録した状態で /jobs にアクセスすると、全件が一度にレンダリングされページが重くなる
+uses([WithPagination::class]);
 
 layout('components.layouts.app.header');
 title('募集一覧');
@@ -50,9 +56,12 @@ $jobPosts = computed(function () {
         ->orderBy('posted_at', 'desc');
 
     // キーワード検索（タイトル・詳細内容）
+    // 修正:WinLogic - LIKEクエリのワイルドカード文字（%_\）がエスケープされておらず、検索文字列にこれらが含まれると意図しない検索結果になるバグを修正
+    // 再現方法: /jobs の検索欄に「100%」や「test_data」と入力して検索すると、ワイルドカードとして解釈され想定外の結果が返る
     if (!empty($this->keyword)) {
-        $query->where(function ($q) {
-            $q->where('job_title', 'like', "%{$this->keyword}%")->orWhere('job_detail', 'like', "%{$this->keyword}%");
+        $escapedKeyword = str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $this->keyword);
+        $query->where(function ($q) use ($escapedKeyword) {
+            $q->where('job_title', 'like', "%{$escapedKeyword}%")->orWhere('job_detail', 'like', "%{$escapedKeyword}%");
         });
     }
 
@@ -79,7 +88,7 @@ $jobPosts = computed(function () {
         $query->with(['applications' => fn($q) => $q->where('worker_id', auth()->id())]);
     }
 
-    return $query->get();
+    return $query->paginate(12);
 });
 
 /**
@@ -175,7 +184,7 @@ with(
         <!-- 検索結果数 -->
         <div class="mb-6">
             <p class="text-[#6B6760]">
-                {{ $this->jobPosts->count() }}件の募集が見つかりました
+                {{ $this->jobPosts->total() }}件の募集が見つかりました
             </p>
         </div>
 
@@ -317,6 +326,13 @@ with(
                     </a>
                 @endforeach
             </div>
+
+            <!-- ページネーション -->
+            @if ($this->jobPosts->hasPages())
+                <div class="mt-8">
+                    {{ $this->jobPosts->links() }}
+                </div>
+            @endif
         @endif
 
         <!-- 検索・フィルタエリア -->

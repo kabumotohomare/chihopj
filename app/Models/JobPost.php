@@ -8,13 +8,26 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 /**
  * 募集投稿モデル
  */
 class JobPost extends Model
 {
-    use HasFactory;
+    use HasFactory, LogsActivity;
+
+    /**
+     * アクティビティログの設定
+     */
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(['job_title', 'purpose', 'location', 'job_detail'])
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs();
+    }
 
     /**
      * 複数代入可能な属性
@@ -90,36 +103,25 @@ class JobPost extends Model
     /**
      * 希望のコード情報を取得
      *
+     * 修正:WinLogic - 募集カード1件ごとに Code テーブルへ SELECT が発行される N+1 問題を解消。
+     * Code::getByTypeAndIds() でキャッシュ済みデータからフィルタリングする方式に変更。
+     *
      * @return \Illuminate\Support\Collection<int, Code>
      */
     public function getWantYouCodes(): \Illuminate\Support\Collection
     {
-        if (empty($this->want_you_ids)) {
-            return collect();
-        }
-
-        return Code::query()
-            ->where('type', 2)
-            ->whereIn('type_id', $this->want_you_ids)
-            ->orderBy('sort_order')
-            ->get();
+        return Code::getByTypeAndIds(2, $this->want_you_ids ?? []);
     }
 
     /**
      * できますのコード情報を取得
      *
+     * 修正:WinLogic - 同上。N+1 問題をキャッシュで解消。
+     *
      * @return \Illuminate\Support\Collection<int, Code>
      */
     public function getCanDoCodes(): \Illuminate\Support\Collection
     {
-        if (empty($this->can_do_ids)) {
-            return collect();
-        }
-
-        return Code::query()
-            ->where('type', 3)
-            ->whereIn('type_id', $this->can_do_ids)
-            ->orderBy('sort_order')
-            ->get();
+        return Code::getByTypeAndIds(3, $this->can_do_ids ?? []);
     }
 }

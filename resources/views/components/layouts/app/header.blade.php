@@ -36,7 +36,9 @@
     <div id="mobile-menu"
         class="fixed inset-y-0 left-0 z-50 w-64 border-e-4 border-[#FF6B35] bg-[#FFF8E7] p-6 shadow-lg lg:hidden">
         <!-- 閉じるボタン -->
-        <button onclick="console.log('Close button clicked'); window.closeMobileMenu(); return false;"
+        {{-- 修正:WinLogic - デバッグ用の console.log が本番コードに残存しており、ブラウザコンソールにデバッグ情報が露出する問題を修正 --}}
+        {{-- 再現方法: /dashboard 等にアクセスしてブラウザの開発者ツール（F12）のConsoleタブを確認すると、大量のデバッグログが出力されている --}}
+        <button onclick="window.closeMobileMenu(); return false;"
             class="absolute top-4 right-4 text-[#3E3A35] hover:text-[#FF6B35]">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
                 stroke="currentColor">
@@ -79,14 +81,14 @@
     </div>
 
     <!-- オーバーレイ -->
-    <div id="menu-overlay" onclick="console.log('Overlay clicked'); window.closeMobileMenu(); return false;"
+    <div id="menu-overlay" onclick="window.closeMobileMenu(); return false;"
         class="fixed inset-0 z-40 bg-black bg-opacity-50 lg:hidden">
     </div>
 
     <!-- Header -->
     <flux:header container class="border-b-4 border-[#FF6B35] bg-[#FFF8E7]">
         <!-- ハンバーガーメニューボタン -->
-        <button onclick="console.log('Button clicked'); window.toggleMobileMenu(); return false;"
+        <button onclick="window.toggleMobileMenu(); return false;"
             class="lg:hidden p-2 text-[#3E3A35] hover:text-[#FF6B35]" type="button">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
                 stroke="currentColor">
@@ -109,46 +111,56 @@
         <flux:spacer />
 
         @auth
-            <!-- User Menu -->
-            <flux:dropdown position="top" align="end">
-                <flux:profile class="cursor-pointer" :initials="auth()->user()->initials()" />
+            <div class="flex items-center gap-2">
+                <!-- User Menu -->
+                <flux:dropdown position="top" align="end">
+                    <flux:profile class="cursor-pointer" :initials="auth()->user()->initials()" />
 
-                <flux:menu>
-                    <flux:menu.radio.group>
-                        <div class="p-0 text-sm font-normal">
-                            <div class="flex items-center gap-2 px-1 py-1.5 text-start text-sm">
-                                <span class="relative flex h-8 w-8 shrink-0 overflow-hidden rounded-lg">
-                                    <span
-                                        class="flex h-full w-full items-center justify-center rounded-lg bg-neutral-200 text-black dark:bg-neutral-700 dark:text-white">
-                                        {{ auth()->user()->initials() }}
+                    <flux:menu>
+                        <flux:menu.radio.group>
+                            <div class="p-0 text-sm font-normal">
+                                <div class="flex items-center gap-2 px-1 py-1.5 text-start text-sm">
+                                    <span class="relative flex h-8 w-8 shrink-0 overflow-hidden rounded-lg">
+                                        <span
+                                            class="flex h-full w-full items-center justify-center rounded-lg bg-neutral-200 text-black dark:bg-neutral-700 dark:text-white">
+                                            {{ auth()->user()->initials() }}
+                                        </span>
                                     </span>
-                                </span>
 
-                                <div class="grid flex-1 text-start text-sm leading-tight">
-                                    <span class="truncate font-semibold">{{ auth()->user()->name ?? 'ゲスト' }}</span>
-                                    <span class="truncate text-xs">{{ auth()->user()->email }}</span>
+                                    <div class="grid flex-1 text-start text-sm leading-tight">
+                                        <span class="truncate font-semibold">{{ auth()->user()->name ?? 'ゲスト' }}</span>
+                                        <span class="truncate text-xs">{{ auth()->user()->email }}</span>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    </flux:menu.radio.group>
+                        </flux:menu.radio.group>
 
-                    <flux:menu.separator />
+                        <flux:menu.separator />
 
-                    <flux:menu.radio.group>
-                        <flux:menu.item :href="route('profile.edit')" icon="cog" wire:navigate>設定</flux:menu.item>
-                    </flux:menu.radio.group>
+                        <flux:menu.radio.group>
+                            <flux:menu.item :href="route('profile.edit')" icon="cog" wire:navigate>設定</flux:menu.item>
+                        </flux:menu.radio.group>
 
-                    <flux:menu.separator />
+                        <flux:menu.separator />
 
-                    <form method="POST" action="{{ route('logout') }}" class="w-full">
-                        @csrf
-                        <flux:menu.item as="button" type="submit" icon="arrow-right-start-on-rectangle" class="w-full"
-                            data-test="logout-button">
-                            ログアウト
-                        </flux:menu.item>
-                    </form>
-                </flux:menu>
-            </flux:dropdown>
+                        <form method="POST" action="{{ route('logout') }}" class="w-full">
+                            @csrf
+                            <flux:menu.item as="button" type="submit" icon="arrow-right-start-on-rectangle" class="w-full"
+                                data-test="logout-button">
+                                ログアウト
+                            </flux:menu.item>
+                        </form>
+                    </flux:menu>
+                </flux:dropdown>
+
+                {{-- 修正:WinLogic - ログアウトがドロップダウン内にしかなく気づきにくかったため、ヘッダーに常時表示のログアウトボタンを追加 --}}
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+                    <flux:button type="submit" variant="ghost" size="sm" icon="arrow-right-start-on-rectangle">
+                        ログアウト
+                    </flux:button>
+                </form>
+            </div>
         @else
             <!-- Guest User Buttons -->
             <div class="flex gap-2">
@@ -167,51 +179,97 @@
     @fluxScripts
 
     <script>
+        /**
+         * Leaflet 地図表示用 Alpine.js コンポーネント
+         *
+         * 住所文字列を Nominatim（OpenStreetMap）でジオコーディングし、
+         * Leaflet 地図にマーカーを表示する。
+         * ジオコーディング失敗時は平泉町の中心座標にフォールバック。
+         */
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('leafletMap', (address) => ({
+                address: address,
+                addressLabel: '',
+                map: null,
+
+                init() {
+                    this.$nextTick(() => {
+                        this.renderMap();
+                    });
+                },
+
+                async renderMap() {
+                    const container = this.$refs.mapContainer;
+                    if (!container || typeof L === 'undefined') return;
+
+                    // 平泉町の中心座標（フォールバック）
+                    const defaultLat = 38.9864;
+                    const defaultLng = 141.1135;
+                    let lat = defaultLat;
+                    let lng = defaultLng;
+                    let geocoded = false;
+
+                    // Nominatim でジオコーディング
+                    if (this.address) {
+                        try {
+                            const query = encodeURIComponent(this.address);
+                            const response = await fetch(
+                                `https://nominatim.openstreetmap.org/search?format=json&q=${query}&countrycodes=jp&limit=1`,
+                                { headers: { 'Accept-Language': 'ja' } }
+                            );
+                            const data = await response.json();
+                            if (data && data.length > 0) {
+                                lat = parseFloat(data[0].lat);
+                                lng = parseFloat(data[0].lon);
+                                geocoded = true;
+                            }
+                        } catch (e) {
+                            // ジオコーディング失敗時はデフォルト座標を使用
+                        }
+                    }
+
+                    this.addressLabel = geocoded
+                        ? this.address
+                        : '岩手県西磐井郡平泉町（おおよその位置）';
+
+                    this.map = L.map(container).setView([lat, lng], geocoded ? 16 : 14);
+
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+                        maxZoom: 19,
+                    }).addTo(this.map);
+
+                    L.marker([lat, lng]).addTo(this.map)
+                        .bindPopup(this.address || '平泉町')
+                        .openPopup();
+                },
+            }));
+        });
+
         // グローバルスコープで関数を定義
         window.toggleMobileMenu = function() {
-            console.log('=== toggleMobileMenu called ===');
             const menu = document.getElementById('mobile-menu');
             const overlay = document.getElementById('menu-overlay');
 
-            console.log('menu:', menu);
-            console.log('overlay:', overlay);
-
             if (!menu || !overlay) {
-                console.error('Menu or overlay not found!');
                 return;
             }
-
-            const wasShowing = menu.classList.contains('show');
-            console.log('Was showing:', wasShowing);
 
             menu.classList.toggle('show');
             overlay.classList.toggle('show');
 
             const isNowShowing = menu.classList.contains('show');
-            console.log('Is now showing:', isNowShowing);
-
-            // デバッグ用のdata属性を更新
             menu.setAttribute('data-state', isNowShowing ? 'open' : 'closed');
 
             // ボディのスクロールを制御
-            if (isNowShowing) {
-                document.body.style.overflow = 'hidden';
-                console.log('Body scroll disabled');
-            } else {
-                document.body.style.overflow = '';
-                console.log('Body scroll enabled');
-            }
-
-            console.log('=== toggleMobileMenu completed ===');
+            document.body.style.overflow = isNowShowing ? 'hidden' : '';
         };
 
         window.closeMobileMenu = function() {
-            console.log('=== closeMobileMenu called ===');
             const menu = document.getElementById('mobile-menu');
             const overlay = document.getElementById('menu-overlay');
 
             if (!menu || !overlay) {
-                console.error('Menu or overlay not found!');
                 return;
             }
 
@@ -219,36 +277,19 @@
             overlay.classList.remove('show');
             menu.setAttribute('data-state', 'closed');
             document.body.style.overflow = '';
-            console.log('=== closeMobileMenu completed ===');
         };
 
         // Escapeキーでメニューを閉じる
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
-                console.log('Escape key pressed');
                 window.closeMobileMenu();
             }
         });
 
-        // Livewire navigate後も動作するように
-        document.addEventListener('livewire:navigated', function() {
-            console.log('Livewire navigated - reinitializing menu');
-        });
-
         // ページ読み込み時の初期化
-        console.log('=== Mobile menu script loaded ===');
-        console.log('window.toggleMobileMenu:', typeof window.toggleMobileMenu);
-        console.log('window.closeMobileMenu:', typeof window.closeMobileMenu);
-
-        // メニュー要素が存在するか確認
         const menu = document.getElementById('mobile-menu');
-        const overlay = document.getElementById('menu-overlay');
-        console.log('Initial menu element:', menu);
-        console.log('Initial overlay element:', overlay);
-
         if (menu) {
             menu.setAttribute('data-state', 'closed');
-            console.log('Menu initial state set to: closed');
         }
     </script>
 </body>

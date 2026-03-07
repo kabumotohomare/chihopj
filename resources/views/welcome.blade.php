@@ -595,7 +595,8 @@
 
     @stack('scripts')
 
-    <script src="//unpkg.com/alpinejs" defer></script>
+    {{-- 修正:WinLogic - Alpine.js が @vite で既にバンドル済みにもかかわらず CDN からも二重読み込みされており、コンソールエラーや動作不安定の原因になっていた --}}
+    {{-- 再現方法: トップページ（/）にアクセスしてブラウザの開発者ツール（F12）Consoleタブを確認すると「Alpine has already been initialized」警告が表示される --}}
 </body>
 
 </html>

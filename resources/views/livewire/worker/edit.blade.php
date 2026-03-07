@@ -155,7 +155,7 @@ $days = computed(function () {
         return range(1, 31);
     }
 
-    $daysInMonth = cal_days_in_month(CAL_GREGORIAN, (int) $this->birthMonth, (int) $this->birthYear);
+    $daysInMonth = (int) date('t', mktime(0, 0, 0, (int) $this->birthMonth, 1, (int) $this->birthYear));
 
     return range(1, $daysInMonth);
 });
@@ -179,7 +179,7 @@ $updatedCurrent2Prefecture = function (): void {
  */
 $updatedBirthYear = function (): void {
     if ($this->birthYear && $this->birthMonth && $this->birthDay) {
-        $daysInMonth = cal_days_in_month(CAL_GREGORIAN, (int) $this->birthMonth, (int) $this->birthYear);
+        $daysInMonth = (int) date('t', mktime(0, 0, 0, (int) $this->birthMonth, 1, (int) $this->birthYear));
         if ($this->birthDay > $daysInMonth) {
             $this->birthDay = null;
         }
@@ -188,7 +188,7 @@ $updatedBirthYear = function (): void {
 
 $updatedBirthMonth = function (): void {
     if ($this->birthYear && $this->birthMonth && $this->birthDay) {
-        $daysInMonth = cal_days_in_month(CAL_GREGORIAN, (int) $this->birthMonth, (int) $this->birthYear);
+        $daysInMonth = (int) date('t', mktime(0, 0, 0, (int) $this->birthMonth, 1, (int) $this->birthYear));
         if ($this->birthDay > $daysInMonth) {
             $this->birthDay = null;
         }
@@ -221,7 +221,9 @@ $update = function () {
         'message' => ['nullable', 'string', 'max:200'],
         'current_location_1_id' => ['required', 'exists:locations,id'],
         'current_address' => ['required', 'string', 'max:200'],
-        'phone_number' => ['required', 'string', 'max:30'],
+        // 修正:WinLogic - 電話番号の形式バリデーションが未設定のため、不正な文字列が保存可能だったバグを修正
+        // 再現方法: ひらいず民プロフィール編集画面（/worker/edit）で電話番号に「abc」等を入力して更新すると保存される
+        'phone_number' => ['required', 'string', 'max:30', 'regex:/^[0-9\-\+\(\)]+$/'],
         'current_location_2_id' => ['nullable', 'exists:locations,id'],
     ], [
         'handle_name.required' => 'ハンドルネームは必須です。',

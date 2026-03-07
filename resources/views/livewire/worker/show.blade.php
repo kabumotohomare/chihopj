@@ -26,9 +26,10 @@ mount(function () {
         ->where('user_id', $user->id)
         ->first();
 
-    // プロフィールが存在しない場合は編集画面にリダイレクト
+    // 修正:WinLogic - プロフィール未登録時のリダイレクト先が worker.edit になっていたが、worker.edit は role:worker ミドルウェアが設定されているため正しく動作しない
+    // 再現方法: プロフィール未登録のワーカーで /worker/profile にアクセスすると worker.edit にリダイレクトされるが、正しくは worker.register にリダイレクトすべき
     if (!$this->profile) {
-        return $this->redirect(route('worker.edit'), navigate: true);
+        return $this->redirect(route('worker.register'), navigate: true);
     }
 });
 

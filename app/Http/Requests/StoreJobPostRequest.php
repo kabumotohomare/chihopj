@@ -95,9 +95,11 @@ class StoreJobPostRequest extends FormRequest
             'job_detail' => ['required', 'string', 'max:200'],
             'location' => ['nullable', 'string', 'max:200'],
             'want_you_ids' => ['nullable', 'array'],
-            'want_you_ids.*' => ['integer', 'exists:codes,id'],
+            // 修正:WinLogic - want_you_ids/can_do_ids は codes.type_id を格納しているが、exists バリデーションが codes.id を参照しており、存在しない type_id でもバリデーションを通過するバグを修正
+            // 再現方法: /jobs/create で希望チェックボックスの value を開発者ツールで存在しない値に書き換えて送信すると、バリデーションが通過してしまう
+            'want_you_ids.*' => ['integer', 'exists:codes,type_id'],
             'can_do_ids' => ['nullable', 'array'],
-            'can_do_ids.*' => ['integer', 'exists:codes,id'],
+            'can_do_ids.*' => ['integer', 'exists:codes,type_id'],
         ];
     }
 

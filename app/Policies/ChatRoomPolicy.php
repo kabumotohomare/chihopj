@@ -13,6 +13,18 @@ use App\Models\User;
 class ChatRoomPolicy
 {
     /**
+     * super_admin ロールは全操作をバイパス
+     */
+    public function before(User $user, string $ability): ?bool
+    {
+        if ($user->hasRole('super_admin')) {
+            return true;
+        }
+
+        return null;
+    }
+
+    /**
      * ユーザーがチャットルーム一覧を閲覧できるか判定
      * - ワーカーまたは企業ユーザーであれば閲覧可能
      */

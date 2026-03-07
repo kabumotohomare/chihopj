@@ -24,7 +24,9 @@ class extends Component
     #[Validate('required|string|max:50')]
     public string $representative = '';
 
-    #[Validate('required|string|max:30')]
+    // 修正:WinLogic - 電話番号の形式バリデーションが未設定のため、不正な文字列が保存可能だったバグを修正
+    // 再現方法: ホストプロフィール編集画面（/company/edit）で電話番号に「test」等を入力して更新すると保存される
+    #[Validate(['required', 'string', 'max:30', 'regex:/^[0-9\-\+\(\)]+$/'], message: ['phone_number.regex' => '電話番号は数字・ハイフン・+・()のみ使用できます。'])]
     public string $phone_number = '';
 
     public $profile = null;

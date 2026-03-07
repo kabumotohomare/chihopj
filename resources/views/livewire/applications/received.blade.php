@@ -45,9 +45,12 @@ $applications = computed(function (): LengthAwarePaginator {
     }
 
     // キーワード検索（ニックネーム）
+    // 修正:WinLogic - LIKEクエリのワイルドカード文字（%_\）がエスケープされておらず、意図しない検索結果になるバグを修正
+    // 再現方法: /applications/received のニックネーム検索欄に「%」を入力すると全件がヒットし、正しいフィルタリングが行われない
     if ($this->keyword) {
-        $query->whereHas('worker.workerProfile', function (Builder $q) {
-            $q->where('handle_name', 'like', "%{$this->keyword}%");
+        $escapedKeyword = str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $this->keyword);
+        $query->whereHas('worker.workerProfile', function (Builder $q) use ($escapedKeyword) {
+            $q->where('handle_name', 'like', "%{$escapedKeyword}%");
         });
     }
 

@@ -13,6 +13,18 @@ use App\Models\User;
 class JobPostPolicy
 {
     /**
+     * super_admin ロールは全操作をバイパス
+     */
+    public function before(User $user, string $ability): ?bool
+    {
+        if ($user->hasRole('super_admin')) {
+            return true;
+        }
+
+        return null;
+    }
+
+    /**
      * 一覧表示の認可（誰でも閲覧可能）
      */
     public function viewAny(?User $user): bool
@@ -51,11 +63,16 @@ class JobPostPolicy
     }
 
     /**
-     * 削除の認可（自社の求人のみ）
+     * 削除の認可（自社の募集のみ、応募がない場合に限る）
      */
     public function delete(User $user, JobPost $jobPost): bool
     {
-        return $user->isCompany() && $user->id === $jobPost->company_id;
+        if (! $user->isCompany() || $user->id !== $jobPost->company_id) {
+            return false;
+        }
+
+        // 応募がある募集は削除不可（外部キー制約: restrictOnDelete）
+        return $jobPost->applications()->count() === 0;
     }
 
     /**

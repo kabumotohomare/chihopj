@@ -49,7 +49,9 @@ new #[Layout('components.layouts.auth')] class extends Component {
     #[Validate('required|string|max:200')]
     public string $current_address = '';
 
-    #[Validate('required|string|max:30')]
+    // 修正:WinLogic - 電話番号の形式バリデーションが未設定のため、不正な文字列が登録可能だったバグを修正
+    // 再現方法: 電話番号欄に「あいうえお」や「test@example」等を入力して登録すると、そのまま保存される
+    #[Validate(['required', 'string', 'max:30', 'regex:/^[0-9\-\+\(\)]+$/'], message: ['phone_number.regex' => '電話番号は数字・ハイフン・+・()のみ使用できます。'])]
     public string $phone_number = '';
 
     // 現在のお住まい2
@@ -132,7 +134,7 @@ new #[Layout('components.layouts.auth')] class extends Component {
         $month = (int) $this->birth_month;
 
         // 月の日数を取得
-        $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $month, $year);
+        $daysInMonth = (int) date('t', mktime(0, 0, 0, $month, 1, $year));
         $this->days = range(1, $daysInMonth);
 
         // 選択中の日が新しい日数を超える場合はリセット

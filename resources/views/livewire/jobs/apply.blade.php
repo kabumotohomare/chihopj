@@ -346,11 +346,10 @@ $getPurposeLabel = function (): string {
             </div>
 
             <div class="flex gap-3">
-                <flux:modal.close>
-                    <flux:button variant="ghost" class="flex-1">
-                        キャンセル
-                    </flux:button>
-                </flux:modal.close>
+                {{-- 修正:WinLogic - <flux:modal.close> の <ui-close> カスタム要素が wire:navigate 後に機能しない場合があるため、Alpine.js で直接 dialog.close() を呼び出す方式に変更 --}}
+                <flux:button variant="ghost" class="flex-1" x-on:click="$el.closest('dialog').close()">
+                    キャンセル
+                </flux:button>
 
                 <flux:button wire:click="submit" variant="primary" class="flex-1" wire:loading.attr="disabled">
                     <span wire:loading.remove>応募する</span>
