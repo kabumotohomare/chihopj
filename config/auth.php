@@ -44,7 +44,7 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
-        'government' => [
+        'municipal' => [
             'driver' => 'session',
             'provider' => 'users',
         ],

@@ -16,7 +16,7 @@ test('役所ユーザーがGovernmentパネルにログインできる', functio
         'email_verified_at' => now(),
     ]);
 
-    filament()->setCurrentPanel(filament()->getPanel('government'));
+    filament()->setCurrentPanel(filament()->getPanel('municipal'));
 
     \Livewire\Livewire::test(\Filament\Auth\Pages\Login::class)
         ->fillForm([
@@ -25,7 +25,7 @@ test('役所ユーザーがGovernmentパネルにログインできる', functio
         ])
         ->call('authenticate')
         ->assertHasNoFormErrors()
-        ->assertRedirect('/government');
+        ->assertRedirect('/municipal');
 });
 
 test('管理者ユーザーはGovernmentパネルにアクセスできない', function () {
@@ -37,7 +37,7 @@ test('管理者ユーザーはGovernmentパネルにアクセスできない', f
         'email_verified_at' => now(),
     ]);
 
-    expect($admin->canAccessPanel(filament()->getPanel('government')))->toBeFalse();
+    expect($admin->canAccessPanel(filament()->getPanel('municipal')))->toBeFalse();
 });
 
 test('役所ユーザーはAdminパネルにアクセスできない', function () {

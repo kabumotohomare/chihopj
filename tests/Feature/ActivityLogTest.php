@@ -137,8 +137,8 @@ test('役所ユーザーがログ一覧ページにアクセスできる', funct
     ]);
     $municipal->assignRole('municipal');
 
-    $this->actingAs($municipal, 'government')
-        ->get('/government/activity-logs')
+    $this->actingAs($municipal, 'municipal')
+        ->get('/municipal/activity-logs')
         ->assertOk();
 });
 

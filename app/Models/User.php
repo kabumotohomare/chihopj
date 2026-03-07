@@ -167,7 +167,7 @@ class User extends Authenticatable implements FilamentUser
     {
         return match ($panel->getId()) {
             'admin' => $this->isAdmin(),
-            'government' => $this->isMunicipal(),
+            'municipal' => $this->isMunicipal(),
             default => false,
         };
     }

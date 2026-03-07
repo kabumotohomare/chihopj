@@ -31,10 +31,10 @@ class GovernmentPanelProvider extends PanelProvider
     public function panel(Panel $panel): Panel
     {
         return $panel
-            ->id('government')
-            ->path('government')
+            ->id('municipal')
+            ->path('municipal')
             ->login()
-            ->authGuard('government')
+            ->authGuard('municipal')
             ->brandName('みんなの平泉')
             ->darkMode(false)
             ->colors([
