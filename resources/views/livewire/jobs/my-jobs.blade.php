@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Models\JobPost;
+use Illuminate\Support\Facades\Gate;
 
 use function Livewire\Volt\computed;
 use function Livewire\Volt\layout;
@@ -18,10 +19,24 @@ state(['perPage' => 15]);
 // 自社の募集一覧を取得（computed）
 $jobs = computed(function () {
     return JobPost::with(['company', 'company.companyProfile'])
+        ->withCount('applications')
         ->where('company_id', auth()->id())
         ->latest('posted_at')
         ->paginate($this->perPage);
 });
+
+/**
+ * 募集を削除（応募がない場合のみ）
+ */
+$deleteJob = function (int $jobId) {
+    $jobPost = JobPost::findOrFail($jobId);
+
+    Gate::authorize('delete', $jobPost);
+
+    $jobPost->delete();
+
+    session()->flash('status', '募集「' . $jobPost->job_title . '」を削除しました。');
+};
 
 ?>
 
@@ -36,6 +51,12 @@ $jobs = computed(function () {
             新規募集投稿
         </flux:button>
     </div>
+
+    @if (session('status'))
+        <flux:callout variant="success" class="mb-6">
+            {{ session('status') }}
+        </flux:callout>
+    @endif
 
     {{-- 募集カード一覧 --}}
     @if($this->jobs->isEmpty())
@@ -124,6 +145,16 @@ $jobs = computed(function () {
                                     <flux:button href="{{ route('jobs.edit', $job) }}" wire:navigate size="sm" variant="primary">
                                         編集
                                     </flux:button>
+                                    @if($job->applications_count === 0)
+                                        <flux:button
+                                            size="sm"
+                                            variant="danger"
+                                            wire:click="deleteJob({{ $job->id }})"
+                                            wire:confirm="「{{ $job->job_title }}」を削除しますか？この操作は取り消せません。"
+                                        >
+                                            削除
+                                        </flux:button>
+                                    @endif
                                 </div>
                             </div>
                         </div>
